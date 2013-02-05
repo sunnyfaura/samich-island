@@ -1,3 +1,12 @@
+/*
+ *  Vector2.h
+ *  SamichIsland
+ *
+ *  Created by xanthian on 2/3/13.
+ *  Copyright 2013 __MyCompanyName__. All rights reserved.
+ *
+ */
+
 #ifndef Vector2_HPP__
 #define Vector2_HPP__
 
