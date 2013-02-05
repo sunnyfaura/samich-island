@@ -1,3 +1,6 @@
+#ifndef SAMICHISLANDAPP_HPP__
+#define SAMICHISLANDAPP_HPP__
+
 #include "Headers.h"
 
 using namespace ci;
@@ -11,8 +14,6 @@ using namespace std;
  *  Copyright 2013 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef SAMICHISLANDAPP_HPP__
-#define SAMICHISLANDAPP_HPP__
 
 extern const size_t NUM_ENEMIES = 1;
 

@@ -12,5 +12,5 @@
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Rand.h"
-//#include "BasicShapes.h"
+#include "BasicShapes.h"
 #include "Vector2.h"
