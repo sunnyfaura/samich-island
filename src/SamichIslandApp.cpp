@@ -5,10 +5,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-float WIND_H, WIND_W; //window details
-
-bool moving = false, jumping = false; //any changes in player state
-bool jumpKey = false, leftKey = false, rightKey = false; //movement details
+const float PI = 3.141592653589793238462643383279502884197;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
 	settings->setWindowSize( 800, 600 );
@@ -19,10 +16,18 @@ void SamichIslandApp::setup()
 {	
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
-	player.center = Vector2(10, WIND_H - 10);
+	moving = jumping = jumpKey = leftKey = rightKey = leftClick = false;
+	bulletSpeed = 20;
+	player.radius = 20;
+	player.center = Vector2(WIND_W/2, WIND_H - player.radius);
 	player.color = Colorf(1.0,1.0,1.0);
-	player.radius = 10;
-	player.velocity = Vector2(6.0,6.0);
+	player.velocity.x = 12.0;
+	player.velocity.y = 12.0;
+	int i =  0;
+	for(; i < 8; ++i){
+		bullets[i].center = Vector2(0,0);
+		bullets[i].radius = 10;
+	}
 }
 
 void SamichIslandApp::keyDown( KeyEvent event )
@@ -56,21 +61,42 @@ void SamichIslandApp::keyUp( KeyEvent event ){
 	}
 }
 
-void SamichIslandApp::mouseMove( MouseEvent event )
+void SamichIslandApp::mouseDown( MouseEvent event )
 {
-	
+	leftClick = true;
+	scale.x = event.getX();
+	scale.y = event.getY();
+}
+
+void SamichIslandApp::mouseUp( MouseEvent event )
+{
+	leftClick = false;
 }
 
 void SamichIslandApp::update()
 {	
+	//firing bullets
+	if(leftClick == true){
+		int i = 0;
+		float dp = scale*player.center; //dot product
+		angle = ( 180 * (acos ( dp / ( scale.mag() * player.center.mag() ) ) ) ) / PI;
+		float xVel = cos(angle) * bulletSpeed;
+		float yVel = sin(angle) * bulletSpeed;
+		for(; i < 8; ++i){
+			bullets[i].center.x = xVel;
+			bullets[i].center.y = yVel;
+			console() << "angle: " << angle << std::endl;
+			console() << "velocity: (" << xVel << "," << yVel << ")" << std::endl;
+			console() << "position: (" << bullets[i].center.x << "," << bullets[i].center.y << ")" << std::endl;
+		}
+	}
 	//player jumping
-	console() << "(" << player.center.x << "," << player.center.y << ")" << std::endl;
 	if( jumping == false && jumpKey == true) {
-		player.velocity.y = 20;
+		player.velocity.y = 12;
 		jumping = true;
 	}
 	if( jumping == true ) {
-		if ( player.center.y - player.velocity.y < WIND_H ) {
+		if ( (player.center.y - player.velocity.y) <= (WIND_H - player.radius) ) {
 			player.center.y -= player.velocity.y;
 			player.velocity.y -= 1;
 		} else {
@@ -98,7 +124,12 @@ void SamichIslandApp::draw()
 	gl::clear( Color( 0, 0, 0 ) );
 	
 	glColor3f(player.color.r, player.color.g, player.color.b);
-	gl::drawSolidCircle(player.center.toV(), player.radius, 0 );
+	gl::drawSolidCircle(player.center.toV(), player.radius, 0 ); //hero
+	
+	int i = 0;
+	for(; i < 8; ++i){
+		gl::drawSolidCircle(bullets[i].center.toV(), bullets[i].radius, 0 ); //bullets
+	}
 }
 
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
