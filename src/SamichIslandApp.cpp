@@ -25,7 +25,7 @@ void SamichIslandApp::setup()
 	player.velocity.y = 12.0;
 	int i =  0;
 	for(; i < 8; ++i){
-		bullets[i].center = Vector2(0,0);
+		bullets[i].center = player.center;
 		bullets[i].radius = 10;
 	}
 }
@@ -66,11 +66,13 @@ void SamichIslandApp::mouseDown( MouseEvent event )
 	leftClick = true;
 	scale.x = event.getX();
 	scale.y = event.getY();
+	float dp = scale*player.center; //dot product
+	angle = dp / ( scale.mag() * player.center.mag() );
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event )
 {
-	leftClick = false;
+	//leftClick = false;
 }
 
 void SamichIslandApp::update()
@@ -78,13 +80,11 @@ void SamichIslandApp::update()
 	//firing bullets
 	if(leftClick == true){
 		int i = 0;
-		float dp = scale*player.center; //dot product
-		angle = ( 180 * (acos ( dp / ( scale.mag() * player.center.mag() ) ) ) ) / PI;
 		float xVel = cos(angle) * bulletSpeed;
 		float yVel = sin(angle) * bulletSpeed;
 		for(; i < 8; ++i){
-			bullets[i].center.x = xVel;
-			bullets[i].center.y = yVel;
+			bullets[i].center.x += xVel;
+			bullets[i].center.y -= yVel;
 			console() << "angle: " << angle << std::endl;
 			console() << "velocity: (" << xVel << "," << yVel << ")" << std::endl;
 			console() << "position: (" << bullets[i].center.x << "," << bullets[i].center.y << ")" << std::endl;
