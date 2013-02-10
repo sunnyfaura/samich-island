@@ -14,7 +14,7 @@ using namespace std;
 #ifndef SAMICHISLANDAPP_HPP__
 #define SAMICHISLANDAPP_HPP__
 
-extern const size_t NUM_ENEMIES = 1;
+const size_t NUM_ENEMIES = 10;
 
 class SamichIslandApp : public AppBasic {
 public:
@@ -23,9 +23,11 @@ public:
 	void prepareSettings( Settings *settings );
 	void setup();
 	void keyDown( KeyEvent event );
+	void keyUp( KeyEvent event );
 	void mouseMove( MouseEvent event );
 	void update();
 	void draw();
+
 };
 
 #endif
