@@ -25,15 +25,22 @@ struct Circle
 	Vector2 center, velocity;
 	ci::Colorf color;
 	
-	float mass() const
-	{
+	float mass() const {
 		return radius * radius * 3.141592653589793238462643383279502884197 + 1;
 	}	
 };
 
-/**
- RETURNS A RECTANGLE FOR BOUNDING BOXES 
- **/
+struct Hero: Circle {
+	bool moving, jumping; //any changes in player state
+	bool jumpKey, leftKey, rightKey; //movement details
+};
 
+struct Bullet: Circle {
+	Vector2 direction;
+};
+
+struct Mook: Circle {
+	
+};
 
 #endif

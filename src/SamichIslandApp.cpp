@@ -5,7 +5,8 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-const float PI = 3.141592653589793238462643383279502884197;
+float game_time, shoot_time;
+Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
 	settings->setWindowSize( 800, 600 );
@@ -14,122 +15,132 @@ void SamichIslandApp::prepareSettings( Settings *settings ){
 
 void SamichIslandApp::setup()
 {	
+	game_time = 0, shoot_time = 0;
+	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
-	moving = jumping = jumpKey = leftKey = rightKey = leftClick = false;
-	bulletSpeed = 20;
-	player.radius = 20;
-	player.center = Vector2(WIND_W/2, WIND_H - player.radius);
-	player.color = Colorf(1.0,1.0,1.0);
-	player.velocity.x = 12.0;
-	player.velocity.y = 12.0;
-	int i =  0;
-	for(; i < 8; ++i){
-		bullets[i].center = player.center;
-		bullets[i].radius = 10;
-	}
+	//hero initialization
+	hero.radius = 20;
+	hero.center = Vector2(WIND_W/2, WIND_H - hero.radius);
+	hero.color = Colorf(1.0,1.0,1.0);
+	hero.velocity.x = 12.0;
+	hero.velocity.y = 12.0;
+	hero.moving = hero.jumping = hero.jumpKey = hero.leftKey = hero.rightKey = false;
+	//bullet initialization
+	B_RAD = 7.00; B_VEL = 7.00;
+	//other bullet bluh
+	leftClick = false;
+	bullet_counter = 50;
+	shoot_delay = 500;
 }
 
-void SamichIslandApp::keyDown( KeyEvent event )
-{
+void SamichIslandApp::keyDown( KeyEvent event ) {
 	int code = event.getCode();
 	if (code==KeyEvent::KEY_a) {
-		leftKey = true;
+		hero.leftKey = true;
 	}
 
 	if (code==KeyEvent::KEY_d) {
-		rightKey = true;
+		hero.rightKey = true;
 	}
 
 	if (code==KeyEvent::KEY_SPACE) {
-		jumpKey = true;
+		hero.jumpKey = true;
 	}
 }
 
-void SamichIslandApp::keyUp( KeyEvent event ){
+void SamichIslandApp::keyUp( KeyEvent event ) {
 	int code = event.getCode();
 	if (code==KeyEvent::KEY_a) {
-		leftKey = false;
+		hero.leftKey = false;
 	}
 
 	if (code==KeyEvent::KEY_d) {
-		rightKey = false;
+		hero.rightKey = false;
 	}
 
 	if (code==KeyEvent::KEY_SPACE) {
-		jumpKey = false;
+		hero.jumpKey = false;
 	}
 }
 
-void SamichIslandApp::mouseDown( MouseEvent event )
-{
+void SamichIslandApp::mouseMove( MouseEvent event ) {
+	mouse.x = event.getX();
+	mouse.y = event.getY();
+}
+
+void SamichIslandApp::mouseDown( MouseEvent event ) {
 	leftClick = true;
-	scale.x = event.getX();
-	scale.y = event.getY();
-	float dp = scale*player.center; //dot product
-	angle = dp / ( scale.mag() * player.center.mag() );
 }
 
-void SamichIslandApp::mouseUp( MouseEvent event )
-{
-	//leftClick = false;
+void SamichIslandApp::mouseUp( MouseEvent event ) {
+	leftClick = false;
 }
 
-void SamichIslandApp::update()
-{	
-	//firing bullets
-	if(leftClick == true){
-		int i = 0;
-		float xVel = cos(angle) * bulletSpeed;
-		float yVel = sin(angle) * bulletSpeed;
-		for(; i < 8; ++i){
-			bullets[i].center.x += xVel;
-			bullets[i].center.y -= yVel;
-			console() << "angle: " << angle << std::endl;
-			console() << "velocity: (" << xVel << "," << yVel << ")" << std::endl;
-			console() << "position: (" << bullets[i].center.x << "," << bullets[i].center.y << ")" << std::endl;
-		}
+void SamichIslandApp::update() {	
+	//dakka dakka dakka!
+	game_time = ci::app::getElapsedSeconds() * 1000;
+	if(leftClick == true && game_time - shoot_time > shoot_delay){
+		shoot_time = game_time;
+		Bullet temp;
+		temp.center = hero.center;
+		temp.radius = B_RAD;
+		temp.velocity.x = temp.velocity.y = B_VEL;
+
+		console() << "start = (" << temp.center.x << "," << temp.center.y << ")" << std::endl;
+		console() << "mouse = (" <<mouse.x << "," << mouse.y << ")" << std::endl;
+		temp.direction = temp.center - mouse;
+		console() << "direc1 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
+		//if(temp.direction != zero)
+		temp.direction.normalize();
+		console() << "direc2 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
+		dakka.push_back(temp);
 	}
-	//player jumping
-	if( jumping == false && jumpKey == true) {
-		player.velocity.y = 12;
-		jumping = true;
+	int i = 0;
+	for(; i < dakka.size(); ++i){
+		dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
+		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;
 	}
-	if( jumping == true ) {
-		if ( (player.center.y - player.velocity.y) <= (WIND_H - player.radius) ) {
-			player.center.y -= player.velocity.y;
-			player.velocity.y -= 1;
+	//hero jumping
+	if( hero.jumping == false && hero.jumpKey == true) {
+		hero.velocity.y = 12;
+		hero.jumping = true;
+	}
+	if( hero.jumping == true ) {
+		if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+			hero.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
 		} else {
-			jumping = false;
+			hero.jumping = false;
 		}
 	}
 	//left or right
-	if(moving == false && leftKey == true) {
-		moving = true;
-		player.velocity.x = -10;
-	} else if(moving == false && rightKey == true) {
-		moving = true;
-		player.velocity.x = 10;
+	if(hero.moving == false && hero.leftKey == true) {
+		hero.moving = true;
+		hero.velocity.x = -10;
+	} else if(hero.moving == false && hero.rightKey == true) {
+		hero.moving = true;
+		hero.velocity.x = 10;
 	} else {
-		moving = false;
+		hero.moving = false;
 	}
-	if(moving == true) {
-		player.center.x = player.center.x + player.velocity.x;
+	if(hero.moving == true) {
+		hero.center.x = hero.center.x + hero.velocity.x;
 	}
 }
 
-void SamichIslandApp::draw()
-{
+void SamichIslandApp::draw() {
 	// clear out the window with black
 	gl::clear( Color( 0, 0, 0 ) );
 	
-	glColor3f(player.color.r, player.color.g, player.color.b);
-	gl::drawSolidCircle(player.center.toV(), player.radius, 0 ); //hero
+	glColor3f(hero.color.r, hero.color.g, hero.color.b);
+	gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 	
+	//draw bullets
 	int i = 0;
-	for(; i < 8; ++i){
-		gl::drawSolidCircle(bullets[i].center.toV(), bullets[i].radius, 0 ); //bullets
+	for(; i < dakka.size(); ++i){
+		glColor3f(1, 0, 0);
+		gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
 	}
 }
-
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
