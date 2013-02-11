@@ -97,7 +97,7 @@ void SamichIslandApp::update() {
 		dakka.push_back(temp);
 	}
 	int i = 0;
-	for(; i < dakka.size(); ++i){
+	for(; i < dakka.size(); ++i) {
 		dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
 		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;
 	}
