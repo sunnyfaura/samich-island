@@ -22,6 +22,7 @@ class SamichIslandApp : public AppBasic {
 public:
 	//window details
 	float WIND_H, WIND_W;
+
 	Hero hero;
 	//bullet details
 	float B_RAD, B_VEL; 
