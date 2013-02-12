@@ -43,4 +43,10 @@ struct Mook: Circle {
 	
 };
 
+ci::Rectf createRectangle(Vector2 center, float width, float height)
+{
+	float hw = width/2, hh = height/2;
+	return ci::Rectf(center.x-hw, center.y-hh, center.x+hw, center.y+hh);
+};
+
 #endif
