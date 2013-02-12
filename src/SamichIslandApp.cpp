@@ -20,14 +20,15 @@ void SamichIslandApp::setup()
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
 	//hero initialization
-	hero.radius = 20;
+	hero.radius = 16;
 	hero.center = Vector2(WIND_W/2, WIND_H - hero.radius);
 	hero.color = Colorf(1.0,1.0,1.0);
 	hero.velocity.x = 12.0;
 	hero.velocity.y = 12.0;
 	hero.moving = hero.jumping = hero.jumpKey = hero.leftKey = hero.rightKey = false;
+	JUMP_H = 16;
 	//bullet initialization
-	B_RAD = 7.00; B_VEL = 7.00;
+	B_RAD = 7.00; B_VEL = 12.00;
 	//other bullet bluh
 	leftClick = false;
 	bullet_counter = 50;
@@ -44,9 +45,11 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		hero.rightKey = true;
 	}
 
-	if (code==KeyEvent::KEY_SPACE) {
+	if (code==KeyEvent::KEY_w) {
 		hero.jumpKey = true;
 	}
+
+	//key_s is for dash
 }
 
 void SamichIslandApp::keyUp( KeyEvent event ) {
@@ -59,7 +62,7 @@ void SamichIslandApp::keyUp( KeyEvent event ) {
 		hero.rightKey = false;
 	}
 
-	if (code==KeyEvent::KEY_SPACE) {
+	if (code==KeyEvent::KEY_w) {
 		hero.jumpKey = false;
 	}
 }
@@ -103,7 +106,7 @@ void SamichIslandApp::update() {
 	}
 	//hero jumping
 	if( hero.jumping == false && hero.jumpKey == true) {
-		hero.velocity.y = 12;
+		hero.velocity.y = JUMP_H;
 		hero.jumping = true;
 	}
 	if( hero.jumping == true ) {

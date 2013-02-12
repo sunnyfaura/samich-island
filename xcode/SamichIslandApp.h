@@ -22,8 +22,9 @@ class SamichIslandApp : public AppBasic {
 public:
 	//window details
 	float WIND_H, WIND_W;
-
+	//hero details
 	Hero hero;
+	float JUMP_H;
 	//bullet details
 	float B_RAD, B_VEL; 
 	//shooting requirements
