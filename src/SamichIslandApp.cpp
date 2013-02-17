@@ -50,6 +50,7 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 	}
 
 	//key_s is for dash
+	//key_space is for punch
 }
 
 void SamichIslandApp::keyUp( KeyEvent event ) {
