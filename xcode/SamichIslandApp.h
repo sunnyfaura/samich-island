@@ -1,4 +1,5 @@
 #include "Headers.h"
+#include "cinder/Camera.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -22,7 +23,8 @@ class SamichIslandApp : public AppBasic {
 public:
 	//window details
 	float WIND_H, WIND_W;
-
+	//camera
+	CameraPersp mCam;
 	Hero hero;
 	//bullet details
 	float B_RAD, B_VEL; 
@@ -31,7 +33,8 @@ public:
 	int bullet_counter;
 	float shoot_delay;
 	vector<Bullet> dakka;
-
+	vector<Mook> mooker;
+	vector<Drop> drops;
 	void prepareSettings( Settings *settings );
 	void setup();
 	void keyDown( KeyEvent event );

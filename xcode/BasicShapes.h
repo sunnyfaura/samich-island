@@ -40,13 +40,35 @@ struct Bullet: Circle {
 };
 
 struct Mook: Circle {
-	
+	int health;
+	int damage;
+	bool attack, defend;
+	void recieveDamage(int damage)
+	{
+		health -= damage;
+	}
+};
+
+struct Drop:Circle {
+	Vector2 floor; //location where it is supposed to be dropped. directly below spot
 };
 
 ci::Rectf createRectangle(Vector2 center, float width, float height)
 {
 	float hw = width/2, hh = height/2;
 	return ci::Rectf(center.x-hw, center.y-hh, center.x+hw, center.y+hh);
+};
+
+bool circleOnCircleDetection( const Circle &c, const Circle &o)
+{
+	Vector2 dist = o.center - c.center;
+	float sumRadii = o.radius + c.radius;
+	
+	if ( dist.sqMag() < sumRadii * sumRadii ) {
+		return true;
+	}
+	
+	return false;
 };
 
 #endif
