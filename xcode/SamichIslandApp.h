@@ -36,6 +36,7 @@ public:
 	vector<Mook> mooker;
 	vector<Drop> drops;
 	void prepareSettings( Settings *settings );
+	void resize( ResizeEvent event );
 	void setup();
 	void keyDown( KeyEvent event );
 	void keyUp( KeyEvent event );

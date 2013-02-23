@@ -5,7 +5,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-float game_time, shoot_time;
+float game_time, shoot_time, dash_time;
 Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
@@ -29,7 +29,7 @@ void SamichIslandApp::resize(ResizeEvent event)
 
 void SamichIslandApp::setup()
 {	
-	game_time = 0, shoot_time = 0;
+	game_time = shoot_time = dash_time = 0;
 	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
@@ -39,7 +39,9 @@ void SamichIslandApp::setup()
 	hero.color = Colorf(1.0,1.0,1.0);
 	hero.velocity.x = 12.0;
 	hero.velocity.y = 12.0;
-	hero.moving = hero.jumping = hero.jumpKey = hero.leftKey = hero.rightKey = false;
+	hero.moving = hero.jumping = hero.dashing = hero.jumpKey = hero.leftKey = hero.rightKey = hero.dashKey = false;
+	hero.damage = 10;
+	hero.dashDir = 0;
 	//bullet initialization
 	B_RAD = 7.00; B_VEL = 7.00;
 	//other bullet bluh
@@ -60,24 +62,25 @@ void SamichIslandApp::setup()
 	mooker.push_back(mook);
 }
 
-
-
 void SamichIslandApp::keyDown( KeyEvent event ) {
 	int code = event.getCode();
+	if (event.isShiftDown() == true){
+		hero.dashKey = true;
+	}
 	switch (code) {
 		case KeyEvent::KEY_a:
 			hero.leftKey = true;
-		break;
+			break;
 		case KeyEvent::KEY_d:
 			hero.rightKey = true;
-		break;
+			break;
 		case KeyEvent::KEY_SPACE:
 			hero.jumpKey = true;
-		break;
+			break;
 		//full screening
 		case KeyEvent::KEY_f:
 			setFullScreen( ! isFullScreen() );
-		break;
+			break;
 		//sizes
 		case KeyEvent::KEY_c:
 			if ( isFullScreen() ) 
@@ -85,37 +88,39 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 			setWindowSize(640,480);
 			setWindowPos(0,0);
 				
-		break;
+			break;
 		case KeyEvent::KEY_t:
 			if ( isFullScreen() )
 				setFullScreen( ! isFullScreen() );
 			setWindowSize(800,600);
 			setWindowPos(0,0);
-		break;
+			break;
 		case KeyEvent::KEY_ESCAPE:
 			quit();
-		break;
-				
+			break;
 		default:
-		break;
+			break;
 	}
 }
 
 void SamichIslandApp::keyUp( KeyEvent event ) {
 
 	int code = event.getCode();
+	if (event.isShiftDown() == false){
+		hero.dashKey = false;
+	}
 	switch (code) {
 		case KeyEvent::KEY_a:
 			hero.leftKey = false;
-		break;
+			break;
 		case KeyEvent::KEY_d:
 			hero.rightKey = false;
-		break;
+			break;
 		case KeyEvent::KEY_SPACE:
 			hero.jumpKey = false;
-				
+			break;
 		default:
-		break;
+			break;
 	}
 }
 
@@ -133,6 +138,8 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 }
 
 void SamichIslandApp::update() {	
+	//punch
+	
 	//dakka dakka dakka!
 	Rectf bounds = this->getWindowBounds();
 	game_time = ci::app::getElapsedSeconds() * 1000;
@@ -177,8 +184,32 @@ void SamichIslandApp::update() {
 			hero.jumping = false;
 		}
 	}
+	//dashing
+	if (hero.dashKey == true && hero.dashing == false && (hero.leftKey == true || hero.rightKey == true)){//start dash
+		console() << "dash" << endl;
+		hero.dashing = true;
+		hero.dashDir = 10;
+		if (hero.rightKey && !hero.leftKey){//getting dash direction
+			hero.dashDir = -10;
+		}
+	}
+	if (hero.dashing == true){//continuous dash uninteruptted
+		if (dash_time == 0){
+			dash_time = game_time;
+		}
+		hero.moving = true;
+		float t = (game_time-dash_time)/1000;
+		hero.velocity.x = (-pow(((6*t)-2.5), 2)+5)*hero.dashDir;
+		console() << hero.velocity.x << endl;
+		if (hero.velocity.x < 10){ //end dash
+			hero.dashing = false;
+			hero.moving = false;
+			dash_time = 0;
+			hero.dashDir = 0;
+		}
+	}
 	//left or right
-	if(hero.moving == false && hero.leftKey == true) {
+	else if(hero.moving == false && hero.leftKey == true) {
 		hero.moving = true;
 		hero.velocity.x = -10;
 	} else if(hero.moving == false && hero.rightKey == true) {
