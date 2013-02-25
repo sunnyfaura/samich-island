@@ -11,6 +11,20 @@ Vector2 mouse;
 void SamichIslandApp::prepareSettings( Settings *settings ){
 	settings->setWindowSize( 800, 600 );
 	settings->setFrameRate( 60.0f );
+	settings->setWindowPos(100,100);
+	settings->setResizable( false );
+}
+
+void SamichIslandApp::resize(ResizeEvent event)
+{
+	WIND_W = event.getWidth();
+	WIND_H = event.getHeight();
+	//console() << "WIDTH:" << WIND_W << endl;
+	//console() << "HEIGHT:" << WIND_H << endl;
+	gl::setMatricesWindow (WIND_W, WIND_H);
+
+	mCam.setPerspective( 45, getWindowAspectRatio(), 1, 100 );
+	gl::setMatrices( mCam );
 }
 
 void SamichIslandApp::setup()
@@ -33,38 +47,71 @@ void SamichIslandApp::setup()
 	leftClick = false;
 	bullet_counter = 50;
 	shoot_delay = 500;
+
+	//mook initialization
+	Mook mook;
+	mook.health = 100;
+	mook.attack = mook.defend = false;
+	mook.radius = 25;
+	mook.center = Vector2(WIND_H/4,WIND_H-mook.radius);
+	mook.color = Colorf(0,1.0,0);
+	mooker.push_back(mook);
+	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
+	mooker.push_back(mook);
+
+	//sample
+	boxxy.center = Vector2(WIND_W - 10, WIND_H);
+	boxxy.width = 10;
+	boxxy.height = 30;
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
 	int code = event.getCode();
-	if (code==KeyEvent::KEY_a) {
-		hero.leftKey = true;
+	switch (code) {
+		case KeyEvent::KEY_a:
+			hero.leftKey = true;
+		break;
+		case KeyEvent::KEY_d:
+			hero.rightKey = true;
+		break;
+		case KeyEvent::KEY_w:
+			hero.jumpKey = true;
+		break;
+		//full screening
+		case KeyEvent::KEY_F12:
+			setFullScreen( ! isFullScreen() );
+		break;
+		//sizes
+		case KeyEvent::KEY_F11:
+			
+		break;
+		case KeyEvent::KEY_F10:
+			if ( isFullScreen() )
+				setFullScreen( ! isFullScreen() );
+			setWindowSize(800,600);
+			setWindowPos(100,100);
+		break;
+		case KeyEvent::KEY_ESCAPE:
+			quit();
+		break;
+		default:
+		break;
 	}
-
-	if (code==KeyEvent::KEY_d) {
-		hero.rightKey = true;
-	}
-
-	if (code==KeyEvent::KEY_w) {
-		hero.jumpKey = true;
-	}
-
-	//key_s is for dash
-	//key_space is for punch
 }
 
 void SamichIslandApp::keyUp( KeyEvent event ) {
 	int code = event.getCode();
-	if (code==KeyEvent::KEY_a) {
-		hero.leftKey = false;
-	}
-
-	if (code==KeyEvent::KEY_d) {
-		hero.rightKey = false;
-	}
-
-	if (code==KeyEvent::KEY_w) {
-		hero.jumpKey = false;
+	switch (code) {
+		case KeyEvent::KEY_a:
+			hero.leftKey = false;
+		break;
+		case KeyEvent::KEY_d:
+			hero.rightKey = false;
+		break;
+		case KeyEvent::KEY_w:
+			hero.jumpKey = false;	
+		default:
+		break;
 	}
 }
 
@@ -83,6 +130,7 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 
 void SamichIslandApp::update() {	
 	//dakka dakka dakka!
+	Rectf bounds = this->getWindowBounds();
 	game_time = ci::app::getElapsedSeconds() * 1000;
 	if(leftClick == true && game_time - shoot_time > shoot_delay){
 		shoot_time = game_time;
@@ -91,19 +139,26 @@ void SamichIslandApp::update() {
 		temp.radius = B_RAD;
 		temp.velocity.x = temp.velocity.y = B_VEL;
 
-		console() << "start = (" << temp.center.x << "," << temp.center.y << ")" << std::endl;
-		console() << "mouse = (" <<mouse.x << "," << mouse.y << ")" << std::endl;
+		//console() << "start = (" << temp.center.x << "," << temp.center.y << ")" << std::endl;
+		//console() << "mouse = (" <<mouse.x << "," << mouse.y << ")" << std::endl;
 		temp.direction = temp.center - mouse;
-		console() << "direc1 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
+		//console() << "direc1 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
 		//if(temp.direction != zero)
 		temp.direction.normalize();
-		console() << "direc2 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
+		//console() << "direc2 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
 		dakka.push_back(temp);
 	}
 	int i = 0;
 	for(; i < dakka.size(); ++i) {
 		dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
 		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;
+		
+		//remove bullet if outside window
+		if (!bounds.contains(dakka[i].center.toV())) {
+			if (!dakka.empty())
+				dakka.erase(dakka.begin() + i);
+		}
+
 	}
 	//hero jumping
 	if( hero.jumping == false && hero.jumpKey == true) {
@@ -131,20 +186,85 @@ void SamichIslandApp::update() {
 	if(hero.moving == true) {
 		hero.center.x = hero.center.x + hero.velocity.x;
 	}
+
+	//get drops
+	for (i = 0; i < drops.size(); ++i) {
+		if (circleOnCircleDetection(hero, drops[i])) {
+				//drop effects here
+				drops.erase ( drops.begin() + i );
+		}
+		
+		//dropping effect to "floor" 
+		if ( drops[i].center.y <= drops[i].floor.y ) {
+			drops[i].center.y += drops[i].velocity.y;
+		}
+		else {
+			drops[i].center = drops[i].floor; 
+		} 
+	}
+
+	//mooks
+	for (i = 0; i < mooker.size(); ++i) {
+		if (circleOnCircleDetection(hero, mooker[i]) && game_time - shoot_time > shoot_delay) 
+		{
+			shoot_time = game_time;
+			mooker[i].recieveDamage(hero.damage);
+		}
+		
+		if (mooker[i].health < 0)
+		{
+				Drop d;
+				d.center = mooker[i].center;
+				//check for different levels in the game.
+				d.radius = 5;
+				d.floor = Vector2(mooker[i].center.x,WIND_H-d.radius);
+				d.velocity = Vector2(0,1);
+				d.color = Colorf(1,1,0);
+				drops.push_back(d);
+		
+				mooker.erase( mooker.begin() + i );
+		}
+	}
+
+	console() << "SAT=" << satCircleAABB( hero , boxxy ) << std::endl;
 }
 
 void SamichIslandApp::draw() {
 	// clear out the window with black
 	gl::clear( Color( 0, 0, 0 ) );
 	
+	gl::pushMatrices();
+	gl::setMatricesWindow (WIND_W, WIND_H);
+	gl::setViewport(this->getWindowBounds());
+		
 	glColor3f(hero.color.r, hero.color.g, hero.color.b);
 	gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
-	
+		
 	//draw bullets
 	int i = 0;
 	for(; i < dakka.size(); ++i){
 		glColor3f(1, 0, 0);
 		gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
 	}
+		
+	//draw mooks
+	for (i = 0; i < mooker.size(); ++i )
+	{
+		glColor3f(mooker[i].color.r,mooker[i].color.g,mooker[i].color.b);
+		gl::drawSolidCircle(mooker[i].center.toV(),mooker[i].radius, 0);
+	}
+		
+	//draw drops
+	for (i = 0; i < drops.size(); ++i )
+	{
+		glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
+		gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
+	}
+
+	//sample rect
+	glColor3f(0,1,1);
+	gl::drawSolidRect(createRectangle(boxxy));
+
+	gl::popMatrices();
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
