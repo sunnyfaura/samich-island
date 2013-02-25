@@ -5,7 +5,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-float game_time, shoot_time;
+float game_time, shoot_time, dash_time;
 Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
@@ -22,14 +22,13 @@ void SamichIslandApp::resize(ResizeEvent event)
 	//console() << "WIDTH:" << WIND_W << endl;
 	//console() << "HEIGHT:" << WIND_H << endl;
 	gl::setMatricesWindow (WIND_W, WIND_H);
-
 	mCam.setPerspective( 45, getWindowAspectRatio(), 1, 100 );
 	gl::setMatrices( mCam );
 }
 
 void SamichIslandApp::setup()
 {	
-	game_time = 0, shoot_time = 0;
+	game_time = shoot_time = dash_time = 0;
 	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
@@ -39,8 +38,10 @@ void SamichIslandApp::setup()
 	hero.color = Colorf(1.0,1.0,1.0);
 	hero.velocity.x = 12.0;
 	hero.velocity.y = 12.0;
-	hero.moving = hero.jumping = hero.jumpKey = hero.leftKey = hero.rightKey = false;
+	hero.moving = hero.jumping = hero.dashing = hero.jumpKey = hero.leftKey = hero.rightKey = hero.dashKey = false;
 	JUMP_H = 16;
+	hero.damage = 10;
+	hero.dashDir = 0;
 	//bullet initialization
 	B_RAD = 7.00; B_VEL = 12.00;
 	//other bullet bluh
@@ -58,8 +59,9 @@ void SamichIslandApp::setup()
 	mooker.push_back(mook);
 	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
 	mooker.push_back(mook);
+	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
+	mooker.push_back(mook);
 
-	//sample
 	boxxy.center = Vector2(WIND_W - 10, WIND_H);
 	boxxy.width = 10;
 	boxxy.height = 30;
@@ -67,6 +69,9 @@ void SamichIslandApp::setup()
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
 	int code = event.getCode();
+	if (event.isShiftDown() == true){
+		hero.dashKey = true;
+	}
 	switch (code) {
 		case KeyEvent::KEY_a:
 			hero.leftKey = true;
@@ -104,6 +109,9 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 
 void SamichIslandApp::keyUp( KeyEvent event ) {
 	int code = event.getCode();
+	if (event.isShiftDown() == false){
+		hero.dashKey = false;
+	}
 	switch (code) {
 		case KeyEvent::KEY_a:
 			hero.leftKey = false;
@@ -132,6 +140,8 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 }
 
 void SamichIslandApp::update() {	
+	//punch
+	
 	//dakka dakka dakka!
 	Rectf bounds = this->getWindowBounds();
 	game_time = ci::app::getElapsedSeconds() * 1000;
@@ -176,8 +186,32 @@ void SamichIslandApp::update() {
 			hero.jumping = false;
 		}
 	}
+	//dashing
+	if (hero.dashKey == true && hero.dashing == false && (hero.leftKey == true || hero.rightKey == true)){//start dash
+		console() << "dash" << endl;
+		hero.dashing = true;
+		hero.dashDir = 10;
+		if (hero.rightKey && !hero.leftKey){//getting dash direction
+			hero.dashDir = -10;
+		}
+	}
+	if (hero.dashing == true){//continuous dash uninteruptted
+		if (dash_time == 0){
+			dash_time = game_time;
+		}
+		hero.moving = true;
+		float t = (game_time-dash_time)/1000;
+		hero.velocity.x = (-pow(((6*t)-2.5), 2)+5)*hero.dashDir;
+		console() << hero.velocity.x << endl;
+		if (hero.velocity.x < 10){ //end dash
+			hero.dashing = false;
+			hero.moving = false;
+			dash_time = 0;
+			hero.dashDir = 0;
+		}
+	}
 	//left or right
-	if(hero.moving == false && hero.leftKey == true) {
+	else if(hero.moving == false && hero.leftKey == true) {
 		hero.moving = true;
 		hero.velocity.x = -10;
 	} else if(hero.moving == false && hero.rightKey == true) {
@@ -228,14 +262,12 @@ void SamichIslandApp::update() {
 				mooker.erase( mooker.begin() + i );
 		}
 	}
-
 	console() << "SAT=" << satCircleAABB( hero , boxxy ) << std::endl;
 }
 
 void SamichIslandApp::draw() {
 	// clear out the window with black
 	gl::clear( Color( 0, 0, 0 ) );
-	
 	gl::pushMatrices();
 	gl::setMatricesWindow (WIND_W, WIND_H);
 	gl::setViewport(this->getWindowBounds());

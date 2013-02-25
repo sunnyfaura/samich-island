@@ -46,9 +46,10 @@ struct AABB {
 };
 
 struct Hero: Circle {
-	bool moving, jumping; //any changes in player state
-	bool jumpKey, leftKey, rightKey; //movement details
-	int damage;
+	int damage; //entity numbers and stats
+	float dashDir;//takes note of the direction of dash
+	bool moving, jumping, dashing; //any changes in player state
+	bool jumpKey, leftKey, rightKey, dashKey; //movement details
 };
 
 struct Bullet: Circle {
