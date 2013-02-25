@@ -83,12 +83,15 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		break;
 		//sizes
 		case KeyEvent::KEY_F11:
-			
-		break;
-		case KeyEvent::KEY_F10:
 			if ( isFullScreen() )
 				setFullScreen( ! isFullScreen() );
 			setWindowSize(800,600);
+			setWindowPos(100,100);
+		break;
+		case KeyEvent::KEY_F10:
+			if ( isFullScreen() ) 
+				setFullScreen( ! isFullScreen() );
+			setWindowSize(640,480);
 			setWindowPos(100,100);
 		break;
 		case KeyEvent::KEY_ESCAPE:
