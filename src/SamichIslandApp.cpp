@@ -5,7 +5,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-float game_time, shoot_time, dash_time;
+float game_time, shoot_time, dash_time, punch_time;
 Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
@@ -28,7 +28,7 @@ void SamichIslandApp::resize(ResizeEvent event)
 
 void SamichIslandApp::setup()
 {	
-	game_time = shoot_time = dash_time = 0;
+	game_time = shoot_time = dash_time = punch_time = 0;
 	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
@@ -38,10 +38,15 @@ void SamichIslandApp::setup()
 	hero.color = Colorf(1.0,1.0,1.0);
 	hero.velocity.x = 12.0;
 	hero.velocity.y = 12.0;
-	hero.moving = hero.jumping = hero.dashing = hero.jumpKey = hero.leftKey = hero.rightKey = hero.dashKey = false;
+	hero.moving = hero.jumping = hero.dashing = hero.punching = hero.jumpKey = hero.leftKey = hero.rightKey = hero.dashKey = false;
 	JUMP_H = 16;
 	hero.damage = 10;
 	hero.dashDir = 0;
+	//punch initialization
+	punch.radius = 10;
+	punch.center = hero.center;
+	punch.center.x += hero.radius;
+	punch.isRight = true;
 	//bullet initialization
 	B_RAD = 7.00; B_VEL = 12.00;
 	//other bullet bluh
@@ -73,11 +78,25 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		hero.dashKey = true;
 	}
 	switch (code) {
+		case KeyEvent::KEY_v:
+			if (!hero.punching){
+				hero.punching = true;
+				punch_time = game_time;
+			}
+			break;
 		case KeyEvent::KEY_a:
 			hero.leftKey = true;
+			if (punch.isRight){
+				punch.center.x -= (punch.center.x-hero.center.x)*2;
+			}
+			punch.isRight = false;
 		break;
 		case KeyEvent::KEY_d:
 			hero.rightKey = true;
+			if (!punch.isRight){
+				punch.center.x += (hero.center.x-punch.center.x)*2;
+			}
+			punch.isRight = true;
 		break;
 		case KeyEvent::KEY_w:
 			hero.jumpKey = true;
@@ -141,7 +160,28 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 
 void SamichIslandApp::update() {	
 	//punch
-	
+	if (hero.punching){
+		int dir = -1;
+		if (punch.isRight){
+			dir = 1;
+		}
+		if (punch_time == 0) {
+			punch_time = game_time;
+		}
+		float secs = (game_time-punch_time)/1000;
+		if (secs >= 0.156){
+			dir *= -1;
+		}
+		if (secs >= 0.313){
+			hero.punching = false;
+			punch.center = hero.center;
+			punch.center.x += -1*dir*hero.radius;
+			punch_time = 0;
+		}
+		else {
+			punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+		}
+	}
 	//dakka dakka dakka!
 	Rectf bounds = this->getWindowBounds();
 	game_time = ci::app::getElapsedSeconds() * 1000;
@@ -181,6 +221,7 @@ void SamichIslandApp::update() {
 	if( hero.jumping == true ) {
 		if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
 			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
 			hero.velocity.y -= 1;
 		} else {
 			hero.jumping = false;
@@ -222,6 +263,7 @@ void SamichIslandApp::update() {
 	}
 	if(hero.moving == true) {
 		hero.center.x = hero.center.x + hero.velocity.x;
+		punch.center.x += hero.velocity.x;
 	}
 
 	//get drops
@@ -248,6 +290,11 @@ void SamichIslandApp::update() {
 			mooker[i].recieveDamage(hero.damage);
 		}
 		
+		if (circleOnCircleDetection(punch, mooker[i])) 
+		{
+			mooker[i].recieveDamage(hero.damage);
+		}
+		
 		if (mooker[i].health < 0)
 		{
 				Drop d;
@@ -271,7 +318,13 @@ void SamichIslandApp::draw() {
 	gl::pushMatrices();
 	gl::setMatricesWindow (WIND_W, WIND_H);
 	gl::setViewport(this->getWindowBounds());
-		
+	
+	//draw punch
+	if (hero.punching){
+		glColor3f(0, 0, 1);
+		gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
+	}	
+	
 	glColor3f(hero.color.r, hero.color.g, hero.color.b);
 	gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 		
