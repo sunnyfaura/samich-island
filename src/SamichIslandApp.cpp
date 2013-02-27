@@ -64,7 +64,7 @@ void SamichIslandApp::setup()
 
 	boxxy.center = Vector2(WIND_W - 10, WIND_H);
 	boxxy.width = 10;
-	boxxy.height = 30;
+	boxxy.height = 100;
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
@@ -262,7 +262,10 @@ void SamichIslandApp::update() {
 				mooker.erase( mooker.begin() + i );
 		}
 	}
-	console() << "SAT=" << satCircleAABB( hero , boxxy ) << std::endl;
+	//console() << "SAT=" << satCircleAABB( hero , boxxy ) << std::endl;
+	if(satCircleAABB(hero,boxxy) == true){
+		hero.center.x = boxxy.center.x - boxxy.half_width() - hero.radius;
+	}
 }
 
 void SamichIslandApp::draw() {
