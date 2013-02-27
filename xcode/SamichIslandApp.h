@@ -38,8 +38,19 @@ public:
 	vector<Bullet> dakka;
 	vector<Mook> mooker;
 	vector<Drop> drops;
-	//sample rect
-	AABB boxxy;
+	//platform things
+	AABB platformA; //top left
+	AABB platformB; //top right
+	AABB platformC; //top center
+	AABB platformD; //mid left
+	AABB platformE; //mid right
+	AABB platformF; //bottom left
+	AABB platformG; //bottom right
+	AABB platformH; //bottom cente
+	//tubes for enemies to exit
+	AABB tubeA;
+	AABB tubeB;
+	//others
 	void prepareSettings( Settings *settings );
 	void resize(ResizeEvent event);
 	void setup();

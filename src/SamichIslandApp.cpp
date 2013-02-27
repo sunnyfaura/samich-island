@@ -62,9 +62,39 @@ void SamichIslandApp::setup()
 	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
 	mooker.push_back(mook);
 
-	boxxy.center = Vector2(WIND_W - 10, WIND_H);
-	boxxy.width = 10;
-	boxxy.height = 100;
+	//platform things
+	platformA.center = Vector2( WIND_W*2/10 , 90 );
+	platformA.height = 20;
+	platformA.width = 310;
+	platformB.center = Vector2( WIND_W*8/10 , 90 );
+	platformB.height = 20;
+	platformB.width = 310;
+	platformC.center = Vector2( WIND_W/2 , 180 );
+	platformC.height = 20;
+	platformC.width = 200;
+	platformD.center = Vector2( WIND_W*2/20 , 270 );
+	platformD.height = 20;
+	platformD.width = 150;
+	platformE.center = Vector2( WIND_W*18/20 , 270 );
+	platformE.height = 20;
+	platformE.width = 150;
+	platformF.center = Vector2( WIND_W*2/10 , 360 );
+	platformF.height = 20;
+	platformF.width = 310;
+	platformG.center = Vector2( WIND_W*8/10 , 430 );
+	platformG.height = 20;
+	platformG.width = 310;
+	platformH.center = Vector2( WIND_W*2/5 , 520 );
+	platformH.height = 20;
+	platformH.width = 200;
+
+	//tubes
+	tubeA.height = 50;
+	tubeA.width = 50;
+	tubeA.center = Vector2( tubeA.width/2 , WIND_H-(tubeA.height/2) );
+	tubeB.height = 50;
+	tubeB.width = 50;
+	tubeB.center = Vector2( WIND_W-(tubeB.width/2) , WIND_H-(tubeB.height/2) );
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
@@ -228,7 +258,7 @@ void SamichIslandApp::update() {
 	for (i = 0; i < drops.size(); ++i) {
 		if (circleOnCircleDetection(hero, drops[i])) {
 				//drop effects here
-				drops.erase ( drops.begin() + i );
+				//drops.erase ( drops.begin() + i );
 		}
 		
 		//dropping effect to "floor" 
@@ -262,10 +292,11 @@ void SamichIslandApp::update() {
 				mooker.erase( mooker.begin() + i );
 		}
 	}
-	//console() << "SAT=" << satCircleAABB( hero , boxxy ) << std::endl;
-	if(satCircleAABB(hero,boxxy) == true){
-		hero.center.x = boxxy.center.x - boxxy.half_width() - hero.radius;
-	}
+	
+	//platform collisions
+
+	//tube collisions
+	
 }
 
 void SamichIslandApp::draw() {
@@ -299,10 +330,20 @@ void SamichIslandApp::draw() {
 		gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
 	}
 
-	//sample rect
+	//platforms
 	glColor3f(0,1,1);
-	gl::drawSolidRect(createRectangle(boxxy));
-
+	gl::drawSolidRect(createRectangle(platformA));
+	gl::drawSolidRect(createRectangle(platformB));
+	gl::drawSolidRect(createRectangle(platformC));
+	gl::drawSolidRect(createRectangle(platformD));
+	gl::drawSolidRect(createRectangle(platformE));
+	gl::drawSolidRect(createRectangle(platformF));
+	gl::drawSolidRect(createRectangle(platformG));
+	gl::drawSolidRect(createRectangle(platformH));
+	//tubes
+	glColor3f(1,1,0);
+	gl::drawSolidRect(createRectangle(tubeA));
+	gl::drawSolidRect(createRectangle(tubeB));
 	gl::popMatrices();
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
