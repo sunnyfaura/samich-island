@@ -169,17 +169,17 @@ void SamichIslandApp::update() {
 			punch_time = game_time;
 		}
 		float secs = (game_time-punch_time)/1000;
-		if (secs >= 0.156){
+		if (secs >= 0.118){
 			dir *= -1;
 		}
-		if (secs >= 0.313){
+		if (secs >= 0.230){
 			hero.punching = false;
 			punch.center = hero.center;
 			punch.center.x += -1*dir*hero.radius;
 			punch_time = 0;
 		}
 		else {
-			punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+			punch.center.x += dir*((((11*secs)-1.3)*((11*secs)-1.3))+1.5);
 		}
 	}
 	//dakka dakka dakka!
