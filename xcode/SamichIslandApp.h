@@ -28,6 +28,8 @@ public:
 	//hero details
 	Hero hero;
 	float JUMP_H;
+	//punch details
+	Punch punch;
 	//bullet details
 	float B_RAD, B_VEL; 
 	//shooting requirements
