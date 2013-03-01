@@ -16,6 +16,9 @@
 
 #include "Headers.h"
 
+/**
+ CONTAINER FOR CIRCLES
+ **/
 struct Circle
 {
 	float radius;
@@ -53,7 +56,7 @@ struct Hero: Circle {
 };
 
 struct Punch: Circle {
-	bool isRight;//direction of punch
+		bool isRight;//direction of punch
 };
 
 struct Bullet: Circle {
@@ -77,9 +80,9 @@ struct Drop:Circle {
 ci::Rectf createRectangle(AABB r)
 {
 	return ci::Rectf(r.center.x - r.half_width(), 
-		r.center.y - r.half_height(), 
-		r.center.x + r.half_width(),
-		r.center.y + r.half_height()	);
+					 r.center.y - r.half_height(), 
+					 r.center.x + r.half_width(),
+					 r.center.y + r.half_height()	);
 };
 
 bool circleOnCircleDetection( const Circle &c, const Circle &o)
@@ -90,6 +93,7 @@ bool circleOnCircleDetection( const Circle &c, const Circle &o)
 	if ( dist.sqMag() < sumRadii * sumRadii ) {
 		return true;
 	}
+	
 	return false;
 };
 
@@ -114,4 +118,4 @@ bool satCircleAABB(Circle c, AABB b){
 	return satAABB(a,b);
 }
 
-#endif                                                    
+#endif
