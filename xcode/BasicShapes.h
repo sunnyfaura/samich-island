@@ -51,7 +51,7 @@ struct AABB {
 struct Hero: Circle {
 	int damage; //entity numbers and stats
 	float dashDir;//takes note of the direction of dash
-	bool moving, jumping, dashing, punching; //any changes in player state
+	bool moving, jumping, dashing, punching, needsGravity, onPlatform; //any changes in player state
 	bool jumpKey, leftKey, rightKey, dashKey; //movement details
 };
 
@@ -116,6 +116,14 @@ bool satCircleAABB(Circle c, AABB b){
 	a.width = c.radius;
 	a.height = c.radius;
 	return satAABB(a,b);
+}
+
+float clamp (float v, float low, float high){
+	if (v <= low)
+		return low;
+	if (v >= high)
+		return high;
+	return v;
 }
 
 #endif
