@@ -228,309 +228,307 @@ void SamichIslandApp::update() {
             if( count >= timeout ) appState.setNextState( PLAY );
         break;
         case PLAY:
-            if( change ) {
-                count = 0; //time between states
-                //punch
-				if (hero.punching) {
-					int dir = -1;
-					if (punch.isRight) dir = 1;
-					if (punch_time == 0) punch_time = game_time;
+            //punch
+			if (hero.punching) {
+				int dir = -1;
+				if (punch.isRight) dir = 1;
+				if (punch_time == 0) punch_time = game_time;
 
-					float secs = (game_time-punch_time)/1000;
-					if (secs >= 0.156) dir *= -1;
-					if (secs >= 0.313) {
-						hero.punching = false;
-						punch.center = hero.center;
-						punch.center.x += -1*dir*hero.radius;
-						punch_time = 0;
-					} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+				float secs = (game_time-punch_time)/1000;
+				if (secs >= 0.156) dir *= -1;
+				if (secs >= 0.313) {
+					hero.punching = false;
+					punch.center = hero.center;
+					punch.center.x += -1*dir*hero.radius;
+					punch_time = 0;
+				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+			}
+
+			//dakka dakka dakka!
+			Rectf bounds = this->getWindowBounds();
+			game_time = ci::app::getElapsedSeconds() * 1000;
+			if(leftClick == true && game_time - shoot_time > shoot_delay){
+				shoot_time = game_time;
+				Bullet temp;
+				temp.center = hero.center;
+				temp.radius = B_RAD;
+				temp.velocity.x = temp.velocity.y = B_VEL;
+
+				temp.direction = temp.center - mouse;
+				temp.direction.normalize();
+				dakka.push_back(temp);
+			}
+
+			int i = 0;
+			for(; i < dakka.size(); ++i) {
+				dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
+				dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;	
+				//remove bullet if outside window
+				if (!bounds.contains(dakka[i].center.toV())) {
+					if (!dakka.empty())
+						dakka.erase(dakka.begin() + i);
 				}
-
-				//dakka dakka dakka!
-				Rectf bounds = this->getWindowBounds();
-				game_time = ci::app::getElapsedSeconds() * 1000;
-				if(leftClick == true && game_time - shoot_time > shoot_delay){
-					shoot_time = game_time;
-					Bullet temp;
-					temp.center = hero.center;
-					temp.radius = B_RAD;
-					temp.velocity.x = temp.velocity.y = B_VEL;
-
-					temp.direction = temp.center - mouse;
-					temp.direction.normalize();
-					dakka.push_back(temp);
-				}
-
-				int i = 0;
-				for(; i < dakka.size(); ++i) {
-					dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
-					dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;	
-					//remove bullet if outside window
-					if (!bounds.contains(dakka[i].center.toV())) {
-						if (!dakka.empty())
-							dakka.erase(dakka.begin() + i);
-					}
 					
-				}
+			}
 				
-				//hero jumping
-				if( (hero.jumping == false && hero.jumpKey == true) ) {
-					hero.velocity.y = JUMP_H;
-					hero.jumping = true;
-				} 
+			//hero jumping
+			if( (hero.jumping == false && hero.jumpKey == true) ) {
+				hero.velocity.y = JUMP_H;
+				hero.jumping = true;
+			} 
 
-				//jump from the ground
-				if( hero.jumping == true && hero.onPlatform == false) {
-					if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else {
-						hero.jumping = false;
-					}
-				}
-
-				//jump from platforms
-				if( hero.jumping == true && hero.onPlatform == true) {
-					if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformG.center.y - platformG.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformF.center.y - platformF.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformD.center.y - platformD.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformC.center.y - platformC.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-
-					if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else hero.jumping = false;
-				}
-
-				//hacky code for missing gravities
-				if( hero.onPlatform == false && hero.needsGravity == true ) {
-					if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
-						hero.center.y -= hero.velocity.y;
-						punch.center.y -= hero.velocity.y;
-						hero.velocity.y -= 1;
-					} else {
-						hero.needsGravity = false;
-					}
-				}
-
-				float normalSpeed = 10; float dashSpeed = 50; float direction;
-
-				//left or right with dashing!!
-				if(hero.moving == false && hero.leftKey == true) {
-					//check if dash key has been pressed
-					if (hero.dashing == false && hero.dashKey == true) {	
-						if (game_time - dash_time < dash_limit)
-							hero.dashing = true;
-						else dash_time = game_time;
-					} else hero.dashing = false;
-				
-					hero.moving = true;
-					direction = -1;
-				} else if( hero.moving == false && hero.rightKey == true) {
-					//check if dash key has been pressed
-					if (hero.dashing == false && hero.dashKey == true) {
-						if (game_time - dash_time < dash_limit)
-							hero.dashing = true;
-						else dash_time = game_time;
-					} else hero.dashing = false;
-
-					hero.moving = true;
-					direction = 1;
+			//jump from the ground
+			if( hero.jumping == true && hero.onPlatform == false) {
+				if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
 				} else {
-					hero.moving = false;
+					hero.jumping = false;
 				}
-				//if dash key has been pressed, do a dash
-				if (hero.dashing == true ){
-					dash_accel = 1;
-				} else dash_accel = 0;
-				//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
+			}
 
-				if(hero.moving == true) {
-					hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
-					hero.center.x = hero.center.x + hero.velocity.x;
-					punch.center.x += hero.velocity.x;
-					//if it goes to leftmost/rightmost of platform, it should fall down
-					if(hero.onPlatform == true){
-						if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
-							hero.center.x >= platformA.center.x + platformA.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
-							hero.center.x >= platformB.center.x + platformB.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
-							hero.center.x >= platformC.center.x + platformC.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformD.center.x - platformD.half_width() ||
-							hero.center.x >= platformD.center.x + platformD.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformE.center.x - platformE.half_width() ||
-							hero.center.x >= platformE.center.x + platformE.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
-							hero.center.x >= platformF.center.x + platformF.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformG.center.x - platformG.half_width() ||
-							hero.center.x >= platformG.center.x + platformG.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
-						if ( hero.center.x <= platformH.center.x - platformH.half_width() ||
-							hero.center.x >= platformH.center.x + platformH.half_width() ) {
-								hero.onPlatform = false;
-								hero.needsGravity = true;
-						}
+			//jump from platforms
+			if( hero.jumping == true && hero.onPlatform == true) {
+				if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformG.center.y - platformG.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformF.center.y - platformF.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformD.center.y - platformD.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformC.center.y - platformC.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+
+				if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else hero.jumping = false;
+			}
+
+			//hacky code for missing gravities
+			if( hero.onPlatform == false && hero.needsGravity == true ) {
+				if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+					hero.center.y -= hero.velocity.y;
+					punch.center.y -= hero.velocity.y;
+					hero.velocity.y -= 1;
+				} else {
+					hero.needsGravity = false;
+				}
+			}
+
+			float normalSpeed = 10; float dashSpeed = 50; float direction;
+
+			//left or right with dashing!!
+			if(hero.moving == false && hero.leftKey == true) {
+				//check if dash key has been pressed
+				if (hero.dashing == false && hero.dashKey == true) {	
+					if (game_time - dash_time < dash_limit)
+						hero.dashing = true;
+					else dash_time = game_time;
+				} else hero.dashing = false;
+				
+				hero.moving = true;
+				direction = -1;
+			} else if( hero.moving == false && hero.rightKey == true) {
+				//check if dash key has been pressed
+				if (hero.dashing == false && hero.dashKey == true) {
+					if (game_time - dash_time < dash_limit)
+						hero.dashing = true;
+					else dash_time = game_time;
+				} else hero.dashing = false;
+
+				hero.moving = true;
+				direction = 1;
+			} else {
+				hero.moving = false;
+			}
+			//if dash key has been pressed, do a dash
+			if (hero.dashing == true ){
+				dash_accel = 1;
+			} else dash_accel = 0;
+			//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
+
+			if(hero.moving == true) {
+				hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
+				hero.center.x = hero.center.x + hero.velocity.x;
+				punch.center.x += hero.velocity.x;
+				//if it goes to leftmost/rightmost of platform, it should fall down
+				if(hero.onPlatform == true){
+					if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
+						hero.center.x >= platformA.center.x + platformA.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
+						hero.center.x >= platformB.center.x + platformB.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
+						hero.center.x >= platformC.center.x + platformC.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformD.center.x - platformD.half_width() ||
+						hero.center.x >= platformD.center.x + platformD.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformE.center.x - platformE.half_width() ||
+						hero.center.x >= platformE.center.x + platformE.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
+						hero.center.x >= platformF.center.x + platformF.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformG.center.x - platformG.half_width() ||
+						hero.center.x >= platformG.center.x + platformG.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
+					}
+					if ( hero.center.x <= platformH.center.x - platformH.half_width() ||
+						hero.center.x >= platformH.center.x + platformH.half_width() ) {
+							hero.onPlatform = false;
+							hero.needsGravity = true;
 					}
 				}
+			}
 				
-				//get drops
-				for (i = 0; i < drops.size(); ++i) {
-					if (circleOnCircleDetection(hero, drops[i])) {
-							//drop effects here
-							//drops.erase ( drops.begin() + i );
-					}
+			//get drops
+			for (i = 0; i < drops.size(); ++i) {
+				if (circleOnCircleDetection(hero, drops[i])) {
+						//drop effects here
+						//drops.erase ( drops.begin() + i );
+				}
 					
-					//dropping effect to "floor" 
-					if ( drops[i].center.y <= drops[i].floor.y ) {
-						drops[i].center.y += drops[i].velocity.y;
-					}
-					else {
-						drops[i].center = drops[i].floor; 
-					} 
+				//dropping effect to "floor" 
+				if ( drops[i].center.y <= drops[i].floor.y ) {
+					drops[i].center.y += drops[i].velocity.y;
 				}
+				else {
+					drops[i].center = drops[i].floor; 
+				} 
+			}
 				
-				//mooks
-				for (i = 0; i < cannon_fodder.size(); ++i) {
-					//if mook and the hero collide for a while
-					//if (circleOnCircleDetection(hero, cannon_fodder[i]) && game_time - shoot_time > shoot_delay) {
-					//	shoot_time = game_time;
-					//	cannon_fodder[i].recieveDamage(hero.damage);
-					//}
-					if (circleOnCircleDetection(punch, cannon_fodder[i])) cannon_fodder[i].recieveDamage(hero.damage);
-					if (cannon_fodder[i].health < 0){
-						Drop d;
-						d.center = cannon_fodder[i].center;
-						//check for different levels in the game.
-						d.radius = 5;
-						d.floor = Vector2(cannon_fodder[i].center.x,WIND_H-d.radius);
-						d.velocity = Vector2(0,1);
-						d.color = Colorf(1,1,0);
-						drops.push_back(d);
-						cannon_fodder.erase(cannon_fodder.begin() + i );
-						//cannon_fodder.erase( cannon_fodder.begin() + i );
-					}
+			//mooks
+			for (i = 0; i < cannon_fodder.size(); ++i) {
+				//if mook and the hero collide for a while
+				//if (circleOnCircleDetection(hero, cannon_fodder[i]) && game_time - shoot_time > shoot_delay) {
+				//	shoot_time = game_time;
+				//	cannon_fodder[i].recieveDamage(hero.damage);
+				//}
+				if (circleOnCircleDetection(punch, cannon_fodder[i])) cannon_fodder[i].recieveDamage(hero.damage);
+				if (cannon_fodder[i].health < 0){
+					Drop d;
+					d.center = cannon_fodder[i].center;
+					//check for different levels in the game.
+					d.radius = 5;
+					d.floor = Vector2(cannon_fodder[i].center.x,WIND_H-d.radius);
+					d.velocity = Vector2(0,1);
+					d.color = Colorf(1,1,0);
+					drops.push_back(d);
+					cannon_fodder.erase(cannon_fodder.begin() + i );
+					//cannon_fodder.erase( cannon_fodder.begin() + i );
 				}
+			}
 				
-				//platform collisions
-				if(satCircleAABB(hero,platformH)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
-						hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
+			//platform collisions
+			if(satCircleAABB(hero,platformH)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
+					hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
+					hero.onPlatform = true;
 				}
-				if(satCircleAABB(hero,platformG)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
-						hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
+			}
+			if(satCircleAABB(hero,platformG)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
+					hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
+					hero.onPlatform = true;
 				}
-				if(satCircleAABB(hero,platformF)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
-						hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
-				}	
-				if(satCircleAABB(hero,platformE)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
-						hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
+			}
+			if(satCircleAABB(hero,platformF)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
+					hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
+					hero.onPlatform = true;
 				}
-				if(satCircleAABB(hero,platformD)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
-						hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
+			}	
+			if(satCircleAABB(hero,platformE)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
+					hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
+					hero.onPlatform = true;
 				}
-				if(satCircleAABB(hero,platformC)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
-						hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
+			}
+			if(satCircleAABB(hero,platformD)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
+					hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
+					hero.onPlatform = true;
 				}
-				if(satCircleAABB(hero,platformB)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
-						hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
+			}
+			if(satCircleAABB(hero,platformC)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
+					hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
+					hero.onPlatform = true;
 				}
-				if(satCircleAABB(hero,platformA)){
-					//the hero, whether coming from the bottom or the top, will land on the platform
-					if(hero.center.y + hero.velocity.y <= platformA.center.y - platformA.half_height() ){
-						hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
-						hero.onPlatform = true;
-					}
-				}	
+			}
+			if(satCircleAABB(hero,platformB)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
+					hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
+					hero.onPlatform = true;
+				}
+			}
+			if(satCircleAABB(hero,platformA)){
+				//the hero, whether coming from the bottom or the top, will land on the platform
+				if(hero.center.y + hero.velocity.y <= platformA.center.y - platformA.half_height() ){
+					hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
+					hero.onPlatform = true;
+				}
+			}	
 
-				//tube collisions
-            }
+			//tube collisions
+
         break;
     }
     count++; //increment the time between states
