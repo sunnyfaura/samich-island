@@ -14,13 +14,18 @@ using namespace std;
  */
 #ifndef SAMICHISLANDAPP_HPP__
 #define SAMICHISLANDAPP_HPP__
-#endif
+
+using namespace state;
 
 const size_t NUM_ENEMIES = 10;
 const float PI = 3.141592653589793238462643383279502884197;
 
 class SamichIslandApp : public AppBasic {
 public:
+	//state management
+	State appState;
+	int count;
+    int timeout;
 	//window details
 	float WIND_H, WIND_W;
 	//camera
@@ -64,3 +69,5 @@ public:
 	void update();
 	void draw();
 };
+
+#endif

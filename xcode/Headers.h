@@ -10,6 +10,8 @@
 
 #include <vector>
 #include <cmath>
+#include <string>
+#include "boost/lexical_cast.hpp"
 #include "cinder/app/AppBasic.h"
 #include "cinder/gl/gl.h"
 #include "cinder/Rand.h"
@@ -17,3 +19,4 @@
 #include "cinder/Area.h"
 #include "BasicShapes.h"
 #include "Vector2.h"
+#include "State.h"

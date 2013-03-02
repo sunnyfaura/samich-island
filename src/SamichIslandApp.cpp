@@ -5,6 +5,7 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
+using namespace state;
 
 float game_time, shoot_time, dash_time, punch_time, dash_accel, dash_limit, punch_delay;
 Vector2 mouse;
@@ -30,10 +31,16 @@ void SamichIslandApp::resize(ResizeEvent event)
 
 void SamichIslandApp::setup()
 {	
+	//initialize states
+	appState.setNextState( INIT );
+
+	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
+
 	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
+
 	//hero initialization
 	hero.radius = 16;
 	hero.center = Vector2(WIND_W/2, WIND_H - hero.radius);
@@ -66,6 +73,7 @@ void SamichIslandApp::setup()
 	//dash thingy
 	dash_limit = 800;
 	
+	//mooks
 	Mook mook;
 	mook.health = 100;
 	mook.attack = mook.defend = false;
@@ -192,8 +200,6 @@ void SamichIslandApp::keyUp( KeyEvent event ) {
 		default:
 			break;
 	}
-	
-
 }
 
 void SamichIslandApp::mouseMove( MouseEvent event ) {
@@ -210,306 +216,325 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 }
 
 void SamichIslandApp::update() {
-	//punch
-	if (hero.punching) {
-		int dir = -1;
-		if (punch.isRight) dir = 1;
-		if (punch_time == 0) punch_time = game_time;
+	//state management updates
+	bool change = appState.commitState();
+    if (change) count = 0;
+    
+    switch( appState.getCurrentState() ) {
+        case INIT:
+            if( change ) {
+                count = 0; //time between states
+                timeout = 240;
+            }
+            if( count >= timeout ) appState.setNextState( DING );
+        break;
+        case DING:
+            if( change ) {
+                count = 0; //time between states
+                //punch
+				if (hero.punching) {
+					int dir = -1;
+					if (punch.isRight) dir = 1;
+					if (punch_time == 0) punch_time = game_time;
 
-		float secs = (game_time-punch_time)/1000;
-		if (secs >= 0.156) dir *= -1;
-		if (secs >= 0.313) {
-			hero.punching = false;
-			punch.center = hero.center;
-			punch.center.x += -1*dir*hero.radius;
-			punch_time = 0;
-		} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
-	}
+					float secs = (game_time-punch_time)/1000;
+					if (secs >= 0.156) dir *= -1;
+					if (secs >= 0.313) {
+						hero.punching = false;
+						punch.center = hero.center;
+						punch.center.x += -1*dir*hero.radius;
+						punch_time = 0;
+					} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+				}
 
-	//dakka dakka dakka!
-	Rectf bounds = this->getWindowBounds();
-	game_time = ci::app::getElapsedSeconds() * 1000;
-	if(leftClick == true && game_time - shoot_time > shoot_delay){
-		shoot_time = game_time;
-		Bullet temp;
-		temp.center = hero.center;
-		temp.radius = B_RAD;
-		temp.velocity.x = temp.velocity.y = B_VEL;
+				//dakka dakka dakka!
+				Rectf bounds = this->getWindowBounds();
+				game_time = ci::app::getElapsedSeconds() * 1000;
+				if(leftClick == true && game_time - shoot_time > shoot_delay){
+					shoot_time = game_time;
+					Bullet temp;
+					temp.center = hero.center;
+					temp.radius = B_RAD;
+					temp.velocity.x = temp.velocity.y = B_VEL;
 
-		temp.direction = temp.center - mouse;
-		temp.direction.normalize();
-		dakka.push_back(temp);
-	}
+					temp.direction = temp.center - mouse;
+					temp.direction.normalize();
+					dakka.push_back(temp);
+				}
 
-	int i = 0;
-	for(; i < dakka.size(); ++i) {
-		dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
-		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;	
-		//remove bullet if outside window
-		if (!bounds.contains(dakka[i].center.toV())) {
-			if (!dakka.empty())
-				dakka.erase(dakka.begin() + i);
-		}
-		
-	}
-	
-	//hero jumping
-	if( (hero.jumping == false && hero.jumpKey == true) ) {
-		hero.velocity.y = JUMP_H;
-		hero.jumping = true;
-	} 
+				int i = 0;
+				for(; i < dakka.size(); ++i) {
+					dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
+					dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;	
+					//remove bullet if outside window
+					if (!bounds.contains(dakka[i].center.toV())) {
+						if (!dakka.empty())
+							dakka.erase(dakka.begin() + i);
+					}
+					
+				}
+				
+				//hero jumping
+				if( (hero.jumping == false && hero.jumpKey == true) ) {
+					hero.velocity.y = JUMP_H;
+					hero.jumping = true;
+				} 
 
-	//jump from the ground
-	if( hero.jumping == true && hero.onPlatform == false) {
-		if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else {
-			hero.jumping = false;
-		}
-	}
+				//jump from the ground
+				if( hero.jumping == true && hero.onPlatform == false) {
+					if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else {
+						hero.jumping = false;
+					}
+				}
 
-	//jump from platforms
-	if( hero.jumping == true && hero.onPlatform == true) {
-		if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+				//jump from platforms
+				if( hero.jumping == true && hero.onPlatform == true) {
+					if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformG.center.y - platformG.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+					if ( (hero.center.y - hero.velocity.y) <= platformG.center.y - platformG.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformF.center.y - platformF.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+					if ( (hero.center.y - hero.velocity.y) <= platformF.center.y - platformF.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+					if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformD.center.y - platformD.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+					if ( (hero.center.y - hero.velocity.y) <= platformD.center.y - platformD.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformC.center.y - platformC.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+					if ( (hero.center.y - hero.velocity.y) <= platformC.center.y - platformC.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
+					if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
 
-		if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else hero.jumping = false;
-	}
+					if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else hero.jumping = false;
+				}
 
-	//hacky code for missing gravities
-	if( hero.onPlatform == false && hero.needsGravity == true ) {
-		if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
-			hero.center.y -= hero.velocity.y;
-			punch.center.y -= hero.velocity.y;
-			hero.velocity.y -= 1;
-		} else {
-			hero.needsGravity = false;
-		}
-	}
+				//hacky code for missing gravities
+				if( hero.onPlatform == false && hero.needsGravity == true ) {
+					if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+						hero.center.y -= hero.velocity.y;
+						punch.center.y -= hero.velocity.y;
+						hero.velocity.y -= 1;
+					} else {
+						hero.needsGravity = false;
+					}
+				}
 
-	float normalSpeed = 10; float dashSpeed = 50; float direction;
+				float normalSpeed = 10; float dashSpeed = 50; float direction;
 
-	//left or right with dashing!!
-	if(hero.moving == false && hero.leftKey == true) {
-		//check if dash key has been pressed
-		if (hero.dashing == false && hero.dashKey == true) {	
-			if (game_time - dash_time < dash_limit)
-				hero.dashing = true;
-			else dash_time = game_time;
-		} else hero.dashing = false;
-	
-		hero.moving = true;
-		direction = -1;
-	} else if( hero.moving == false && hero.rightKey == true) {
-		//check if dash key has been pressed
-		if (hero.dashing == false && hero.dashKey == true) {
-			if (game_time - dash_time < dash_limit)
-				hero.dashing = true;
-			else dash_time = game_time;
-		} else hero.dashing = false;
+				//left or right with dashing!!
+				if(hero.moving == false && hero.leftKey == true) {
+					//check if dash key has been pressed
+					if (hero.dashing == false && hero.dashKey == true) {	
+						if (game_time - dash_time < dash_limit)
+							hero.dashing = true;
+						else dash_time = game_time;
+					} else hero.dashing = false;
+				
+					hero.moving = true;
+					direction = -1;
+				} else if( hero.moving == false && hero.rightKey == true) {
+					//check if dash key has been pressed
+					if (hero.dashing == false && hero.dashKey == true) {
+						if (game_time - dash_time < dash_limit)
+							hero.dashing = true;
+						else dash_time = game_time;
+					} else hero.dashing = false;
 
-		hero.moving = true;
-		direction = 1;
-	} else {
-		hero.moving = false;
-	}
-	//if dash key has been pressed, do a dash
-	if (hero.dashing == true ){
-		dash_accel = 1;
-	} else dash_accel = 0;
-	//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
+					hero.moving = true;
+					direction = 1;
+				} else {
+					hero.moving = false;
+				}
+				//if dash key has been pressed, do a dash
+				if (hero.dashing == true ){
+					dash_accel = 1;
+				} else dash_accel = 0;
+				//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
 
-	if(hero.moving == true) {
-		hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
-		hero.center.x = hero.center.x + hero.velocity.x;
-		punch.center.x += hero.velocity.x;
-		//if it goes to leftmost/rightmost of platform, it should fall down
-		if(hero.onPlatform == true){
-			if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
-				hero.center.x >= platformA.center.x + platformA.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
-				hero.center.x >= platformB.center.x + platformB.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
-				hero.center.x >= platformC.center.x + platformC.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformD.center.x - platformD.half_width() ||
-				hero.center.x >= platformD.center.x + platformD.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformE.center.x - platformE.half_width() ||
-				hero.center.x >= platformE.center.x + platformE.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
-				hero.center.x >= platformF.center.x + platformF.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformG.center.x - platformG.half_width() ||
-				hero.center.x >= platformG.center.x + platformG.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-			if ( hero.center.x <= platformH.center.x - platformH.half_width() ||
-				hero.center.x >= platformH.center.x + platformH.half_width() ) {
-					hero.onPlatform = false;
-					hero.needsGravity = true;
-			}
-		}
-	}
-	
-	//get drops
-	for (i = 0; i < drops.size(); ++i) {
-		if (circleOnCircleDetection(hero, drops[i])) {
-				//drop effects here
-				//drops.erase ( drops.begin() + i );
-		}
-		
-		//dropping effect to "floor" 
-		if ( drops[i].center.y <= drops[i].floor.y ) {
-			drops[i].center.y += drops[i].velocity.y;
-		}
-		else {
-			drops[i].center = drops[i].floor; 
-		} 
-	}
-	
-	//mooks
-	for (i = 0; i < cannon_fodder.size(); ++i) {
-		//if mook and the hero frot for a while
-		//if (circleOnCircleDetection(hero, cannon_fodder[i]) && game_time - shoot_time > shoot_delay) {
-		//	shoot_time = game_time;
-		//	cannon_fodder[i].recieveDamage(hero.damage);
-		//}
-		if (circleOnCircleDetection(punch, cannon_fodder[i])) cannon_fodder[i].recieveDamage(hero.damage);
-		if (cannon_fodder[i].health < 0){
-			Drop d;
-			d.center = cannon_fodder[i].center;
-			//check for different levels in the game.
-			d.radius = 5;
-			d.floor = Vector2(mooker[i].center.x,WIND_H-d.radius);
-			d.velocity = Vector2(0,1);
-			d.color = Colorf(1,1,0);
-			drops.push_back(d);
-			cannon_fodder.erase(cannon_fodder.begin() + i );
-			//cannon_fodder.erase( cannon_fodder.begin() + i );
-		}
-	}
-	
-	//platform collisions
-	if(satCircleAABB(hero,platformH)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
-			hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}
-	if(satCircleAABB(hero,platformG)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
-			hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}
-	if(satCircleAABB(hero,platformF)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
-			hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}	
-	if(satCircleAABB(hero,platformE)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
-			hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}
-	if(satCircleAABB(hero,platformD)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
-			hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}
-	if(satCircleAABB(hero,platformC)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
-			hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}
-	if(satCircleAABB(hero,platformB)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
-			hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}
-	if(satCircleAABB(hero,platformA)){
-		//the hero, whether coming from the bottom or the top, will land on the platform
-		if(hero.center.y + hero.velocity.y <= platformA.center.y - platformA.half_height() ){
-			hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
-			hero.onPlatform = true;
-		}
-	}	
+				if(hero.moving == true) {
+					hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
+					hero.center.x = hero.center.x + hero.velocity.x;
+					punch.center.x += hero.velocity.x;
+					//if it goes to leftmost/rightmost of platform, it should fall down
+					if(hero.onPlatform == true){
+						if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
+							hero.center.x >= platformA.center.x + platformA.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
+							hero.center.x >= platformB.center.x + platformB.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
+							hero.center.x >= platformC.center.x + platformC.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformD.center.x - platformD.half_width() ||
+							hero.center.x >= platformD.center.x + platformD.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformE.center.x - platformE.half_width() ||
+							hero.center.x >= platformE.center.x + platformE.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
+							hero.center.x >= platformF.center.x + platformF.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformG.center.x - platformG.half_width() ||
+							hero.center.x >= platformG.center.x + platformG.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+						if ( hero.center.x <= platformH.center.x - platformH.half_width() ||
+							hero.center.x >= platformH.center.x + platformH.half_width() ) {
+								hero.onPlatform = false;
+								hero.needsGravity = true;
+						}
+					}
+				}
+				
+				//get drops
+				for (i = 0; i < drops.size(); ++i) {
+					if (circleOnCircleDetection(hero, drops[i])) {
+							//drop effects here
+							//drops.erase ( drops.begin() + i );
+					}
+					
+					//dropping effect to "floor" 
+					if ( drops[i].center.y <= drops[i].floor.y ) {
+						drops[i].center.y += drops[i].velocity.y;
+					}
+					else {
+						drops[i].center = drops[i].floor; 
+					} 
+				}
+				
+				//mooks
+				for (i = 0; i < cannon_fodder.size(); ++i) {
+					//if mook and the hero collide for a while
+					//if (circleOnCircleDetection(hero, cannon_fodder[i]) && game_time - shoot_time > shoot_delay) {
+					//	shoot_time = game_time;
+					//	cannon_fodder[i].recieveDamage(hero.damage);
+					//}
+					if (circleOnCircleDetection(punch, cannon_fodder[i])) cannon_fodder[i].recieveDamage(hero.damage);
+					if (cannon_fodder[i].health < 0){
+						Drop d;
+						d.center = cannon_fodder[i].center;
+						//check for different levels in the game.
+						d.radius = 5;
+						d.floor = Vector2(cannon_fodder[i].center.x,WIND_H-d.radius);
+						d.velocity = Vector2(0,1);
+						d.color = Colorf(1,1,0);
+						drops.push_back(d);
+						cannon_fodder.erase(cannon_fodder.begin() + i );
+						//cannon_fodder.erase( cannon_fodder.begin() + i );
+					}
+				}
+				
+				//platform collisions
+				if(satCircleAABB(hero,platformH)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
+						hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}
+				if(satCircleAABB(hero,platformG)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
+						hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}
+				if(satCircleAABB(hero,platformF)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
+						hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}	
+				if(satCircleAABB(hero,platformE)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
+						hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}
+				if(satCircleAABB(hero,platformD)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
+						hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}
+				if(satCircleAABB(hero,platformC)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
+						hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}
+				if(satCircleAABB(hero,platformB)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
+						hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}
+				if(satCircleAABB(hero,platformA)){
+					//the hero, whether coming from the bottom or the top, will land on the platform
+					if(hero.center.y + hero.velocity.y <= platformA.center.y - platformA.half_height() ){
+						hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
+						hero.onPlatform = true;
+					}
+				}	
 
-	//tube collisions
+				//tube collisions
+            }
+        break;
+    }
+    count++; //increment the time between states
 }
 
 void SamichIslandApp::draw() {
@@ -518,53 +543,64 @@ void SamichIslandApp::draw() {
 	gl::pushMatrices();
 	gl::setMatricesWindow (WIND_W, WIND_H);
 	gl::setViewport(this->getWindowBounds());
-	
-	int i = 0;
+	gl::enableAlphaBlending();
+    
+    switch( appState.getCurrentState() ) 
+    {
+		case INIT: {
+			string c = boost::lexical_cast<std::string>(count);
+			string t = boost::lexical_cast<std::string>(timeout);    
+			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
+		break; }
+        case DING:
+			int i = 0;
 
-	//draw punch
-	if (hero.punching){
-		glColor3f(0, 0, 1);
-		gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
-	}
-	
-	glColor3f(hero.color.r, hero.color.g, hero.color.b);
-	gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
-		
-	//draw mooks
-	for (i = 0; i < cannon_fodder.size(); ++i )
-	{
-		glColor3f(cannon_fodder[i].color.r,mooker[i].color.g,cannon_fodder[i].color.b);
-		gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
-	}
-	
-	//draw drops
-	for (i = 0; i < drops.size(); ++i )
-	{
-		glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
-		gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
-	}
+			//draw punch
+			if (hero.punching){
+				glColor3f(0, 0, 1);
+				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
+			}
+			
+			glColor3f(hero.color.r, hero.color.g, hero.color.b);
+			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+				
+			//draw mooks
+			for (i = 0; i < cannon_fodder.size(); ++i )
+			{
+				glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
+				gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
+			}
+			
+			//draw drops
+			for (i = 0; i < drops.size(); ++i )
+			{
+				glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
+				gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
+			}
 
-	//platforms
-	glColor3f(0,1,1);
-	gl::drawSolidRect(createRectangle(platformA));
-	gl::drawSolidRect(createRectangle(platformB));
-	gl::drawSolidRect(createRectangle(platformC));
-	gl::drawSolidRect(createRectangle(platformD));
-	gl::drawSolidRect(createRectangle(platformE));
-	gl::drawSolidRect(createRectangle(platformF));
-	gl::drawSolidRect(createRectangle(platformG));
-	gl::drawSolidRect(createRectangle(platformH));
+			//platforms
+			glColor3f(0,1,1);
+			gl::drawSolidRect(createRectangle(platformA));
+			gl::drawSolidRect(createRectangle(platformB));
+			gl::drawSolidRect(createRectangle(platformC));
+			gl::drawSolidRect(createRectangle(platformD));
+			gl::drawSolidRect(createRectangle(platformE));
+			gl::drawSolidRect(createRectangle(platformF));
+			gl::drawSolidRect(createRectangle(platformG));
+			gl::drawSolidRect(createRectangle(platformH));
 
-	//draw bullets
-	for(; i < dakka.size(); ++i){
-		glColor3f(1, 0, 0);
-		gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
+			//draw bullets
+			for(; i < dakka.size(); ++i){
+				glColor3f(1, 0, 0);
+				gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
+			}
+
+			//tubes
+			glColor3f(1,1,0);
+			gl::drawSolidRect(createRectangle(tubeA));
+			gl::drawSolidRect(createRectangle(tubeB));
+		break;
 	}
-
-	//tubes
-	glColor3f(1,1,0);
-	gl::drawSolidRect(createRectangle(tubeA));
-	gl::drawSolidRect(createRectangle(tubeB));
 	gl::popMatrices();
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
