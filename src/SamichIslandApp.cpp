@@ -280,15 +280,56 @@ void SamichIslandApp::update() {
 			hero.jumping = false;
 		}
 	}
+
 	//jump from platforms
 	if( hero.jumping == true && hero.onPlatform == true) {
 		if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
 			hero.center.y -= hero.velocity.y;
 			punch.center.y -= hero.velocity.y;
 			hero.velocity.y -= 1;
-		} else {
-			hero.jumping = false;
-		}
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformG.center.y - platformG.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformF.center.y - platformF.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformD.center.y - platformD.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformC.center.y - platformC.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
+
+		if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
+			hero.center.y -= hero.velocity.y;
+			punch.center.y -= hero.velocity.y;
+			hero.velocity.y -= 1;
+		} else hero.jumping = false;
 	}
 
 	//hacky code for missing gravities
@@ -350,6 +391,41 @@ void SamichIslandApp::update() {
 		punch.center.x += hero.velocity.x;
 		//if it goes to leftmost/rightmost of platform, it should fall down
 		if(hero.onPlatform == true){
+			if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
+				hero.center.x >= platformA.center.x + platformA.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
+			if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
+				hero.center.x >= platformB.center.x + platformB.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
+			if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
+				hero.center.x >= platformC.center.x + platformC.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
+			if ( hero.center.x <= platformD.center.x - platformD.half_width() ||
+				hero.center.x >= platformD.center.x + platformD.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
+			if ( hero.center.x <= platformE.center.x - platformE.half_width() ||
+				hero.center.x >= platformE.center.x + platformE.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
+			if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
+				hero.center.x >= platformF.center.x + platformF.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
+			if ( hero.center.x <= platformG.center.x - platformG.half_width() ||
+				hero.center.x >= platformG.center.x + platformG.half_width() ) {
+					hero.onPlatform = false;
+					hero.needsGravity = true;
+			}
 			if ( hero.center.x <= platformH.center.x - platformH.half_width() ||
 				hero.center.x >= platformH.center.x + platformH.half_width() ) {
 					hero.onPlatform = false;
@@ -407,7 +483,7 @@ void SamichIslandApp::update() {
 		}
 	}
 
-	console() << "jump=" << hero.jumping << "::grav=" << hero.needsGravity << "::onPlat=" << hero.onPlatform << std::endl;
+	//console() << "jump=" << hero.jumping << "::grav=" << hero.needsGravity << "::onPlat=" << hero.onPlatform << std::endl;
 	
 	//platform collisions
 	if(satCircleAABB(hero,platformH)){
@@ -417,6 +493,55 @@ void SamichIslandApp::update() {
 			hero.onPlatform = true;
 		}
 	}
+	if(satCircleAABB(hero,platformG)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
+			hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}
+	if(satCircleAABB(hero,platformF)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
+			hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}	
+	if(satCircleAABB(hero,platformE)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
+			hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}
+	if(satCircleAABB(hero,platformD)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
+			hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}
+	if(satCircleAABB(hero,platformC)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
+			hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}
+	if(satCircleAABB(hero,platformB)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
+			hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}
+	if(satCircleAABB(hero,platformA)){
+		//the hero, whether coming from the bottom or the top, will land on the platform
+		if(hero.center.y + hero.velocity.y <= platformA.center.y - platformA.half_height() ){
+			hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
+			hero.onPlatform = true;
+		}
+	}	
 
 	//tube collisions
 }
