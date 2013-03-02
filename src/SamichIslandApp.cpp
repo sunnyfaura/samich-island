@@ -5,7 +5,6 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-using namespace state;
 
 float game_time, shoot_time, dash_time, punch_time, dash_accel, dash_limit, punch_delay;
 Vector2 mouse;

@@ -15,8 +15,6 @@ using namespace std;
 #ifndef SAMICHISLANDAPP_HPP__
 #define SAMICHISLANDAPP_HPP__
 
-using namespace state;
-
 const size_t NUM_ENEMIES = 10;
 const float PI = 3.141592653589793238462643383279502884197;
 
