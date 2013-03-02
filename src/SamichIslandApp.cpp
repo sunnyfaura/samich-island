@@ -226,9 +226,9 @@ void SamichIslandApp::update() {
                 count = 0; //time between states
                 timeout = 240;
             }
-            if( count >= timeout ) appState.setNextState( DING );
+            if( count >= timeout ) appState.setNextState( PLAY );
         break;
-        case DING:
+        case PLAY:
             if( change ) {
                 count = 0; //time between states
                 //punch
@@ -552,7 +552,7 @@ void SamichIslandApp::draw() {
 			string t = boost::lexical_cast<std::string>(timeout);    
 			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
 		break; }
-        case DING:
+        case PLAY:
 			int i = 0;
 
 			//draw punch

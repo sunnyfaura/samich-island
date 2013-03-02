@@ -7,10 +7,7 @@ using namespace ci::app;
 
 namespace state {
 	static const int INIT = 0;
-    static const int DING = 1;
-    static const int BLEEP = 2;
-    static const int POP = 3;
-    static const int PURR = 4;
+    static const int PLAY = 1;
     
     class State {
     public:
@@ -46,10 +43,7 @@ namespace state {
         //return true if the new state is valid
         bool validateState( int newState ){
             return newState == INIT || 
-                   newState == DING || 
-                   newState == BLEEP || 
-                   newState == POP || 
-                   newState == PURR;
+                   newState == PLAY;
         }
         
     private:
