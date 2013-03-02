@@ -72,11 +72,11 @@ void SamichIslandApp::setup()
 	mook.radius = 25;
 	mook.center = Vector2(WIND_H/4,WIND_H-mook.radius);
 	mook.color = Colorf(0,1.0,0);
-	mooker.push_back(mook);
+	cannon_fodder.push_back(mook);
 	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
-	mooker.push_back(mook);
+	cannon_fodder.push_back(mook);
 	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
-	mooker.push_back(mook);
+	cannon_fodder.push_back(mook);
 
 	//platform things
 	platformA.center = Vector2( WIND_W*2/10 , 90 );
@@ -176,7 +176,7 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 void SamichIslandApp::keyUp( KeyEvent event ) {
 	int code = event.getCode();
 	
-	if (!event.isShiftDown() == false){
+	if (event.isShiftDown() == false){
 		hero.dashKey = false;
 	}
 	
@@ -211,28 +211,21 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 
 void SamichIslandApp::update() {
 	//punch
-	if (hero.punching){
+	if (hero.punching) {
 		int dir = -1;
-		if (punch.isRight){
-			dir = 1;
-			}
-		if (punch_time == 0) {
-			punch_time = game_time;
-			}
+		if (punch.isRight) dir = 1;
+		if (punch_time == 0) punch_time = game_time;
+
 		float secs = (game_time-punch_time)/1000;
-		if (secs >= 0.156){
-			dir *= -1;
-			}
-		if (secs >= 0.313){
+		if (secs >= 0.156) dir *= -1;
+		if (secs >= 0.313) {
 			hero.punching = false;
 			punch.center = hero.center;
 			punch.center.x += -1*dir*hero.radius;
 			punch_time = 0;
-			}
-		else {
-			punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
-			}
+		} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
 	}
+
 	//dakka dakka dakka!
 	Rectf bounds = this->getWindowBounds();
 	game_time = ci::app::getElapsedSeconds() * 1000;
@@ -243,20 +236,15 @@ void SamichIslandApp::update() {
 		temp.radius = B_RAD;
 		temp.velocity.x = temp.velocity.y = B_VEL;
 
-		console() << "start = (" << temp.center.x << "," << temp.center.y << ")" << std::endl;
-		console() << "mouse = (" <<mouse.x << "," << mouse.y << ")" << std::endl;
 		temp.direction = temp.center - mouse;
-		console() << "direc1 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
-		//if(temp.direction != zero)
 		temp.direction.normalize();
-		console() << "direc2 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
 		dakka.push_back(temp);
 	}
+
 	int i = 0;
 	for(; i < dakka.size(); ++i) {
 		dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
-		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;
-		
+		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;	
 		//remove bullet if outside window
 		if (!bounds.contains(dakka[i].center.toV())) {
 			if (!dakka.empty())
@@ -270,6 +258,7 @@ void SamichIslandApp::update() {
 		hero.velocity.y = JUMP_H;
 		hero.jumping = true;
 	} 
+
 	//jump from the ground
 	if( hero.jumping == true && hero.onPlatform == false) {
 		if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
@@ -347,44 +336,34 @@ void SamichIslandApp::update() {
 
 	//left or right with dashing!!
 	if(hero.moving == false && hero.leftKey == true) {
-		/*if (hero.dashing == false && hero.dashKey == true)
-		{	
+		//check if dash key has been pressed
+		if (hero.dashing == false && hero.dashKey == true) {	
 			if (game_time - dash_time < dash_limit)
 				hero.dashing = true;
-			else 
-				dash_time = game_time;
-		}
-		else {
-			hero.dashing = false;
-		}*/
+			else dash_time = game_time;
+		} else hero.dashing = false;
+	
 		hero.moving = true;
 		direction = -1;
 	} else if( hero.moving == false && hero.rightKey == true) {
-		/*if (hero.dashing == false && hero.dashKey == true)
-		{
+		//check if dash key has been pressed
+		if (hero.dashing == false && hero.dashKey == true) {
 			if (game_time - dash_time < dash_limit)
 				hero.dashing = true;
-			else 
-				dash_time = game_time;
-		}
-		else {
-			hero.dashing = false;
-		}*/
+			else dash_time = game_time;
+		} else hero.dashing = false;
+
 		hero.moving = true;
 		direction = 1;
 	} else {
 		hero.moving = false;
 	}
-	
-	/*if (hero.dashing == true )
-	{
+	//if dash key has been pressed, do a dash
+	if (hero.dashing == true ){
 		dash_accel = 1;
-	}
-	else {
-		dash_accel = 0;
-	}*/
+	} else dash_accel = 0;
+	//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
 
-	
 	if(hero.moving == true) {
 		hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
 		hero.center.x = hero.center.x + hero.velocity.x;
@@ -434,10 +413,6 @@ void SamichIslandApp::update() {
 		}
 	}
 	
-	//console() << "ifDashing: " << hero.dashing << endl;
-	//console() << "DashPressed: " << hero.dashKey << endl;
-	
-	
 	//get drops
 	for (i = 0; i < drops.size(); ++i) {
 		if (circleOnCircleDetection(hero, drops[i])) {
@@ -455,35 +430,26 @@ void SamichIslandApp::update() {
 	}
 	
 	//mooks
-	for (i = 0; i < mooker.size(); ++i) {
-		/*if (circleOnCircleDetection(hero, mooker[i]) && game_time - shoot_time > shoot_delay) 
-		{
-			shoot_time = game_time;
-			mooker[i].recieveDamage(hero.damage);
-		}*///might no longer be needed
-		
-		if (circleOnCircleDetection(punch, mooker[i])) 
-		{
-			mooker[i].recieveDamage(hero.damage);
-			
-		}
-		
-		if (mooker[i].health < 0)
-		{
-				Drop d;
-				d.center = mooker[i].center;
-				//check for different levels in the game.
-				d.radius = 5;
-				d.floor = Vector2(mooker[i].center.x,WIND_H-d.radius);
-				d.velocity = Vector2(0,1);
-				d.color = Colorf(1,1,0);
-				drops.push_back(d);
-				mooker.erase(mooker.begin() + i );
-				//mooker.erase( mooker.begin() + i );
+	for (i = 0; i < cannon_fodder.size(); ++i) {
+		//if mook and the hero frot for a while
+		//if (circleOnCircleDetection(hero, cannon_fodder[i]) && game_time - shoot_time > shoot_delay) {
+		//	shoot_time = game_time;
+		//	cannon_fodder[i].recieveDamage(hero.damage);
+		//}
+		if (circleOnCircleDetection(punch, cannon_fodder[i])) cannon_fodder[i].recieveDamage(hero.damage);
+		if (cannon_fodder[i].health < 0){
+			Drop d;
+			d.center = cannon_fodder[i].center;
+			//check for different levels in the game.
+			d.radius = 5;
+			d.floor = Vector2(mooker[i].center.x,WIND_H-d.radius);
+			d.velocity = Vector2(0,1);
+			d.color = Colorf(1,1,0);
+			drops.push_back(d);
+			cannon_fodder.erase(cannon_fodder.begin() + i );
+			//cannon_fodder.erase( cannon_fodder.begin() + i );
 		}
 	}
-
-	//console() << "jump=" << hero.jumping << "::grav=" << hero.needsGravity << "::onPlat=" << hero.onPlatform << std::endl;
 	
 	//platform collisions
 	if(satCircleAABB(hero,platformH)){
@@ -565,10 +531,10 @@ void SamichIslandApp::draw() {
 	gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 		
 	//draw mooks
-	for (i = 0; i < mooker.size(); ++i )
+	for (i = 0; i < cannon_fodder.size(); ++i )
 	{
-		glColor3f(mooker[i].color.r,mooker[i].color.g,mooker[i].color.b);
-		gl::drawSolidCircle(mooker[i].center.toV(),mooker[i].radius, 0);
+		glColor3f(cannon_fodder[i].color.r,mooker[i].color.g,cannon_fodder[i].color.b);
+		gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
 	}
 	
 	//draw drops

@@ -38,7 +38,7 @@ public:
 	float shoot_delay;
 	//lists
 	vector<Bullet> dakka;
-	vector<Mook> mooker;
+	vector<Mook> cannon_fodder;
 	vector<Drop> drops;
 	//platform things
 	AABB platformA; //top left
