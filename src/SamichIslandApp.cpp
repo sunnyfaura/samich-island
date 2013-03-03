@@ -110,7 +110,15 @@ void SamichIslandApp::setup()
 	platformH.center = Vector2( WIND_W*2/5 , 520 );
 	platformH.height = 20;
 	platformH.width = 200;
-
+    
+    //tower targets
+    tower1.center = Vector2( 20, 50 );
+    tower1.height = 70;
+    tower1.width = 30;
+    tower2.center = Vector2( WIND_W - 20 , 50 );
+    tower2.height = 70;
+    tower2.width = 30;
+    
 	//tubes
 	tubeA.height = 50;
 	tubeA.width = 50;
@@ -435,7 +443,7 @@ void SamichIslandApp::update() {
 			for (i = 0; i < drops.size(); ++i) {
 				if (circleOnCircleDetection(hero, drops[i])) {
 						//drop effects here
-						//drops.erase ( drops.begin() + i );
+						drops.erase ( drops.begin() + i );
 				}
 					
 				//dropping effect to "floor" 
@@ -596,6 +604,11 @@ void SamichIslandApp::draw() {
 			glColor3f(1,1,0);
 			gl::drawSolidRect(createRectangle(tubeA));
 			gl::drawSolidRect(createRectangle(tubeB));
+            
+            //tower
+            glColor3f(1,0,1);
+            gl::drawSolidRect(createRectangle(tower1));
+            gl::drawSolidRect(createRectangle(tower2));
 		break;
 	}
 	gl::popMatrices();

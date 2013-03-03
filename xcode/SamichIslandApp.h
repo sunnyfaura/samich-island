@@ -52,6 +52,8 @@ public:
 	AABB platformF; //bottom left
 	AABB platformG; //bottom right
 	AABB platformH; //bottom center
+    AABB tower1; //tower on top left
+    AABB tower2; //tower on top right
 	//tubes for enemies to exit
 	AABB tubeA;
 	AABB tubeB;
