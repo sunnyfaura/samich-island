@@ -86,30 +86,30 @@ void SamichIslandApp::setup()
 	cannon_fodder.push_back(mook);
 
 	//platform things
-	platformA.center = Vector2( WIND_W*2/10 , 90 );
-	platformA.height = 20;
-	platformA.width = 310;
-	platformB.center = Vector2( WIND_W*8/10 , 90 );
-	platformB.height = 20;
-	platformB.width = 310;
-	platformC.center = Vector2( WIND_W/2 , 180 );
-	platformC.height = 20;
-	platformC.width = 200;
-	platformD.center = Vector2( WIND_W*2/20 , 270 );
-	platformD.height = 20;
-	platformD.width = 150;
-	platformE.center = Vector2( WIND_W*18/20 , 270 );
-	platformE.height = 20;
-	platformE.width = 150;
-	platformF.center = Vector2( WIND_W*2/10 , 360 );
-	platformF.height = 20;
-	platformF.width = 310;
-	platformG.center = Vector2( WIND_W*8/10 , 430 );
-	platformG.height = 20;
-	platformG.width = 310;
-	platformH.center = Vector2( WIND_W*2/5 , 520 );
-	platformH.height = 20;
-	platformH.width = 200;
+	platformA.center = Vector2( WIND_W/2 , 500 );
+	platformA.height = 40;
+	platformA.width = 300;
+	//platformB.center = Vector2( WIND_W*8/10 , 90 );
+	//platformB.height = 50;
+	//platformB.width = 100;
+	platformC.center = Vector2( WIND_W/2 , 240 );
+	platformC.height = 40;
+	platformC.width = 300;
+	platformD.center = Vector2( WIND_W*2/20 , 360 );
+	platformD.height = 40;
+	platformD.width = 300;
+	platformE.center = Vector2( WIND_W*18/20 , 360 );
+	platformE.height = 40;
+	platformE.width = 300;
+	//platformF.center = Vector2( WIND_W*2/10 , 360 );
+	//platformF.height = 50;
+	//platformF.width = 100;
+	//platformG.center = Vector2( WIND_W*8/10 , 430 );
+	//platformG.height = 50;
+	//platformG.width = 100;
+	//platformH.center = Vector2( WIND_W*2/5 , 520 );
+	//platformH.height = 50;
+	//platformH.width = 100;
 
 	//tubes
 	tubeA.height = 50;
@@ -223,7 +223,7 @@ void SamichIslandApp::update() {
         case INIT:
             if( change ) {
                 count = 0; //time between states
-                timeout = 240;
+                timeout = 50;
             }
             if( count >= timeout ) appState.setNextState( PLAY );
         break;
@@ -290,7 +290,7 @@ void SamichIslandApp::update() {
 
 			//jump from platforms
 			if( hero.jumping == true && hero.onPlatform == true) {
-				if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
+				/*if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
@@ -307,7 +307,7 @@ void SamichIslandApp::update() {
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
 				} else hero.jumping = false;
-
+*/
 				if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
@@ -326,11 +326,11 @@ void SamichIslandApp::update() {
 					hero.velocity.y -= 1;
 				} else hero.jumping = false;
 
-				if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
+				/*if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-				} else hero.jumping = false;
+				} else hero.jumping = false;*/
 
 				if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
 					hero.center.y -= hero.velocity.y;
@@ -393,11 +393,11 @@ void SamichIslandApp::update() {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
-					if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
+					/*if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
 						hero.center.x >= platformB.center.x + platformB.half_width() ) {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
-					}
+					}*/
 					if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
 						hero.center.x >= platformC.center.x + platformC.half_width() ) {
 							hero.onPlatform = false;
@@ -413,7 +413,7 @@ void SamichIslandApp::update() {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
-					if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
+				/*	if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
 						hero.center.x >= platformF.center.x + platformF.half_width() ) {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
@@ -427,7 +427,7 @@ void SamichIslandApp::update() {
 						hero.center.x >= platformH.center.x + platformH.half_width() ) {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
-					}
+					}*/
 				}
 			}
 				
@@ -470,27 +470,27 @@ void SamichIslandApp::update() {
 			}
 				
 			//platform collisions
-			if(satCircleAABB(hero,platformH)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
-					hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}
-			if(satCircleAABB(hero,platformG)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
-					hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}
-			if(satCircleAABB(hero,platformF)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
-					hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}	
+			//if(satCircleAABB(hero,platformH)){
+			//	//the hero, whether coming from the bottom or the top, will land on the platform
+			//	if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
+			//		hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
+			//		hero.onPlatform = true;
+			//	}
+			//}
+			//if(satCircleAABB(hero,platformG)){
+			//	//the hero, whether coming from the bottom or the top, will land on the platform
+			//	if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
+			//		hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
+			//		hero.onPlatform = true;
+			//	}
+			//}
+			//if(satCircleAABB(hero,platformF)){
+			//	//the hero, whether coming from the bottom or the top, will land on the platform
+			//	if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
+			//		hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
+			//		hero.onPlatform = true;
+			//	}
+			//}	
 			if(satCircleAABB(hero,platformE)){
 				//the hero, whether coming from the bottom or the top, will land on the platform
 				if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
@@ -512,13 +512,13 @@ void SamichIslandApp::update() {
 					hero.onPlatform = true;
 				}
 			}
-			if(satCircleAABB(hero,platformB)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
-					hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}
+			//if(satCircleAABB(hero,platformB)){
+			//	//the hero, whether coming from the bottom or the top, will land on the platform
+			//	if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
+			//		hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
+			//		hero.onPlatform = true;
+			//	}
+			//}
 			if(satCircleAABB(hero,platformA)){
 				//the hero, whether coming from the bottom or the top, will land on the platform
 				if(hero.center.y + hero.velocity.y <= platformA.center.y - platformA.half_height() ){
@@ -578,16 +578,16 @@ void SamichIslandApp::draw() {
 			//platforms
 			glColor3f(0,1,1);
 			gl::drawSolidRect(createRectangle(platformA));
-			gl::drawSolidRect(createRectangle(platformB));
+			//gl::drawSolidRect(createRectangle(platformB));
 			gl::drawSolidRect(createRectangle(platformC));
 			gl::drawSolidRect(createRectangle(platformD));
 			gl::drawSolidRect(createRectangle(platformE));
-			gl::drawSolidRect(createRectangle(platformF));
-			gl::drawSolidRect(createRectangle(platformG));
-			gl::drawSolidRect(createRectangle(platformH));
+			//gl::drawSolidRect(createRectangle(platformF));
+			//gl::drawSolidRect(createRectangle(platformG));
+			//gl::drawSolidRect(createRectangle(platformH));
 
 			//draw bullets
-			for(; i < dakka.size(); ++i){
+			for(; i < dakka.size(); ++i) {
 				glColor3f(1, 0, 0);
 				gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
 			}
