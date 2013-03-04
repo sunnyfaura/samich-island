@@ -1,6 +1,6 @@
 #include "Headers.h"
 #include "SamichIslandApp.h"
-
+#include "DrawEngine.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -29,10 +29,10 @@ void SamichIslandApp::resize(ResizeEvent event)
 }
 
 void SamichIslandApp::setup()
-{	
-	//initialize states
+{
+    DrawEngine::get().setBackgroundPath("ikabg.bmp");
+    //initialize states
 	appState.setNextState( INIT );
-
 	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
 
@@ -111,6 +111,14 @@ void SamichIslandApp::setup()
 	//platformH.height = 50;
 	//platformH.width = 100;
 
+    //tower targets
+    tower1.center = Vector2( 20, 50 );
+    tower1.height = 70;
+    tower1.width = 30;
+    tower2.center = Vector2( WIND_W - 20 , 50 );
+    tower2.height = 70;
+    tower2.width = 30;
+    
 	//tubes
 	tubeA.height = 50;
 	tubeA.width = 50;
@@ -153,6 +161,7 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		break;
 		//full screening - WILL BE REMOVED BECAUSE WINDOW SIZE WILL BE CONSTANT
 		case KeyEvent::KEY_F12:
+        case KeyEvent::KEY_f:
 			setFullScreen( ! isFullScreen() );
 		break;
 		//sizes
@@ -243,7 +252,7 @@ void SamichIslandApp::update() {
 					punch_time = 0;
 				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
 			}
-
+            
 			//dakka dakka dakka!
 			Rectf bounds = this->getWindowBounds();
 			game_time = ci::app::getElapsedSeconds() * 1000;
@@ -435,7 +444,7 @@ void SamichIslandApp::update() {
 			for (i = 0; i < drops.size(); ++i) {
 				if (circleOnCircleDetection(hero, drops[i])) {
 						//drop effects here
-						//drops.erase ( drops.begin() + i );
+						drops.erase ( drops.begin() + i );
 				}
 					
 				//dropping effect to "floor" 
@@ -548,10 +557,12 @@ void SamichIslandApp::draw() {
 			string c = boost::lexical_cast<std::string>(count);
 			string t = boost::lexical_cast<std::string>(timeout);    
 			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
-		break; }
+		break;}
         case PLAY:
 			int i = 0;
-
+            
+            DrawEngine::get().drawSprites();
+            
 			//draw punch
 			if (hero.punching){
 				glColor3f(0, 0, 1);
@@ -596,6 +607,11 @@ void SamichIslandApp::draw() {
 			glColor3f(1,1,0);
 			gl::drawSolidRect(createRectangle(tubeA));
 			gl::drawSolidRect(createRectangle(tubeB));
+            
+            //tower
+            glColor3f(1,0,1);
+            gl::drawSolidRect(createRectangle(tower1));
+            gl::drawSolidRect(createRectangle(tower2));
 		break;
 	}
 	gl::popMatrices();

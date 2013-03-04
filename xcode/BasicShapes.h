@@ -14,11 +14,9 @@
 #ifndef BASICSHAPES_HPP__
 #define BASICSHAPES_HPP__
 
-#include "Headers.h"
+#include "cinder/gl/gl.h"
+#include "Vector2.h"
 
-/**
- CONTAINER FOR CIRCLES
- **/
 struct Circle
 {
 	float radius;

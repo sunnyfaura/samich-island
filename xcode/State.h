@@ -5,7 +5,7 @@ using namespace ci::app;
 #ifndef STATE_HPP__
 #define STATE_HPP__
 
-static enum { INIT, PLAY };
+enum { INIT, PLAY };
     
 class State {
 public:
@@ -20,7 +20,8 @@ public:
             }
         }
     }
-        
+    
+    
     //return true if there has been a change in state
     bool commitState() {
         if ( next != current ) {

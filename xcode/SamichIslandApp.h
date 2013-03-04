@@ -1,5 +1,7 @@
 #include "Headers.h"
 #include "cinder/Camera.h"
+#include "cinder/gl/Texture.h"
+#include "cinder/ImageIo.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -17,6 +19,12 @@ using namespace std;
 
 const size_t NUM_ENEMIES = 10;
 const float PI = 3.141592653589793238462643383279502884197;
+
+DrawEngine& DrawEngine::get()
+{
+    static DrawEngine dg;
+    return dg;
+}
 
 class SamichIslandApp : public AppBasic {
 public:
@@ -52,10 +60,13 @@ public:
 	AABB platformF; //bottom left
 	AABB platformG; //bottom right
 	AABB platformH; //bottom center
+    AABB tower1; //tower on top left
+    AABB tower2; //tower on top right
 	//tubes for enemies to exit
 	AABB tubeA;
 	AABB tubeB;
 	//others
+    //le background
 	void prepareSettings( Settings *settings );
 	void resize(ResizeEvent event);
 	void setup();
