@@ -279,19 +279,6 @@ void SamichIslandApp::update() {
 				}
 					
 			}
-            
-            //prevent out of bounds
-            if (hero.center.x - hero.radius <= 0)
-            {
-                hero.velocity.x = 0;
-                hero.center.x = hero.radius;
-            }
-            else if (hero.center.x + hero.radius >= WIND_W)
-            {
-                hero.velocity.x = 0;
-                hero.center.x = WIND_W - hero.radius;
-            }
-            
 				
 			//hero jumping
 			if( (hero.jumping == false && hero.jumpKey == true) ) {
@@ -412,13 +399,11 @@ void SamichIslandApp::update() {
 				if(hero.onPlatform == true){
 					if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
 						hero.center.x >= platformA.center.x + platformA.half_width() ) {
-                            hero.velocity.y = 0;
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
 					if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
 						hero.center.x >= platformB.center.x + platformB.half_width() ) {
-                            hero.velocity.y = 0;
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
