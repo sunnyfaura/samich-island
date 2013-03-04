@@ -47,10 +47,39 @@ struct AABB {
 };
 
 struct Hero: Circle {
+    int health;
 	int damage; //entity numbers and stats
+    int maximum_mana;
+    int mana; //mana
 	float dashDir;//takes note of the direction of dash
+    bool isDead;
 	bool moving, jumping, dashing, punching, needsGravity, onPlatform; //any changes in player state
 	bool jumpKey, leftKey, rightKey, dashKey; //movement details
+    
+    void recieveDamage( int dmg )
+    {
+        health -= dmg;
+    }
+    
+    bool isAlive() { return (health > 0); }
+    bool canRegenerate() { return mana <= maximum_mana; }
+    bool manaNotEmpty() { return mana >= 0; }
+    
+    void regenerateMana ( int increment )
+    {
+        if ( canRegenerate() == true )
+            mana += increment;
+        else
+            mana = maximum_mana;
+    }
+
+    void activateMana ( int decrement )
+    {
+        if ( manaNotEmpty() == true)
+            mana -= decrement;
+        else
+            mana = 0;
+    }
 };
 
 struct Punch: Circle {

@@ -3,7 +3,9 @@
  *  SamichIsland
  *
  *  Created by xanthian on 2/3/13.
- *  Copyright 2013 __MyCompanyName__. All rights reserved.
+ *  Copyright 2013 __bearStuffs__. All rights reserved.
+ *
+ *  how to use: use DrawEngine::get() singleton :)
  *
  */
 #ifndef DRAWENGINE_HPP__
@@ -18,6 +20,9 @@ typedef unsigned int uint;
 
 using namespace std;
 
+enum TextAlign
+{ TEXT_CENTER, TEXT_LEFT }
+ ;
 
 class DrawEngine
 {
@@ -75,7 +80,7 @@ public:
     //entity_id : group of frames/ sprite | frame_entity_id : individual frame on sprite
     //locationInSS : location of frame in the sprite sheet
     //set frame_entity_id to equal to entity_id if only one frame
-    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS )
+    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS, int width, int height )
     {
         Sprite* s;
         if (spriteExists(entity_id) == true) //if sprite already exists
@@ -86,6 +91,8 @@ public:
         }
         else //if sprite "entity_id" does not exist on the Sprite array
         {
+            s->setHeight(height);
+            s->setWidth(width);
             s->entity_id = entity_id;
             s->addFrame(frame_entity_id, locationInSS);
             sprites.push_back( s );
@@ -136,12 +143,40 @@ public:
         gl::clear( Color( 0 , 0, 0 ) );
         glColor3f(1, 1, 1); //white
         
-        gl::draw(background);
+        if ( background )
+            gl::draw(background, window_bounds );
         for ( size_t i = 0; i < sprites.size(); ++i )
         {
             gl::draw(spritesheet, sprites[i]->getSpriteOnSpritesheetBounds(), sprites[i]->getSpriteOnWindowBounds());
         }
-        
+    
+    }
+
+    //str: the string to be drawn. must be lexical casted.
+    //pos: position in center
+    //color: color of text font: font
+    void drawString( const string &str, const Vector2 &pos, const Color &color, const Font &font, TextAlign textState )
+    {
+        if ( textState == TEXT_CENTER)
+            gl::drawStringCentered(str, pos.toV(), color, font);
+        else if ( textState == TEXT_LEFT)
+            gl::drawString(str, pos.toV(), color, font);
+    }
+    
+    // c - circle to be drawn, color can be empty or not
+    void drawCircle( const Circle &c, const Color color )
+    {
+        if ( !color )
+            glColor3f(c.color.r ,c.color.g, c.color.b);
+        else
+            glColor3f(color.r ,color.g, color.b);
+        gl::drawSolidCircle(c.center.toV(),c.radius, 0);
+    }
+    
+    void drawRectangle( const AABB &a, const Color color)
+    {
+        glColor3f(color.r,color.g,color.b);
+        gl::drawSolidRect(createRectangle(a));
     }
     
 protected:
