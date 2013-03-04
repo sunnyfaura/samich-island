@@ -1,6 +1,6 @@
 #include "Headers.h"
 #include "SamichIslandApp.h"
-
+#include "DrawEngine.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -29,10 +29,10 @@ void SamichIslandApp::resize(ResizeEvent event)
 }
 
 void SamichIslandApp::setup()
-{	
-	//initialize states
+{
+    DrawEngine::get().setBackgroundPath("ikabg.bmp");
+    //initialize states
 	appState.setNextState( INIT );
-
 	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
 
@@ -161,6 +161,7 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		break;
 		//full screening - WILL BE REMOVED BECAUSE WINDOW SIZE WILL BE CONSTANT
 		case KeyEvent::KEY_F12:
+        case KeyEvent::KEY_f:
 			setFullScreen( ! isFullScreen() );
 		break;
 		//sizes
@@ -251,7 +252,7 @@ void SamichIslandApp::update() {
 					punch_time = 0;
 				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
 			}
-
+            
 			//dakka dakka dakka!
 			Rectf bounds = this->getWindowBounds();
 			game_time = ci::app::getElapsedSeconds() * 1000;
@@ -278,6 +279,19 @@ void SamichIslandApp::update() {
 				}
 					
 			}
+            
+            //prevent out of bounds
+            if (hero.center.x - hero.radius <= 0)
+            {
+                hero.velocity.x = 0;
+                hero.center.x = hero.radius;
+            }
+            else if (hero.center.x + hero.radius >= WIND_W)
+            {
+                hero.velocity.x = 0;
+                hero.center.x = WIND_W - hero.radius;
+            }
+            
 				
 			//hero jumping
 			if( (hero.jumping == false && hero.jumpKey == true) ) {
@@ -398,11 +412,13 @@ void SamichIslandApp::update() {
 				if(hero.onPlatform == true){
 					if ( hero.center.x <= platformA.center.x - platformA.half_width() ||
 						hero.center.x >= platformA.center.x + platformA.half_width() ) {
+                            hero.velocity.y = 0;
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
 					if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
 						hero.center.x >= platformB.center.x + platformB.half_width() ) {
+                            hero.velocity.y = 0;
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
@@ -559,7 +575,9 @@ void SamichIslandApp::draw() {
 		break; }
         case PLAY:
 			int i = 0;
-
+            
+            DrawEngine::get().drawSprites();
+            
 			//draw punch
 			if (hero.punching){
 				glColor3f(0, 0, 1);
