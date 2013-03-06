@@ -13,7 +13,7 @@ typedef unsigned int uint;
 
 class Entity {
 public:
-    uint8 entity_id;
+    uint entity_id;
     Vector2 position;
 };
 
