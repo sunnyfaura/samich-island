@@ -14,7 +14,8 @@
 #ifndef BASICSHAPES_HPP__
 #define BASICSHAPES_HPP__
 
-#include "Headers.h"
+#include "cinder/gl/gl.h"
+#include "Vector2.h"
 
 struct Circle
 {
@@ -46,14 +47,43 @@ struct AABB {
 };
 
 struct Hero: Circle {
+    int health;
 	int damage; //entity numbers and stats
+    int maximum_mana;
+    int mana; //mana
 	float dashDir;//takes note of the direction of dash
-	bool moving, jumping, dashing, punching; //any changes in player state
+    bool isDead;
+	bool moving, jumping, dashing, punching, needsGravity, onPlatform; //any changes in player state
 	bool jumpKey, leftKey, rightKey, dashKey; //movement details
+    
+    void recieveDamage( int dmg )
+    {
+        health -= dmg;
+    }
+    
+    bool isAlive() { return (health > 0); }
+    bool canRegenerate() { return mana <= maximum_mana; }
+    bool manaNotEmpty() { return mana >= 0; }
+    
+    void regenerateMana ( int increment )
+    {
+        if ( canRegenerate() == true )
+            mana += increment;
+        else
+            mana = maximum_mana;
+    }
+
+    void activateMana ( int decrement )
+    {
+        if ( manaNotEmpty() == true)
+            mana -= decrement;
+        else
+            mana = 0;
+    }
 };
 
 struct Punch: Circle {
-	bool isRight;//direction of punch
+		bool isRight;//direction of punch
 };
 
 struct Bullet: Circle {
@@ -77,9 +107,9 @@ struct Drop:Circle {
 ci::Rectf createRectangle(AABB r)
 {
 	return ci::Rectf(r.center.x - r.half_width(), 
-		r.center.y - r.half_height(), 
-		r.center.x + r.half_width(),
-		r.center.y + r.half_height()	);
+					 r.center.y - r.half_height(), 
+					 r.center.x + r.half_width(),
+					 r.center.y + r.half_height()	);
 };
 
 bool circleOnCircleDetection( const Circle &c, const Circle &o)
@@ -90,6 +120,7 @@ bool circleOnCircleDetection( const Circle &c, const Circle &o)
 	if ( dist.sqMag() < sumRadii * sumRadii ) {
 		return true;
 	}
+	
 	return false;
 };
 
@@ -114,4 +145,12 @@ bool satCircleAABB(Circle c, AABB b){
 	return satAABB(a,b);
 }
 
-#endif                                                    
+float clamp (float v, float low, float high){
+	if (v <= low)
+		return low;
+	if (v >= high)
+		return high;
+	return v;
+}
+
+#endif
