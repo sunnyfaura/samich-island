@@ -7,6 +7,7 @@ using namespace ci::app;
 using namespace std;
 
 float game_time, shoot_time, dash_time, punch_time, dash_accel, dash_limit, punch_delay;
+int dash_mana_cost;
 Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
@@ -31,6 +32,7 @@ void SamichIslandApp::resize(ResizeEvent event)
 void SamichIslandApp::setup()
 {
     DrawEngine::get().setBackgroundPath("ikabg.bmp");
+    DrawEngine::get().setFrameRate(getFrameRate());
     //initialize states
 	appState.setNextState( INIT );
 	//time initializations
@@ -42,6 +44,9 @@ void SamichIslandApp::setup()
 
 	//hero initialization
 	hero.radius = 16;
+    hero.health = 100;
+    hero.mana = 100;
+    hero.maximum_mana = 100;
 	hero.center = Vector2(WIND_W/2, WIND_H - hero.radius);
 	hero.color = Colorf(1.0,1.0,1.0);
 	hero.velocity.x = 12.0;
@@ -51,7 +56,6 @@ void SamichIslandApp::setup()
 	= hero.onPlatform = hero.needsGravity = false;
 	JUMP_H = 16;
 	hero.damage = 10;
-	hero.dashDir = 0;
 	
 	//punch initialization
 	punch.radius = 10;
@@ -71,6 +75,8 @@ void SamichIslandApp::setup()
 	
 	//dash thingy
 	dash_limit = 800;
+    dash_mana_cost = 10;
+    
 	
 	//mooks
 	Mook mook;
@@ -224,6 +230,12 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 }
 
 void SamichIslandApp::update() {
+
+    
+    WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
+    //draw engine updates
+    DrawEngine::get().setWindowBounds(getWindowBounds());
+    
 	//state management updates
 	bool change = appState.commitState();
     if (change) count = 0;
@@ -236,7 +248,19 @@ void SamichIslandApp::update() {
             }
             if( count >= timeout ) appState.setNextState( PLAY );
         break;
-        case PLAY:
+        case PLAY: {
+            //trying gameover state
+            if (count % 300 == 0)
+            {
+                hero.recieveDamage(5);
+            }
+            
+            if (hero.isAlive() == false)
+            {
+                appState.setNextState(GAMEOVER);
+                break;
+            }
+            
             //punch
 			if (hero.punching) {
 				int dir = -1;
@@ -365,9 +389,10 @@ void SamichIslandApp::update() {
 			if(hero.moving == false && hero.leftKey == true) {
 				//check if dash key has been pressed
 				if (hero.dashing == false && hero.dashKey == true) {	
-					if (game_time - dash_time < dash_limit)
+					if (hero.mana >= dash_mana_cost) {
+                        hero.activateMana(dash_mana_cost);
 						hero.dashing = true;
-					else dash_time = game_time;
+                    }
 				} else hero.dashing = false;
 				
 				hero.moving = true;
@@ -375,9 +400,10 @@ void SamichIslandApp::update() {
 			} else if( hero.moving == false && hero.rightKey == true) {
 				//check if dash key has been pressed
 				if (hero.dashing == false && hero.dashKey == true) {
-					if (game_time - dash_time < dash_limit)
+					if (hero.mana >= dash_mana_cost) {
+                        hero.activateMana(dash_mana_cost);
 						hero.dashing = true;
-					else dash_time = game_time;
+                    }
 				} else hero.dashing = false;
 
 				hero.moving = true;
@@ -390,7 +416,13 @@ void SamichIslandApp::update() {
 				dash_accel = 1;
 			} else dash_accel = 0;
 			//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
-
+            
+            //regenerate mana
+            if (count % 180 == 0 )
+            {
+                hero.regenerateMana(1);
+            }
+            
 			if(hero.moving == true) {
 				hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
 				hero.center.x = hero.center.x + hero.velocity.x;
@@ -537,8 +569,13 @@ void SamichIslandApp::update() {
 			}	
 
 			//tube collisions
-
+        }
         break;
+        case GAMEOVER:
+        {
+            //indeterminate as of now
+        }
+            break; 
     }
     count++; //increment the time between states
 }
@@ -557,12 +594,11 @@ void SamichIslandApp::draw() {
 			string c = boost::lexical_cast<std::string>(count);
 			string t = boost::lexical_cast<std::string>(timeout);    
 			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
-		break;}
-        case PLAY:
+		break; }
+        case PLAY: {
 			int i = 0;
             
             DrawEngine::get().drawSprites();
-            
 			//draw punch
 			if (hero.punching){
 				glColor3f(0, 0, 1);
@@ -612,7 +648,20 @@ void SamichIslandApp::draw() {
             glColor3f(1,0,1);
             gl::drawSolidRect(createRectangle(tower1));
             gl::drawSolidRect(createRectangle(tower2));
-		break;
+            
+            string hero_mana = boost::lexical_cast<std::string>(hero.mana);
+            string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
+            string hero_health = boost::lexical_cast<std::string>(hero.health);
+            DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+            DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+        }
+        break;
+        case GAMEOVER: {
+            gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
+            
+        }
+        break;
+        
 	}
 	gl::popMatrices();
 }
