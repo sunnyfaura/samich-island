@@ -192,6 +192,12 @@ protected:
         background = gl::Texture( loadImage( loadAsset(background_mpath) ));
         spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
 
+        if (spritesheet)
+        {
+            ss_width = spritesheet.getWidth();
+            ss_height = spritesheet.getHeight();
+        }
+    
 };
 #endif
 
