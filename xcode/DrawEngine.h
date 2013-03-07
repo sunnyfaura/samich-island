@@ -197,7 +197,7 @@ protected:
             ss_width = spritesheet.getWidth();
             ss_height = spritesheet.getHeight();
         }
-    
+    }
 };
 #endif
 

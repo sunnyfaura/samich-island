@@ -6,14 +6,8 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-/*
- *  SamichIslandApp.h
- *  SamichIsland
- *
- *  Created by xanthian on 2/3/13.
- *  Copyright 2013 __MyCompanyName__. All rights reserved.
- *
- */
+
+
 #ifndef SAMICHISLANDAPP_HPP__
 #define SAMICHISLANDAPP_HPP__
 
