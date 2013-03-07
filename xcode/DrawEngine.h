@@ -21,13 +21,16 @@ typedef unsigned int uint;
 using namespace std;
 
 enum TextAlign
-{ TEXT_CENTER, TEXT_LEFT }
- ;
+{
+  TEXT_CENTER,
+  TEXT_LEFT
+};
 
 class DrawEngine
 {
     float frame_rate, total_time; //frameRate
     string background_mpath, ssheet_mpath;
+    int ss_width, ss_height;
     gl::Texture background, spritesheet;
     ci::Rectf window_bounds;
     
@@ -80,17 +83,19 @@ public:
     //entity_id : group of frames/ sprite | frame_entity_id : individual frame on sprite
     //locationInSS : location of frame in the sprite sheet
     //set frame_entity_id to equal to entity_id if only one frame
-    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS, int width, int height )
+    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS, Vector2 position, int width, int height )
     {
         Sprite* s;
         if (spriteExists(entity_id) == true) //if sprite already exists
         {
             //adds frame "frame_entity_id" to sprite "entity_id"
             s = findSprite(entity_id);
-            //s->addFrame( frame_entity_id , locationInSS );
+            s->addFrame( frame_entity_id , locationInSS );
         }
         else //if sprite "entity_id" does not exist on the Sprite array
         {
+            s = new Sprite();
+            s->position = position;
             s->setHeight(height);
             s->setWidth(width);
             s->entity_id = entity_id;
@@ -138,10 +143,9 @@ public:
     
     void drawSprites()
     {
-        // draw : draw textures here
-        //gl::draw(Texture tex, Area boundsInSpriteSheet, RectInWindow);
-        gl::clear( Color( 0 , 0, 0 ) );
-        glColor3f(1, 1, 1); //white
+        gl::enable(GL_BLEND);
+        glBlendFunc(GL_SRC_COLOR,GL_SRC_ALPHA);
+        glColor3f(1, 1, 1); 
         
         if ( background )
             gl::draw(background, window_bounds );
@@ -163,7 +167,7 @@ public:
             gl::drawString(str, pos.toV(), color, font);
     }
     
-    // c - circle to be drawn, color can be empty or not
+    // c: circle to be drawn, color can be empty or not
     void drawCircle( const Circle &c, const Color color )
     {
         if ( !color )
@@ -173,6 +177,8 @@ public:
         gl::drawSolidCircle(c.center.toV(),c.radius, 0);
     }
     
+    // a: aabb that will be drawn in the window
+    // color: color of the rectangle created
     void drawRectangle( const AABB &a, const Color color)
     {
         glColor3f(color.r,color.g,color.b);
@@ -183,8 +189,14 @@ protected:
     vector<Sprite*> sprites;
     
     void init() {
-        background = gl::Texture( loadImage( loadResource(background_mpath) ));
-        spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
+        background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+        spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
+        
+        if (spritesheet)
+        {
+            ss_width = spritesheet.getWidth();
+            ss_height = spritesheet.getHeight();
+        }
     }
 };
 #endif

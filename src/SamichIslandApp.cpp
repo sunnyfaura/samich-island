@@ -32,6 +32,7 @@ void SamichIslandApp::resize(ResizeEvent event)
 void SamichIslandApp::setup()
 {
     DrawEngine::get().setBackgroundPath("ikabg.bmp");
+    DrawEngine::get().setSpriteSheetPath("pokesilver.png");
     DrawEngine::get().setFrameRate(getFrameRate());
     //initialize states
 	appState.setNextState( INIT );
@@ -43,7 +44,7 @@ void SamichIslandApp::setup()
 	WIND_W = this->getWindowWidth();
 
 	//hero initialization
-	hero.radius = 16;
+	hero.radius = 56;
     hero.health = 100;
     hero.mana = 100;
     hero.maximum_mana = 100;
@@ -235,7 +236,7 @@ void SamichIslandApp::update() {
     WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
     //draw engine updates
     DrawEngine::get().setWindowBounds(getWindowBounds());
-    
+  
 	//state management updates
 	bool change = appState.commitState();
     if (change) count = 0;
@@ -382,7 +383,7 @@ void SamichIslandApp::update() {
 					hero.needsGravity = false;
 				}
 			}
-
+            
 			float normalSpeed = 10; float dashSpeed = 50; float direction;
 
 			//left or right with dashing!!
@@ -566,9 +567,11 @@ void SamichIslandApp::update() {
 					hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
 					hero.onPlatform = true;
 				}
-			}	
-
+			}
+            
 			//tube collisions
+            
+            
         }
         break;
         case GAMEOVER:
@@ -583,6 +586,7 @@ void SamichIslandApp::update() {
 void SamichIslandApp::draw() {
 	// clear out the window with black
 	gl::clear( Color( 0, 0, 0 ) );
+    
 	gl::pushMatrices();
 	gl::setMatricesWindow (WIND_W, WIND_H);
 	gl::setViewport(this->getWindowBounds());
@@ -597,16 +601,14 @@ void SamichIslandApp::draw() {
 		break; }
         case PLAY: {
 			int i = 0;
-            
-            DrawEngine::get().drawSprites();
 			//draw punch
 			if (hero.punching){
 				glColor3f(0, 0, 1);
 				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
 			}
 			
-			glColor3f(hero.color.r, hero.color.g, hero.color.b);
-			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+			//glColor3f(hero.color.r, hero.color.g, hero.color.b);
+			//gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 				
 			//draw mooks
 			for (i = 0; i < cannon_fodder.size(); ++i )
@@ -658,11 +660,11 @@ void SamichIslandApp::draw() {
         break;
         case GAMEOVER: {
             gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
-            
         }
         break;
         
 	}
 	gl::popMatrices();
+    
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
