@@ -40,11 +40,11 @@ public:
     
     void setBackgroundPath ( string bg_path ) {
         background_mpath = bg_path;
-        background = gl::Texture( loadImage( loadResource(background_mpath) ));
+        background = gl::Texture( loadImage( loadAsset(background_mpath) ));
     }
     void setSpriteSheetPath ( string ss_path ) {
         ssheet_mpath = ss_path;
-        spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath) ));
+        spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath) ));
     }
     
     void setWindowBounds( ci::Rectf bnds ) { window_bounds = bnds; }
@@ -191,13 +191,7 @@ protected:
     void init() {
         background = gl::Texture( loadImage( loadAsset(background_mpath) ));
         spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
-        
-        if (spritesheet)
-        {
-            ss_width = spritesheet.getWidth();
-            ss_height = spritesheet.getHeight();
-        }
-    }
+
 };
 #endif
 
