@@ -5,7 +5,7 @@ using namespace ci::app;
 #ifndef STATE_HPP__
 #define STATE_HPP__
 
-enum { INIT, PLAY, GAMEOVER };
+enum { MAIN, INIT, PLAY, GAMEOVER };
     
 class State {
 public:

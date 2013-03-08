@@ -27,8 +27,8 @@ enum TextAlign
 class DrawEngine
 {
     float frame_rate, total_time; //frameRate
-    string background_mpath, ssheet_mpath;
-    gl::Texture background, spritesheet;
+    string background_mpath, ssheet_mpath, title_mpath;
+    gl::Texture background, spritesheet, title;
     ci::Rectf window_bounds;
     
 public:
@@ -43,15 +43,20 @@ public:
         ssheet_mpath = ss_path;
         spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath) ));
     }
+    void setTitlePath ( string t_path ) {
+        title_mpath = t_path;
+        title = gl::Texture( loadImage( loadAsset(title_mpath) ));
+    }
     
     void setWindowBounds( ci::Rectf bnds ) { window_bounds = bnds; }
     
     DrawEngine(){}
     
     //don't use if try to upload background only
-    DrawEngine( string bg_path, string ss_path, float frameRate, ci::Rectf bounds ){
+    DrawEngine( string bg_path, string ss_path, string t_path, float frameRate, ci::Rectf bounds ){
         background_mpath = bg_path;
         ssheet_mpath = ss_path;
+		title_mpath = t_path;
         window_bounds = bounds;
         init();
     }
@@ -151,6 +156,18 @@ public:
         }
     
     }
+	
+	void drawTitle()
+    {
+        // draw : draw textures here
+        //gl::draw(Texture tex, Area boundsInSpriteSheet, RectInWindow);
+        gl::clear( Color( 0 , 0, 0 ) );
+        glColor3f(1, 1, 1); //white
+        
+        if ( background )
+            gl::draw(title, window_bounds );
+		
+    }
 
     //str: the string to be drawn. must be lexical casted.
     //pos: position in center
@@ -185,6 +202,7 @@ protected:
     void init() {
         background = gl::Texture( loadImage( loadAsset(background_mpath) ));
         spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
+        title = gl::Texture( loadImage( loadAsset(title_mpath)    ));
     }
 };
 #endif

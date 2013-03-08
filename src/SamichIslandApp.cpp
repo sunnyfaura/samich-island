@@ -8,6 +8,7 @@ using namespace std;
 
 float game_time, shoot_time, dash_time, punch_time, dash_accel, dash_limit, punch_delay;
 int dash_mana_cost;
+bool isTitle, isMain;
 Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
@@ -31,16 +32,17 @@ void SamichIslandApp::resize(ResizeEvent event)
 
 void SamichIslandApp::setup()
 {
-    DrawEngine::get().setBackgroundPath("ikabg.bmp");
+    DrawEngine::get().setBackgroundPath("titlescreen.png");
     DrawEngine::get().setFrameRate(getFrameRate());
     //initialize states
-	appState.setNextState( INIT );
+	appState.setNextState( MAIN );
 	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
 
 	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
+	isTitle = true; isMain = false;
 
 	//hero initialization
 	hero.radius = 16;
@@ -229,66 +231,9 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 	leftClick = false;
 }
 
-<<<<<<< HEAD
 void SamichIslandApp::update() {	
-	//punch
-	if (hero.punching){
-		int dir = -1;
-		if (punch.isRight){
-			dir = 1;
-		}
-		if (punch_time == 0) {
-			punch_time = game_time;
-		}
-		float secs = (game_time-punch_time)/1000;
-		if (secs >= 0.118){
-			dir *= -1;
-		}
-		if (secs >= 0.230){
-			hero.punching = false;
-			punch.center = hero.center;
-			punch.center.x += -1*dir*hero.radius;
-			punch_time = 0;
-		}
-		else {
-			punch.center.x += dir*((((11*secs)-1.3)*((11*secs)-1.3))+1.5);
-		}
-	}
-	//dakka dakka dakka!
-	Rectf bounds = this->getWindowBounds();
-	game_time = ci::app::getElapsedSeconds() * 1000;
-	if(leftClick == true && game_time - shoot_time > shoot_delay){
-		shoot_time = game_time;
-		Bullet temp;
-		temp.center = hero.center;
-		temp.radius = B_RAD;
-		temp.velocity.x = temp.velocity.y = B_VEL;
 
-		//console() << "start = (" << temp.center.x << "," << temp.center.y << ")" << std::endl;
-		//console() << "mouse = (" <<mouse.x << "," << mouse.y << ")" << std::endl;
-		temp.direction = temp.center - mouse;
-		//console() << "direc1 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
-		//if(temp.direction != zero)
-		temp.direction.normalize();
-		//console() << "direc2 = (" << temp.direction.x << "," << temp.direction.y << ")" << std::endl;
-		dakka.push_back(temp);
-	}
-	int i = 0;
-	for(; i < dakka.size(); ++i) {
-		dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
-		dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;
-		
-		//remove bullet if outside window
-		if (!bounds.contains(dakka[i].center.toV())) {
-			if (!dakka.empty())
-				dakka.erase(dakka.begin() + i);
-		}
-=======
-void SamichIslandApp::update() {
->>>>>>> 313d0acff46247bc0996ddc4a6acd048b976689c
-
-    
-    WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
+	WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
     //draw engine updates
     DrawEngine::get().setWindowBounds(getWindowBounds());
     
@@ -297,8 +242,14 @@ void SamichIslandApp::update() {
     if (change) count = 0;
     
     switch( appState.getCurrentState() ) {
+		case MAIN:
+			if (leftClick){
+				appState.setNextState( INIT );
+			}
+			break;
         case INIT:
             if( change ) {
+				DrawEngine::get().setBackgroundPath("bg.png");
                 count = 0; //time between states
                 timeout = 50;
             }
@@ -634,91 +585,94 @@ void SamichIslandApp::update() {
             break; 
     }
     count++; //increment the time between states
-}
+}	
 
 void SamichIslandApp::draw() {
-	// clear out the window with black
-	gl::clear( Color( 0, 0, 0 ) );
-	gl::pushMatrices();
-	gl::setMatricesWindow (WIND_W, WIND_H);
-	gl::setViewport(this->getWindowBounds());
-	gl::enableAlphaBlending();
-    
-    switch( appState.getCurrentState() ) 
-    {
-		case INIT: {
-			string c = boost::lexical_cast<std::string>(count);
-			string t = boost::lexical_cast<std::string>(timeout);    
-			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
-		break; }
-        case PLAY: {
-			int i = 0;
-            
-            DrawEngine::get().drawSprites();
-			//draw punch
-			if (hero.punching){
-				glColor3f(0, 0, 1);
-				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
-			}
-			
-			glColor3f(hero.color.r, hero.color.g, hero.color.b);
-			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+		// clear out the window with black
+		gl::clear( Color( 0, 0, 0 ) );
+		gl::pushMatrices();
+		gl::setMatricesWindow (WIND_W, WIND_H);
+		gl::setViewport(this->getWindowBounds());
+		gl::enableAlphaBlending();
+		
+		switch( appState.getCurrentState() ) 
+		{
+			case MAIN: {
+				DrawEngine::get().drawSprites();
+			break; }
+			case INIT: {
+				string c = boost::lexical_cast<std::string>(count);
+				string t = boost::lexical_cast<std::string>(timeout);    
+				gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
+				break; }
+			case PLAY: {
+				int i = 0;
 				
-			//draw mooks
-			for (i = 0; i < cannon_fodder.size(); ++i )
-			{
-				glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
-				gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
-			}
+				DrawEngine::get().drawSprites();
+				//draw punch
+				if (hero.punching){
+					glColor3f(0, 0, 1);
+					gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
+				}
 			
-			//draw drops
-			for (i = 0; i < drops.size(); ++i )
-			{
-				glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
-				gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
+				glColor3f(hero.color.r, hero.color.g, hero.color.b);
+				gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+				
+				//draw mooks
+				for (i = 0; i < cannon_fodder.size(); ++i )
+				{
+					glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
+					gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
+				}
+			
+				//draw drops
+				for (i = 0; i < drops.size(); ++i )
+				{
+					glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
+					gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
+				}
+
+				//platforms
+				glColor3f(0,1,1);
+				gl::drawSolidRect(createRectangle(platformA));
+				//gl::drawSolidRect(createRectangle(platformB));
+				gl::drawSolidRect(createRectangle(platformC));
+				gl::drawSolidRect(createRectangle(platformD));
+				gl::drawSolidRect(createRectangle(platformE));
+				//gl::drawSolidRect(createRectangle(platformF));
+				//gl::drawSolidRect(createRectangle(platformG));
+				//gl::drawSolidRect(createRectangle(platformH));
+				
+				//draw bullets
+				for(; i < dakka.size(); ++i) {
+					glColor3f(1, 0, 0);
+					gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
+				}
+
+				//tubes
+				glColor3f(1,1,0);
+				gl::drawSolidRect(createRectangle(tubeA));
+				gl::drawSolidRect(createRectangle(tubeB));
+            
+				//tower
+				glColor3f(1,0,1);
+				gl::drawSolidRect(createRectangle(tower1));
+				gl::drawSolidRect(createRectangle(tower2));
+            
+				string hero_mana = boost::lexical_cast<std::string>(hero.mana);
+				string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
+				string hero_health = boost::lexical_cast<std::string>(hero.health);
+				DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+				DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
 			}
-
-			//platforms
-			glColor3f(0,1,1);
-			gl::drawSolidRect(createRectangle(platformA));
-			//gl::drawSolidRect(createRectangle(platformB));
-			gl::drawSolidRect(createRectangle(platformC));
-			gl::drawSolidRect(createRectangle(platformD));
-			gl::drawSolidRect(createRectangle(platformE));
-			//gl::drawSolidRect(createRectangle(platformF));
-			//gl::drawSolidRect(createRectangle(platformG));
-			//gl::drawSolidRect(createRectangle(platformH));
-
-			//draw bullets
-			for(; i < dakka.size(); ++i) {
-				glColor3f(1, 0, 0);
-				gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
+				break;
+			case GAMEOVER: {
+				gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
+            
 			}
-
-			//tubes
-			glColor3f(1,1,0);
-			gl::drawSolidRect(createRectangle(tubeA));
-			gl::drawSolidRect(createRectangle(tubeB));
-            
-            //tower
-            glColor3f(1,0,1);
-            gl::drawSolidRect(createRectangle(tower1));
-            gl::drawSolidRect(createRectangle(tower2));
-            
-            string hero_mana = boost::lexical_cast<std::string>(hero.mana);
-            string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
-            string hero_health = boost::lexical_cast<std::string>(hero.health);
-            DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
-            DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
-        }
-        break;
-        case GAMEOVER: {
-            gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
-            
-        }
-        break;
+				break;
         
-	}
-	gl::popMatrices();
+		}
+		gl::popMatrices();
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )
