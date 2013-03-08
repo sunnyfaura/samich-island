@@ -32,7 +32,12 @@ void SamichIslandApp::resize(ResizeEvent event)
 
 void SamichIslandApp::setup()
 {
+<<<<<<< HEAD
     DrawEngine::get().setBackgroundPath("titlescreen.png");
+=======
+    DrawEngine::get().setBackgroundPath("ikabg.bmp");
+    DrawEngine::get().setSpriteSheetPath("pokesilver.png");
+>>>>>>> b504ede435669b44ac223acafea9c47949be35cd
     DrawEngine::get().setFrameRate(getFrameRate());
     //initialize states
 	appState.setNextState( MAIN );
@@ -45,7 +50,7 @@ void SamichIslandApp::setup()
 	isTitle = true; isMain = false;
 
 	//hero initialization
-	hero.radius = 16;
+	hero.radius = 20;
     hero.health = 100;
     hero.mana = 100;
     hero.maximum_mana = 100;
@@ -95,19 +100,19 @@ void SamichIslandApp::setup()
 
 	//platform things
 	platformA.center = Vector2( WIND_W/2 , 500 );
-	platformA.height = 40;
-	platformA.width = 300;
+	platformA.height = 30;
+	platformA.width = 400;
 	//platformB.center = Vector2( WIND_W*8/10 , 90 );
 	//platformB.height = 50;
 	//platformB.width = 100;
 	platformC.center = Vector2( WIND_W/2 , 240 );
-	platformC.height = 40;
-	platformC.width = 300;
-	platformD.center = Vector2( WIND_W*2/20 , 360 );
-	platformD.height = 40;
+	platformC.height = 30;
+	platformC.width = 400;
+	platformD.center = Vector2( WIND_W*2/20 , 370 );
+	platformD.height = 30;
 	platformD.width = 300;
-	platformE.center = Vector2( WIND_W*18/20 , 360 );
-	platformE.height = 40;
+	platformE.center = Vector2( WIND_W*18/20 , 370 );
+	platformE.height = 30;
 	platformE.width = 300;
 	//platformF.center = Vector2( WIND_W*2/10 , 360 );
 	//platformF.height = 50;
@@ -236,7 +241,7 @@ void SamichIslandApp::update() {
 	WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
     //draw engine updates
     DrawEngine::get().setWindowBounds(getWindowBounds());
-    
+  
 	//state management updates
 	bool change = appState.commitState();
     if (change) count = 0;
@@ -389,7 +394,7 @@ void SamichIslandApp::update() {
 					hero.needsGravity = false;
 				}
 			}
-
+            
 			float normalSpeed = 10; float dashSpeed = 50; float direction;
 
 			//left or right with dashing!!
@@ -573,9 +578,11 @@ void SamichIslandApp::update() {
 					hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
 					hero.onPlatform = true;
 				}
-			}	
-
+			}
+            
 			//tube collisions
+            
+            
         }
         break;
         case GAMEOVER:
@@ -588,6 +595,7 @@ void SamichIslandApp::update() {
 }	
 
 void SamichIslandApp::draw() {
+<<<<<<< HEAD
 		// clear out the window with black
 		gl::clear( Color( 0, 0, 0 ) );
 		gl::pushMatrices();
@@ -614,6 +622,33 @@ void SamichIslandApp::draw() {
 					glColor3f(0, 0, 1);
 					gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
 				}
+=======
+	// clear out the window with black
+	gl::clear( Color( 0, 0, 0 ) );
+    
+	gl::pushMatrices();
+	gl::setMatricesWindow (WIND_W, WIND_H);
+	gl::setViewport(this->getWindowBounds());
+	gl::enableAlphaBlending();
+    
+    switch( appState.getCurrentState() ) 
+    {
+		case INIT: {
+			string c = boost::lexical_cast<std::string>(count);
+			string t = boost::lexical_cast<std::string>(timeout);    
+			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
+		break; }
+        case PLAY: {
+            
+            DrawEngine::get().drawSprites();
+            
+			int i = 0;
+			//draw punch
+			if (hero.punching){
+				glColor3f(0, 0, 1);
+				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
+			}
+>>>>>>> b504ede435669b44ac223acafea9c47949be35cd
 			
 				glColor3f(hero.color.r, hero.color.g, hero.color.b);
 				gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
@@ -659,6 +694,7 @@ void SamichIslandApp::draw() {
 				gl::drawSolidRect(createRectangle(tower1));
 				gl::drawSolidRect(createRectangle(tower2));
             
+<<<<<<< HEAD
 				string hero_mana = boost::lexical_cast<std::string>(hero.mana);
 				string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
 				string hero_health = boost::lexical_cast<std::string>(hero.health);
@@ -674,5 +710,22 @@ void SamichIslandApp::draw() {
         
 		}
 		gl::popMatrices();
+=======
+            string hero_mana = boost::lexical_cast<std::string>(hero.mana);
+            string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
+            string hero_health = boost::lexical_cast<std::string>(hero.health);
+            DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+            DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+        }
+        break;
+        case GAMEOVER: {
+            gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
+        }
+        break;
+        
+	}
+	gl::popMatrices();
+    
+>>>>>>> b504ede435669b44ac223acafea9c47949be35cd
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )

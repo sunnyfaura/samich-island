@@ -21,14 +21,22 @@ typedef unsigned int uint;
 using namespace std;
 
 enum TextAlign
-{ TEXT_CENTER, TEXT_LEFT }
- ;
+{
+  TEXT_CENTER,
+  TEXT_LEFT
+};
 
 class DrawEngine
 {
     float frame_rate, total_time; //frameRate
+<<<<<<< HEAD
     string background_mpath, ssheet_mpath, title_mpath;
     gl::Texture background, spritesheet, title;
+=======
+    string background_mpath, ssheet_mpath;
+    int ss_width, ss_height;
+    gl::Texture background, spritesheet;
+>>>>>>> b504ede435669b44ac223acafea9c47949be35cd
     ci::Rectf window_bounds;
     
 public:
@@ -37,11 +45,29 @@ public:
     
     void setBackgroundPath ( string bg_path ) {
         background_mpath = bg_path;
-        background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+        
+        try {
+            background = gl::Texture( loadImage( loadResource(background_mpath) ));
+        } catch (Exception e) {
+            background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+        }
+        
     }
     void setSpriteSheetPath ( string ss_path ) {
-        ssheet_mpath = ss_path;
-        spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath) ));
+        ssheet_mpath = ss_path;        
+        try {
+            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath) ));
+        } catch (Exception e) {
+            spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath) ));
+        }
+        
+        if ( spritesheet )
+        {
+            
+        }
+        else
+            return ;
+        
     }
     void setTitlePath ( string t_path ) {
         title_mpath = t_path;
@@ -85,17 +111,19 @@ public:
     //entity_id : group of frames/ sprite | frame_entity_id : individual frame on sprite
     //locationInSS : location of frame in the sprite sheet
     //set frame_entity_id to equal to entity_id if only one frame
-    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS, int width, int height )
+    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS, Vector2 position, int width, int height )
     {
         Sprite* s;
         if (spriteExists(entity_id) == true) //if sprite already exists
         {
             //adds frame "frame_entity_id" to sprite "entity_id"
             s = findSprite(entity_id);
-            //s->addFrame( frame_entity_id , locationInSS );
+            s->addFrame( frame_entity_id , locationInSS );
         }
         else //if sprite "entity_id" does not exist on the Sprite array
         {
+            s = new Sprite();
+            s->position = position;
             s->setHeight(height);
             s->setWidth(width);
             s->entity_id = entity_id;
@@ -143,18 +171,18 @@ public:
     
     void drawSprites()
     {
-        // draw : draw textures here
-        //gl::draw(Texture tex, Area boundsInSpriteSheet, RectInWindow);
-        gl::clear( Color( 0 , 0, 0 ) );
-        glColor3f(1, 1, 1); //white
+        glColor3f(1, 1, 1); 
         
         if ( background )
             gl::draw(background, window_bounds );
-        for ( size_t i = 0; i < sprites.size(); ++i )
+        
+        if ( spritesheet )
         {
-            gl::draw(spritesheet, sprites[i]->getSpriteOnSpritesheetBounds(), sprites[i]->getSpriteOnWindowBounds());
+            for ( size_t i = 0; i < sprites.size(); ++i )
+            {
+                gl::draw(spritesheet, sprites[i]->getSpriteOnSpritesheetBounds(), sprites[i]->getSpriteOnWindowBounds());
+            }
         }
-    
     }
 	
 	void drawTitle()
@@ -180,7 +208,7 @@ public:
             gl::drawString(str, pos.toV(), color, font);
     }
     
-    // c - circle to be drawn, color can be empty or not
+    // c: circle to be drawn, color can be empty or not
     void drawCircle( const Circle &c, const Color color )
     {
         if ( !color )
@@ -190,6 +218,8 @@ public:
         gl::drawSolidCircle(c.center.toV(),c.radius, 0);
     }
     
+    // a: aabb that will be drawn in the window
+    // color: color of the rectangle created
     void drawRectangle( const AABB &a, const Color color)
     {
         glColor3f(color.r,color.g,color.b);
@@ -200,9 +230,26 @@ protected:
     vector<Sprite*> sprites;
     
     void init() {
+<<<<<<< HEAD
         background = gl::Texture( loadImage( loadAsset(background_mpath) ));
         spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
         title = gl::Texture( loadImage( loadAsset(title_mpath)    ));
+=======
+        try {
+            background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+            spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
+        }
+        catch (Exception e) {
+            background = gl::Texture( loadImage( loadResource(background_mpath) ));
+            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
+        }
+
+        if (spritesheet)
+        {
+            ss_width = spritesheet.getWidth();
+            ss_height = spritesheet.getHeight();
+        }
+>>>>>>> b504ede435669b44ac223acafea9c47949be35cd
     }
 };
 #endif
