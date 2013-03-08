@@ -29,14 +29,9 @@ enum TextAlign
 class DrawEngine
 {
     float frame_rate, total_time; //frameRate
-<<<<<<< HEAD
     string background_mpath, ssheet_mpath, title_mpath;
     gl::Texture background, spritesheet, title;
-=======
-    string background_mpath, ssheet_mpath;
     int ss_width, ss_height;
-    gl::Texture background, spritesheet;
->>>>>>> b504ede435669b44ac223acafea9c47949be35cd
     ci::Rectf window_bounds;
     
 public:
@@ -70,9 +65,19 @@ public:
         
     }
     void setTitlePath ( string t_path ) {
-        title_mpath = t_path;
-        title = gl::Texture( loadImage( loadAsset(title_mpath) ));
-    }
+        title_mpath = t_path;        
+        try {
+            title = gl::Texture( loadImage( loadResource(title_mpath) ));
+        } catch (Exception e) {
+            title = gl::Texture( loadImage( loadAsset(title_mpath) ));
+        }
+        
+        if ( title )
+        {
+            
+        }
+        else
+            return ;    }
     
     void setWindowBounds( ci::Rectf bnds ) { window_bounds = bnds; }
     
@@ -176,7 +181,7 @@ public:
         if ( background )
             gl::draw(background, window_bounds );
         
-        if ( spritesheet )
+        if ( spritesheet && background_mpath == "bg.png")
         {
             for ( size_t i = 0; i < sprites.size(); ++i )
             {
@@ -230,18 +235,13 @@ protected:
     vector<Sprite*> sprites;
     
     void init() {
-<<<<<<< HEAD
-        background = gl::Texture( loadImage( loadAsset(background_mpath) ));
-        spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
-        title = gl::Texture( loadImage( loadAsset(title_mpath)    ));
-=======
         try {
             background = gl::Texture( loadImage( loadAsset(background_mpath) ));
             spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
         }
         catch (Exception e) {
             background = gl::Texture( loadImage( loadResource(background_mpath) ));
-            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
+            //spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
         }
 
         if (spritesheet)
@@ -249,7 +249,6 @@ protected:
             ss_width = spritesheet.getWidth();
             ss_height = spritesheet.getHeight();
         }
->>>>>>> b504ede435669b44ac223acafea9c47949be35cd
     }
 };
 #endif
