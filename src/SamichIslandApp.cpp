@@ -44,7 +44,7 @@ void SamichIslandApp::setup()
 	WIND_W = this->getWindowWidth();
 
 	//hero initialization
-	hero.radius = 56;
+	hero.radius = 20;
     hero.health = 100;
     hero.mana = 100;
     hero.maximum_mana = 100;
@@ -94,19 +94,19 @@ void SamichIslandApp::setup()
 
 	//platform things
 	platformA.center = Vector2( WIND_W/2 , 500 );
-	platformA.height = 40;
-	platformA.width = 300;
+	platformA.height = 30;
+	platformA.width = 400;
 	//platformB.center = Vector2( WIND_W*8/10 , 90 );
 	//platformB.height = 50;
 	//platformB.width = 100;
 	platformC.center = Vector2( WIND_W/2 , 240 );
-	platformC.height = 40;
-	platformC.width = 300;
-	platformD.center = Vector2( WIND_W*2/20 , 360 );
-	platformD.height = 40;
+	platformC.height = 30;
+	platformC.width = 400;
+	platformD.center = Vector2( WIND_W*2/20 , 370 );
+	platformD.height = 30;
 	platformD.width = 300;
-	platformE.center = Vector2( WIND_W*18/20 , 360 );
-	platformE.height = 40;
+	platformE.center = Vector2( WIND_W*18/20 , 370 );
+	platformE.height = 30;
 	platformE.width = 300;
 	//platformF.center = Vector2( WIND_W*2/10 , 360 );
 	//platformF.height = 50;
@@ -600,6 +600,9 @@ void SamichIslandApp::draw() {
 			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
 		break; }
         case PLAY: {
+            
+            DrawEngine::get().drawSprites();
+            
 			int i = 0;
 			//draw punch
 			if (hero.punching){
@@ -607,8 +610,8 @@ void SamichIslandApp::draw() {
 				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
 			}
 			
-			//glColor3f(hero.color.r, hero.color.g, hero.color.b);
-			//gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+			glColor3f(hero.color.r, hero.color.g, hero.color.b);
+			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 				
 			//draw mooks
 			for (i = 0; i < cannon_fodder.size(); ++i )

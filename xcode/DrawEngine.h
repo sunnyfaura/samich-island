@@ -40,11 +40,29 @@ public:
     
     void setBackgroundPath ( string bg_path ) {
         background_mpath = bg_path;
-        background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+        
+        try {
+            background = gl::Texture( loadImage( loadResource(background_mpath) ));
+        } catch (Exception e) {
+            background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+        }
+        
     }
     void setSpriteSheetPath ( string ss_path ) {
-        ssheet_mpath = ss_path;
-        spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath) ));
+        ssheet_mpath = ss_path;        
+        try {
+            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath) ));
+        } catch (Exception e) {
+            spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath) ));
+        }
+        
+        if ( spritesheet )
+        {
+            
+        }
+        else
+            return ;
+        
     }
     
     void setWindowBounds( ci::Rectf bnds ) { window_bounds = bnds; }
@@ -143,17 +161,18 @@ public:
     
     void drawSprites()
     {
-        gl::enable(GL_BLEND);
-        glBlendFunc(GL_SRC_COLOR,GL_SRC_ALPHA);
         glColor3f(1, 1, 1); 
         
         if ( background )
             gl::draw(background, window_bounds );
-        for ( size_t i = 0; i < sprites.size(); ++i )
+        
+        if ( spritesheet )
         {
-            gl::draw(spritesheet, sprites[i]->getSpriteOnSpritesheetBounds(), sprites[i]->getSpriteOnWindowBounds());
+            for ( size_t i = 0; i < sprites.size(); ++i )
+            {
+                gl::draw(spritesheet, sprites[i]->getSpriteOnSpritesheetBounds(), sprites[i]->getSpriteOnWindowBounds());
+            }
         }
-    
     }
 
     //str: the string to be drawn. must be lexical casted.
@@ -189,8 +208,14 @@ protected:
     vector<Sprite*> sprites;
     
     void init() {
-        background = gl::Texture( loadImage( loadAsset(background_mpath) ));
-        spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
+        try {
+            background = gl::Texture( loadImage( loadAsset(background_mpath) ));
+            spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
+        }
+        catch (Exception e) {
+            background = gl::Texture( loadImage( loadResource(background_mpath) ));
+            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
+        }
 
         if (spritesheet)
         {
