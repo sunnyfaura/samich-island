@@ -214,6 +214,10 @@ void SamichIslandApp::guiEvent(ciUIEvent *event) {
     if (name == "PLAY") {
         appState.setNextState(PLAY);
     }
+    else if (name == "EXIT")
+    {
+        quit();
+    }
     console() << name << endl;
 }
 
