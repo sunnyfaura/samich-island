@@ -1,11 +1,3 @@
-/*
- *  Sprite.h
- *  SamichIsland
- *
- *  Created by xanthian on 2/11/13.
- *  Copyright 2013 __MyCompanyName__. All rights reserved.
- *
- */
 #ifndef SPRITE_HPP__
 #define SPRITE_HPP__
 

@@ -25,16 +25,13 @@ void SamichIslandApp::resize(ResizeEvent event) {
 void SamichIslandApp::setup(){
     DrawEngine::get().setBackgroundPath("ikabg.bmp");
     DrawEngine::get().setFrameRate(getFrameRate());
-    //initialize states
 	appState.setNextState( INIT );
-	//time initializations
+//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
-
-	//window bluh
+//window bluh//
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
-
-	//hero initialization
+//hero initialization
 	hero.radius = 16;
     hero.health = 100;
     hero.mana = 100;
@@ -49,42 +46,33 @@ void SamichIslandApp::setup(){
 	hero.on_btm_platform = hero.on_left_platform = hero.on_right_platform = hero.on_top_platform = false;
 	JUMP_H = 16;
 	hero.damage = 10;
-	
-	//punch initialization
+//punch initialization
 	punch.radius = 10;
 	punch.center = hero.center;
 	punch.center.x += hero.radius;
-	punch.isRight = true;
-	
+	punch.isRight = true;	
 	punch_delay = 100;
-	
-	//bullet initialization
-	B_RAD = 7.00; B_VEL = 12.00;
-	
-	//other bullet bluh
+//bullet initialization
+	B_RAD = 7.00; B_VEL = 12.00;	
 	leftClick = false;
 	bullet_counter = 50;
 	shoot_delay = 500;
-	
-	//dash thingy
+//dash thingy
 	dash_limit = 800;
     dash_mana_cost = 10;
-    
-	
-	//mooks
-	Mook mook;
-	mook.health = 100;
-	mook.attack = mook.defend = false;
-	mook.radius = 25;
-	mook.center = Vector2(WIND_H/4,WIND_H-mook.radius);
-	mook.color = Colorf(0,1.0,0);
-	cannon_fodder.push_back(mook);
-	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
-	cannon_fodder.push_back(mook);
-	mook.center = Vector2(3*WIND_H/4,WIND_H-mook.radius);
-	cannon_fodder.push_back(mook);
-
-	//platform things
+//portal from hell
+    portal.center = Vector2(WIND_W/2,100);
+    portal.width = portal.height = 150;
+//mooks
+    MAX_MOOKS = 25;
+	for(int i = 0; i < MAX_MOOKS; ++i){
+		Mook mook;
+		mook.health = 100;
+		mook.radius = 25;
+		mook.center = portal.center;
+		cannon_fodder.push_back(mook);
+	}
+//platform things
 	bottom_platform.center = Vector2( WIND_W/2 , 500 );
 	bottom_platform.height = 40;
 	bottom_platform.width = 300;
@@ -97,16 +85,14 @@ void SamichIslandApp::setup(){
 	right_platform.center = Vector2( WIND_W*18/20 , 360 );
 	right_platform.height = 40;
 	right_platform.width = 300;
-
-    //tower targets
+//tower targets
     tower1.center = Vector2( 20, 50 );
     tower1.height = 70;
     tower1.width = 30;
     tower2.center = Vector2( WIND_W - 20 , 50 );
     tower2.height = 70;
-    tower2.width = 30;
-    
-	//tubes
+    tower2.width = 30;    
+//tubes
 	tubeA.height = 50;
 	tubeA.width = 50;
 	tubeA.center = Vector2( tubeA.width/2 , WIND_H-(tubeA.height/2) );
@@ -241,7 +227,7 @@ void SamichIslandApp::update() {
                 appState.setNextState(GAMEOVER);
                 break; }
 
-//**==================================EVERYTHING RELATED TO HERO============================================**//
+//**=======================================EVERYTHING RELATED TO HERO============================================**//
             
             //punch
 			if (hero.punching) {
@@ -422,14 +408,27 @@ void SamichIslandApp::update() {
 				}
 			}
 			
-//**==================================EVERYTHING RELATED TO MOOK===========================================**//
+//**=======================================EVERYTHING RELATED TO MOOK===========================================**//
 
 			//mook movement
-			for(i = 0; i < cannon_fodder.size(); ++i){
-				if(cannon_fodder[i].center.x + cannon_fodder[i].radius < WIND_W)
-					cannon_fodder[i].center.x += 1;
-				else cannon_fodder[i].center.x -= 1; 
-			}
+			// for(i = 0; i < cannon_fodder.size(); ++i){
+			// 	if(cannon_fodder[i].center.x + cannon_fodder[i].radius < WIND_W)
+			// 		cannon_fodder[i].center.x += 1;
+			// 		if( hero.on_btm_platform == false 
+			// 			&& hero.on_left_platform == false 
+			// 			&& hero.on_right_platform == false 
+			// 			&& hero.on_top_platform == false
+			// 			&& hero.needsGravity == true ) {
+			// 		if ( (hero.center.y - hero.velocity.y) <= WIND_H  ) {
+			// 			hero.center.y -= hero.velocity.y;
+			// 			punch.center.y -= hero.velocity.y;
+			// 			hero.velocity.y -= 1;
+			// 			punch.center.y -= 1;
+			// 		} else {
+			// 			hero.needsGravity = false;
+			// 		}
+			// 	}
+			// }
 
 			//mook dropping drops
 			for (i = 0; i < cannon_fodder.size(); ++i) {
@@ -465,7 +464,7 @@ void SamichIslandApp::update() {
 				} 
 			}
 				
-//**==============================EVERYTHING NOT RELATED TO HERO OR MOOK========================================**//
+//**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//
 
 			//platform collisions
 			if(satCircleAABB(hero,bottom_platform)){
@@ -547,6 +546,10 @@ void SamichIslandApp::draw() {
 			
 			glColor3f(hero.color.r, hero.color.g, hero.color.b);
 			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+
+			//portal from hell
+			glColor3f(1,0,1);
+            gl::drawSolidRect(createRectangle(portal));
 				
 			//draw mooks
 			for (i = 0; i < cannon_fodder.size(); ++i )

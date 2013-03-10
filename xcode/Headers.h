@@ -1,13 +1,3 @@
-/*
- *  Headers.h
- *  SamichIsland
- *
- *  Created by xanthian on 2/2/13.
- *  Copyright 2013 __MyCompanyName__. All rights reserved.
- *
- * 
- */
-
 #include <vector>
 #include <cmath>
 #include <string>

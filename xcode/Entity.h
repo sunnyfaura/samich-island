@@ -1,11 +1,3 @@
-//
-//  Entity.h
-//  SamichIsland
-//
-//  Created by Marione Semilla on 3/4/13.
-//
-//
-
 #ifndef SamichIsland_Entity_h
 #define SamichIsland_Entity_h
 

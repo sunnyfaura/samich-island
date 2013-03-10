@@ -1,13 +1,3 @@
-/*
- *  DrawEngine.h
- *  SamichIsland
- *
- *  Created by xanthian on 2/3/13.
- *  Copyright 2013 __bearStuffs__. All rights reserved.
- *
- *  how to use: use DrawEngine::get() singleton :)
- *
- */
 #ifndef DRAWENGINE_HPP__
 #define DRAWENGINE_HPP__
 
