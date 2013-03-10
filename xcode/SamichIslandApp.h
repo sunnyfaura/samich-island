@@ -52,11 +52,7 @@ public:
 	vector<Mook> cannon_fodder;
 	vector<Drop> drops;
 	//platform things
-	AABB platformA; //top left
-
-	//AABB platformC; //top center
-	//AABB platformD; //mid left
-	//AABB platformE; //mid right
+	AABB bottom_platform, left_platform, right_platform, top_platform;
 	
 	AABB tower1; //tower on top left
     AABB tower2; //tower on top right

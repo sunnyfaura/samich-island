@@ -53,7 +53,8 @@ struct Hero: Circle {
     int mana; //mana
 	float dashDir;//takes note of the direction of dash
     bool isDead;
-	bool moving, jumping, dashing, punching, needsGravity, onPlatform; //any changes in player state
+	bool moving, jumping, dashing, punching, needsGravity;
+	bool on_btm_platform, on_left_platform, on_right_platform, on_top_platform; //any changes in player state
 	bool jumpKey, leftKey, rightKey, dashKey; //movement details
     
     void recieveDamage( int dmg )
