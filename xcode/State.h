@@ -6,6 +6,7 @@ using namespace ci::app;
 #define STATE_HPP__
 
 enum { INIT, PLAY, GAMEOVER };
+
     
 class State {
 public:
