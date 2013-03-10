@@ -80,7 +80,6 @@ struct Mook: Circle {
 	}
 	bool on_btm_platform, on_left_platform, on_right_platform, on_top_platform;
 	float direction;
-
 };
 
 struct Drop:Circle {

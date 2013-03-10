@@ -213,7 +213,6 @@ void SamichIslandApp::mouseDown( MouseEvent event ) {
 			leftClick = true;
 		break;
 	}
-	
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event ) {
