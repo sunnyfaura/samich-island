@@ -2,6 +2,13 @@
 #include "cinder/Camera.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/ImageIo.h"
+#include "ciUI.h"
+
+/**
+ Credits for Menu GUI go completely to
+ rezaali
+ https://github.com/rezaali/ciUI
+ **/
 
 using namespace ci;
 using namespace ci::app;
@@ -51,6 +58,8 @@ public:
 	AABB tubeA; //tubes for exit
 	AABB tubeB;
 	AABB portal; //portal from hell
+//for menu
+    ciUICanvas *menuGUI;
 //others
 	void prepareSettings( Settings *settings );
 	void resize(ResizeEvent event);
@@ -60,8 +69,10 @@ public:
 	void mouseMove( MouseEvent event );
 	void mouseDown( MouseEvent event );
 	void mouseUp( MouseEvent event );
+    void guiEvent( ciUIEvent *event);
 	void update();
 	void draw();
+    void shutdown();
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include "SamichIslandApp.h"
 #include "DrawEngine.h"
 
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -23,6 +24,17 @@ void SamichIslandApp::resize(ResizeEvent event) {
 }
 
 void SamichIslandApp::setup(){
+    
+    //menu setup
+    menuGUI = new ciUICanvas(0,0,getWindowWidth(),getWindowHeight());
+    //menuGUI->addWidgetDown(new ciUIButton( 60, 20 ,getWindowCenter().x-20, 100, false, "PLAY", CI_UI_FONT_LARGE) );
+    menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "PLAY", CI_UI_FONT_LARGE));
+    menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "LEADERBOARDS", CI_UI_FONT_LARGE));
+    menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "EXIT", CI_UI_FONT_LARGE));
+    menuGUI->autoSizeToFitWidgets();
+    menuGUI->registerUIEvents(this, &SamichIslandApp::guiEvent);
+    
+    //drawengine setup
     DrawEngine::get().setBackgroundPath("ikabg.bmp");
     DrawEngine::get().setFrameRate(getFrameRate());
 	appState.setNextState( INIT );
@@ -196,8 +208,20 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 	leftClick = false;
 }
 
+void SamichIslandApp::guiEvent(ciUIEvent *event) {
+    
+    string name=event->widget->getName();
+    if (name == "PLAY") {
+        appState.setNextState(PLAY);
+    }
+    console() << name << endl;
+}
+
 void SamichIslandApp::update() {
-	console() << "jumping=" << hero.jumping << " needsgravity=" << hero.needsGravity << 
+
+    
+    
+	console() << "jumping=" << hero.jumping << " needsgravity=" << hero.needsGravity <<
 		 "onBtm=" << hero.on_btm_platform << " onLeft=" << hero.on_left_platform << " onRight=" << hero.on_right_platform << " onTop=" << hero.on_top_platform 
 		 << std::endl;
 	//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
@@ -217,8 +241,12 @@ void SamichIslandApp::update() {
                 count = 0; //time between states
                 timeout = 50;
             }
-            if( count >= timeout ) appState.setNextState( PLAY );
+            if( count >= timeout ) appState.setNextState( MENU );
         break;
+        case MENU: {
+            //menu update
+            menuGUI->update();
+        }
         case PLAY: {
             //trying gameover state
             if (count % 300 == 0)
@@ -520,6 +548,8 @@ void SamichIslandApp::update() {
 }
 
 void SamichIslandApp::draw() {
+    //draw menu
+    
 	// clear out the window with black
 	gl::clear( Color( 0, 0, 0 ) );
 	gl::pushMatrices();
@@ -532,8 +562,11 @@ void SamichIslandApp::draw() {
 		case INIT: {
 			string c = boost::lexical_cast<std::string>(count);
 			string t = boost::lexical_cast<std::string>(timeout);    
-			gl::drawString( c + "/" + t, Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
+			gl::drawString( c + "/" + t, Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) );
 		break; }
+        case MENU: {
+            menuGUI->draw();
+        break; }
         case PLAY: {
 			int i = 0;
             
@@ -604,4 +637,10 @@ void SamichIslandApp::draw() {
 	}
 	gl::popMatrices();
 }
+
+void SamichIslandApp::shutdown()
+{
+    delete menuGUI;
+}
+
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )

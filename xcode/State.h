@@ -5,7 +5,14 @@ using namespace ci::app;
 #ifndef STATE_HPP__
 #define STATE_HPP__
 
-enum { INIT, PLAY, GAMEOVER };
+enum {
+    INIT,
+    MENU,
+    PLAY,
+    GAMEOVER
+
+
+};
 
     
 class State {
@@ -43,9 +50,9 @@ public:
     //return true if the new state is valid
     bool validateState( int newState ){
         return newState == INIT || 
-                newState == PLAY || newState == GAMEOVER;
+            newState == PLAY || newState == GAMEOVER || newState == MENU;
     }
-        
+
 private:
     int current;
     int previous;
