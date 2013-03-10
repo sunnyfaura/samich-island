@@ -1,0 +1,15 @@
+#include <vector>
+#include <cmath>
+#include <string>
+#include "boost/lexical_cast.hpp"
+#include "cinder/app/AppBasic.h"
+#include "cinder/gl/gl.h"
+#include "cinder/Area.h"
+#include "cinder/audio/Output.h"
+#include "cinder/audio/Io.h"
+#include "BasicShapes.h"
+#include "Vector2.h"
+#include "State.h"
+#include "Entity.h"
+#include "DrawEngine.h"
+#include "Resources.h"

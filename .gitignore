@@ -1,0 +1,6 @@
+/vc10/*
+/include/*
+.DS_STORE
+xcode/Enemy.h
+
+xcode/Hero.h

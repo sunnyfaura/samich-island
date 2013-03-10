@@ -1,0 +1,690 @@
+Simple plain text exporter for demo purposes
+
+See http://www.grantlee.org/apidox/for_themers.html for more information
+
+
+Texture data:
+    texture.width  = 1024
+    texture.height = 512
+
+    texture.trimmedName = spritesheet
+    texture.fullName = spritesheet.png
+    texture.absoluteFileName = /Users/marionejrs/Dropbox/Git Repositories/samich-island/spritesheet.png
+
+SmartUpdateHash: $TexturePacker:SmartUpdate:df64d9d257b3d54a26303aae351dbbbe$
+
+Sprite data:
+
+There are 2 variants:
+- sprites - contains the sprites, aliases are available in the
+  aliasList property and are not added top level
+
+- allSprites - list of all sprites
+
+Load javascript filter plugin, must be located in the exporter's folder in a subfolder
+grantlee/0.2/makecssselector.qs
+
+
+// set width & height for calculations using the javascript filter
+
+
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    boss.png
+
+    -- name without image type extension
+    sprite.trimmedName      = boss
+
+    -- name with image extension
+    sprite.fullName         = boss.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 2
+    sprite.frameRect.y = 2
+    sprite.frameRect.width = 235
+    sprite.frameRect.height = 98
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.001953125
+    sprite.frameRectRel.y = 0.00390625
+    sprite.frameRectRel.width = 0.2294921875
+    sprite.frameRectRel.height = 0.19140625
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.001953125
+    sprite.frameRectRel.y = 0.001953125
+    sprite.frameRectRel.width = 0.2294921875
+    sprite.frameRectRel.height = 0.095703125
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 2
+    sprite.frameRectWithoutRotation.y = 2
+    sprite.frameRectWithoutRotation.width = 235
+    sprite.frameRectWithoutRotation.height = 98
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = true
+
+    sprite.sourceRect.x = 4
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 235
+    sprite.sourceRect.height = 98
+
+    sprite.cornerOffset.x = 4
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 245
+    sprite.untrimmedSize.height = 98
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/boss.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-08T02:11:45
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-08T06:42:33
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 11542
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    bossflip.png
+
+    -- name without image type extension
+    sprite.trimmedName      = bossflip
+
+    -- name with image extension
+    sprite.fullName         = bossflip.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 239
+    sprite.frameRect.y = 2
+    sprite.frameRect.width = 235
+    sprite.frameRect.height = 98
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.2333984375
+    sprite.frameRectRel.y = 0.00390625
+    sprite.frameRectRel.width = 0.2294921875
+    sprite.frameRectRel.height = 0.19140625
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.2333984375
+    sprite.frameRectRel.y = 0.001953125
+    sprite.frameRectRel.width = 0.2294921875
+    sprite.frameRectRel.height = 0.095703125
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 239
+    sprite.frameRectWithoutRotation.y = 2
+    sprite.frameRectWithoutRotation.width = 235
+    sprite.frameRectWithoutRotation.height = 98
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = true
+
+    sprite.sourceRect.x = 5
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 235
+    sprite.sourceRect.height = 98
+
+    sprite.cornerOffset.x = 5
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 245
+    sprite.untrimmedSize.height = 98
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/bossflip.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-11T00:19:30
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-11T00:19:30
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 11572
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    pipe.png
+
+    -- name without image type extension
+    sprite.trimmedName      = pipe
+
+    -- name with image extension
+    sprite.fullName         = pipe.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 476
+    sprite.frameRect.y = 2
+    sprite.frameRect.width = 100
+    sprite.frameRect.height = 100
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.46484375
+    sprite.frameRectRel.y = 0.00390625
+    sprite.frameRectRel.width = 0.09765625
+    sprite.frameRectRel.height = 0.1953125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.46484375
+    sprite.frameRectRel.y = 0.001953125
+    sprite.frameRectRel.width = 0.09765625
+    sprite.frameRectRel.height = 0.09765625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 476
+    sprite.frameRectWithoutRotation.y = 2
+    sprite.frameRectWithoutRotation.width = 100
+    sprite.frameRectWithoutRotation.height = 100
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = false
+
+    sprite.sourceRect.x = 0
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 100
+    sprite.sourceRect.height = 100
+
+    sprite.cornerOffset.x = 0
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 100
+    sprite.untrimmedSize.height = 100
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/pipe.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-07T19:34:16
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-08T06:42:33
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 849
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    pipeflip.png
+
+    -- name without image type extension
+    sprite.trimmedName      = pipeflip
+
+    -- name with image extension
+    sprite.fullName         = pipeflip.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 578
+    sprite.frameRect.y = 2
+    sprite.frameRect.width = 100
+    sprite.frameRect.height = 100
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.564453125
+    sprite.frameRectRel.y = 0.00390625
+    sprite.frameRectRel.width = 0.09765625
+    sprite.frameRectRel.height = 0.1953125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.564453125
+    sprite.frameRectRel.y = 0.001953125
+    sprite.frameRectRel.width = 0.09765625
+    sprite.frameRectRel.height = 0.09765625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 578
+    sprite.frameRectWithoutRotation.y = 2
+    sprite.frameRectWithoutRotation.width = 100
+    sprite.frameRectWithoutRotation.height = 100
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = false
+
+    sprite.sourceRect.x = 0
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 100
+    sprite.sourceRect.height = 100
+
+    sprite.cornerOffset.x = 0
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 100
+    sprite.untrimmedSize.height = 100
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/pipeflip.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-11T00:18:31
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-11T00:18:31
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 3129
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    platform.png
+
+    -- name without image type extension
+    sprite.trimmedName      = platform
+
+    -- name with image extension
+    sprite.fullName         = platform.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 680
+    sprite.frameRect.y = 2
+    sprite.frameRect.width = 121
+    sprite.frameRect.height = 16
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.6640625
+    sprite.frameRectRel.y = 0.00390625
+    sprite.frameRectRel.width = 0.1181640625
+    sprite.frameRectRel.height = 0.03125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.6640625
+    sprite.frameRectRel.y = 0.001953125
+    sprite.frameRectRel.width = 0.1181640625
+    sprite.frameRectRel.height = 0.015625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 680
+    sprite.frameRectWithoutRotation.y = 2
+    sprite.frameRectWithoutRotation.width = 121
+    sprite.frameRectWithoutRotation.height = 16
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = false
+
+    sprite.sourceRect.x = 0
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 121
+    sprite.sourceRect.height = 16
+
+    sprite.cornerOffset.x = 0
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 121
+    sprite.untrimmedSize.height = 16
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/platform.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-07T21:04:24
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-08T06:42:33
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 3508
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    player.png
+
+    -- name without image type extension
+    sprite.trimmedName      = player
+
+    -- name with image extension
+    sprite.fullName         = player.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 2
+    sprite.frameRect.y = 104
+    sprite.frameRect.width = 374
+    sprite.frameRect.height = 228
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.001953125
+    sprite.frameRectRel.y = 0.203125
+    sprite.frameRectRel.width = 0.365234375
+    sprite.frameRectRel.height = 0.4453125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.001953125
+    sprite.frameRectRel.y = 0.1015625
+    sprite.frameRectRel.width = 0.365234375
+    sprite.frameRectRel.height = 0.22265625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 2
+    sprite.frameRectWithoutRotation.y = 104
+    sprite.frameRectWithoutRotation.width = 374
+    sprite.frameRectWithoutRotation.height = 228
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = true
+
+    sprite.sourceRect.x = 11
+    sprite.sourceRect.y = 16
+    sprite.sourceRect.width = 374
+    sprite.sourceRect.height = 228
+
+    sprite.cornerOffset.x = 11
+    sprite.cornerOffset.y = 16
+
+    sprite.untrimmedSize.width = 392
+    sprite.untrimmedSize.height = 244
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/player.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-07T17:34:29
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-08T06:42:33
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 25447
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    playerflip.png
+
+    -- name without image type extension
+    sprite.trimmedName      = playerflip
+
+    -- name with image extension
+    sprite.fullName         = playerflip.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 378
+    sprite.frameRect.y = 104
+    sprite.frameRect.width = 374
+    sprite.frameRect.height = 228
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.369140625
+    sprite.frameRectRel.y = 0.203125
+    sprite.frameRectRel.width = 0.365234375
+    sprite.frameRectRel.height = 0.4453125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.369140625
+    sprite.frameRectRel.y = 0.1015625
+    sprite.frameRectRel.width = 0.365234375
+    sprite.frameRectRel.height = 0.22265625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 378
+    sprite.frameRectWithoutRotation.y = 104
+    sprite.frameRectWithoutRotation.width = 374
+    sprite.frameRectWithoutRotation.height = 228
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = true
+
+    sprite.sourceRect.x = 7
+    sprite.sourceRect.y = 16
+    sprite.sourceRect.width = 374
+    sprite.sourceRect.height = 228
+
+    sprite.cornerOffset.x = 7
+    sprite.cornerOffset.y = 16
+
+    sprite.untrimmedSize.width = 392
+    sprite.untrimmedSize.height = 244
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/playerflip.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-11T00:18:06
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-11T00:18:06
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 19478
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    portal.png
+
+    -- name without image type extension
+    sprite.trimmedName      = portal
+
+    -- name with image extension
+    sprite.fullName         = portal.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 754
+    sprite.frameRect.y = 104
+    sprite.frameRect.width = 36
+    sprite.frameRect.height = 36
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.736328125
+    sprite.frameRectRel.y = 0.203125
+    sprite.frameRectRel.width = 0.03515625
+    sprite.frameRectRel.height = 0.0703125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.736328125
+    sprite.frameRectRel.y = 0.1015625
+    sprite.frameRectRel.width = 0.03515625
+    sprite.frameRectRel.height = 0.03515625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 754
+    sprite.frameRectWithoutRotation.y = 104
+    sprite.frameRectWithoutRotation.width = 36
+    sprite.frameRectWithoutRotation.height = 36
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = false
+
+    sprite.sourceRect.x = 0
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 36
+    sprite.sourceRect.height = 36
+
+    sprite.cornerOffset.x = 0
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 36
+    sprite.untrimmedSize.height = 36
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/portal.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-07T20:30:48
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-08T06:42:33
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 4584
+
+
+    =========================================================================
+
+    Use the javascript filter plugin to replace -hover with :hover
+    tower.png
+
+    -- name without image type extension
+    sprite.trimmedName      = tower
+
+    -- name with image extension
+    sprite.fullName         = tower.png
+
+    -- offset of the center of the trimmed sprite from the
+    -- center of the original sprite (used by cocos2d)
+    sprite.absoluteOffset.x = 
+    sprite.absoluteOffset.y = 
+
+    -- list of alias sprites for this one
+    sprite.aliasList = 
+
+    --- frame rectangle with pixel coordinates
+    sprite.frameRect.x = 792
+    sprite.frameRect.y = 104
+    sprite.frameRect.width = 21
+    sprite.frameRect.height = 36
+
+    --- frame rectangle with uv coordinates (0..1)
+    sprite.frameRectRel.x = 0.7734375
+    sprite.frameRectRel.y = 0.203125
+    sprite.frameRectRel.width = 0.0205078125
+    sprite.frameRectRel.height = 0.0703125
+
+    --- frame rectangle with uv coordinates (0..1) calculated through JS
+    sprite.frameRectRel.x = 0.7734375
+    sprite.frameRectRel.y = 0.1015625
+    sprite.frameRectRel.width = 0.0205078125
+    sprite.frameRectRel.height = 0.03515625
+
+    --- version of the frame rect with "original" width and height
+    sprite.frameRectWithoutRotation.x = 792
+    sprite.frameRectWithoutRotation.y = 104
+    sprite.frameRectWithoutRotation.width = 21
+    sprite.frameRectWithoutRotation.height = 36
+
+    -- true if the sprite was rotated
+    sprite.rotated        = false
+
+    -- true if the sprite was trimmed
+    sprite.trimmed        = true
+
+    sprite.sourceRect.x = 2
+    sprite.sourceRect.y = 0
+    sprite.sourceRect.width = 21
+    sprite.sourceRect.height = 36
+
+    sprite.cornerOffset.x = 2
+    sprite.cornerOffset.y = 0
+
+    sprite.untrimmedSize.width = 25
+    sprite.untrimmedSize.height = 36
+
+    -- the file absolute file name of the sprite
+    sprite.fileData.absoluteFileName = /Users/marionejrs/Downloads/textures/tower.png
+
+    -- the modification date of the sprite
+    sprite.fileData.lastModified = 2013-03-08T02:55:36
+
+    -- the creation date of the sprite
+    sprite.fileData.created = 2013-03-08T06:42:33
+
+    -- the file size of the sprite
+    sprite.fileData.fileSize = 3380
+
+
+
