@@ -24,7 +24,9 @@
 
 #ifndef CIUI_MULTI_IMAGE_BUTTON
 #define CIUI_MULTI_IMAGE_BUTTON
-
+#ifdef __APPLE__
+#define loadFile loadResource
+#endif
 #include "cinder/gl/Texture.h"
 #include "cinder/ImageIo.h"
 #include "ciUIButton.h"
@@ -105,9 +107,9 @@ public:
             extension = _pathURL.substr(found);
         }
         
-        back = loadImage(loadResource(_pathURL));
-        over = loadImage(loadResource(coreURL+"over"+extension));         
-        on = loadImage(loadResource(coreURL+"on"+extension));         
+        back = loadImage(loadFile(_pathURL));
+        over = loadImage(loadFile(coreURL+"over"+extension));         
+        on = loadImage(loadFile(coreURL+"on"+extension));         
     }       
     
    

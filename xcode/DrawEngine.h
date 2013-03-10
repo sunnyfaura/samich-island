@@ -1,6 +1,10 @@
 #ifndef DRAWENGINE_HPP__
 #define DRAWENGINE_HPP__
 
+#ifdef __APPLE__
+#define loadFile loadResource
+#endif
+
 #include "Headers.h"
 #include "Sprite.h"
 #include "cinder/gl/Texture.h"
@@ -32,7 +36,7 @@ public:
             background = gl::Texture( loadImage( loadAsset(background_mpath) ));
         }
         catch (Exception e) {
-            background = gl::Texture( loadImage( loadResource(background_mpath) ));
+            background = gl::Texture( loadImage( loadFile(background_mpath) ));
         }
     }
     
@@ -43,7 +47,7 @@ public:
             spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
         }
         catch (Exception e) {
-            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
+            spritesheet = gl::Texture( loadImage( loadFile(ssheet_mpath)    ));
         }
         
         if ( spritesheet )
@@ -200,8 +204,8 @@ protected:
             spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
         }
         catch (Exception e) {
-            background = gl::Texture( loadImage( loadResource(background_mpath) ));
-            spritesheet = gl::Texture( loadImage( loadResource(ssheet_mpath)    ));
+            background = gl::Texture( loadImage( loadFile(background_mpath) ));
+            spritesheet = gl::Texture( loadImage( loadFile(ssheet_mpath)    ));
         }
 
         

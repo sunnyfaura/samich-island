@@ -24,7 +24,9 @@
 
 #ifndef CIUI_IMAGE_SLIDER
 #define CIUI_IMAGE_SLIDER
-
+#ifdef __APPLE__
+#define loadFile loadResource
+#endif
 #include "cinder/gl/Texture.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Area.h"
@@ -132,10 +134,10 @@ public:
         }
         
         
-        track = loadImage(loadResource(coreURL+"track"+extension));                 //back
-        progress = loadImage(loadResource(coreURL+"progress"+extension));           //fill
-        handle = loadImage(loadResource(coreURL+"handle"+extension));               //handle        
-        handleDown = loadImage(loadResource(coreURL+"handledown"+extension));       //handleOver State                        
+        track = loadImage(loadFile(coreURL+"track"+extension));                 //back
+        progress = loadImage(loadFile(coreURL+"progress"+extension));           //fill
+        handle = loadImage(loadFile(coreURL+"handle"+extension));               //handle        
+        handleDown = loadImage(loadFile(coreURL+"handledown"+extension));       //handleOver State                        
         
         handleHalfWidth = handle.getWidth()*.5f;
         handleHalfHeight = handle.getHeight()*.5f;

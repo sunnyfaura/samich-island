@@ -24,7 +24,9 @@
 
 #ifndef CIUI_MULTI_IMAGE_TOGGLE
 #define CIUI_MULTI_IMAGE_TOGGLE
-
+#ifdef __APPLE__
+#define loadFile loadResource
+#endif
 #include "ciUIToggle.h"
 
 class ciUIMultiImageToggle : public ciUIToggle
@@ -101,10 +103,10 @@ public:
             extension = _pathURL.substr(found);
         }
         
-        back = loadImage(loadResource(_pathURL));         
-        down = loadImage(loadResource(coreURL+"down"+extension));         
-        over = loadImage(loadResource(coreURL+"over"+extension));         
-        on = loadImage(loadResource(coreURL+"on"+extension));         
+        back = loadImage(loadFile(_pathURL));         
+        down = loadImage(loadFile(coreURL+"down"+extension));         
+        over = loadImage(loadFile(coreURL+"over"+extension));         
+        on = loadImage(loadFile(coreURL+"on"+extension));         
     }       
     
     
