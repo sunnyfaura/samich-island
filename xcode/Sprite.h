@@ -40,9 +40,6 @@ class Sprite : public Entity {
             posInSpriteSheet : the frames relative position on the spritesheet
             */
             public:
-            Frame( Vector2 locationInSS ) : locationInSpriteSheet(locationInSS)
-            {}
-            
             Vector2 locationInSpriteSheet;
         };
     
@@ -52,8 +49,6 @@ class Sprite : public Entity {
     vector<Frame*> frames; //frames for sprite
     
     public:
-    Sprite() {}
-    
     // constructor : use optional
     Sprite ( int width, int height)
     {
@@ -64,9 +59,9 @@ class Sprite : public Entity {
     // addFrames: adds a frame to the sprite
     void addFrame( uint frame_entity_id, Vector2 locationInSS)
     {
-        Frame* f = new Frame( locationInSS );
+        Frame* f;
         f->entity_id = frame_entity_id;
-        //f->locationInSpriteSheet = locationInSS;
+        f->locationInSpriteSheet = locationInSS;
         frames.push_back(f);
         currentFrame = f;
     }
@@ -146,6 +141,8 @@ class Sprite : public Entity {
         a.height = sprite_height;
         return createRectangle(a);
     }
+    
+
 };
 
 

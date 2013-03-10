@@ -6,8 +6,14 @@
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-
+/*
+ *  SamichIslandApp.h
+ *  SamichIsland
+ *
+ *  Created by xanthian on 2/3/13.
+ *  Copyright 2013 __MyCompanyName__. All rights reserved.
+ *
+ */
 #ifndef SAMICHISLANDAPP_HPP__
 #define SAMICHISLANDAPP_HPP__
 
@@ -47,14 +53,12 @@ public:
 	vector<Drop> drops;
 	//platform things
 	AABB platformA; //top left
-	AABB platformB; //top right
-	AABB platformC; //top center
-	AABB platformD; //mid left
-	AABB platformE; //mid right
-	AABB platformF; //bottom left
-	AABB platformG; //bottom right
-	AABB platformH; //bottom center
-    AABB tower1; //tower on top left
+
+	//AABB platformC; //top center
+	//AABB platformD; //mid left
+	//AABB platformE; //mid right
+	
+	AABB tower1; //tower on top left
     AABB tower2; //tower on top right
 	//tubes for enemies to exit
 	AABB tubeA;

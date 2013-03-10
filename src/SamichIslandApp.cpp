@@ -8,7 +8,6 @@ using namespace std;
 
 float game_time, shoot_time, dash_time, punch_time, dash_accel, dash_limit, punch_delay;
 int dash_mana_cost;
-bool isTitle, isMain;
 Vector2 mouse;
 
 void SamichIslandApp::prepareSettings( Settings *settings ){
@@ -32,21 +31,19 @@ void SamichIslandApp::resize(ResizeEvent event)
 
 void SamichIslandApp::setup()
 {
-    DrawEngine::get().setBackgroundPath("titlescreen.png");
-    DrawEngine::get().setSpriteSheetPath("pokesilver.png");
+    DrawEngine::get().setBackgroundPath("ikabg.bmp");
     DrawEngine::get().setFrameRate(getFrameRate());
     //initialize states
-	appState.setNextState( MAIN );
+	appState.setNextState( INIT );
 	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
 
 	//window bluh
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
-	isTitle = true; isMain = false;
 
 	//hero initialization
-	hero.radius = 20;
+	hero.radius = 16;
     hero.health = 100;
     hero.mana = 100;
     hero.maximum_mana = 100;
@@ -96,29 +93,17 @@ void SamichIslandApp::setup()
 
 	//platform things
 	platformA.center = Vector2( WIND_W/2 , 500 );
-	platformA.height = 30;
-	platformA.width = 400;
-	//platformB.center = Vector2( WIND_W*8/10 , 90 );
-	//platformB.height = 50;
-	//platformB.width = 100;
-	platformC.center = Vector2( WIND_W/2 , 240 );
-	platformC.height = 30;
-	platformC.width = 400;
-	platformD.center = Vector2( WIND_W*2/20 , 370 );
-	platformD.height = 30;
-	platformD.width = 300;
-	platformE.center = Vector2( WIND_W*18/20 , 370 );
-	platformE.height = 30;
-	platformE.width = 300;
-	//platformF.center = Vector2( WIND_W*2/10 , 360 );
-	//platformF.height = 50;
-	//platformF.width = 100;
-	//platformG.center = Vector2( WIND_W*8/10 , 430 );
-	//platformG.height = 50;
-	//platformG.width = 100;
-	//platformH.center = Vector2( WIND_W*2/5 , 520 );
-	//platformH.height = 50;
-	//platformH.width = 100;
+	platformA.height = 40;
+	platformA.width = 300;
+	//platformC.center = Vector2( WIND_W/2 , 240 );
+	//platformC.height = 40;
+	//platformC.width = 300;
+	//platformD.center = Vector2( WIND_W*2/20 , 360 );
+	//platformD.height = 40;
+	//platformD.width = 300;
+	//platformE.center = Vector2( WIND_W*18/20 , 360 );
+	//platformE.height = 40;
+	//platformE.width = 300;
 
     //tower targets
     tower1.center = Vector2( 20, 50 );
@@ -232,25 +217,20 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 	leftClick = false;
 }
 
-void SamichIslandApp::update() {	
+void SamichIslandApp::update() {
+	console() << "jumping=" << hero.jumping << " needsgravity=" << hero.needsGravity << std::endl;
 
-	WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
+    WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
     //draw engine updates
     DrawEngine::get().setWindowBounds(getWindowBounds());
-  
+    
 	//state management updates
 	bool change = appState.commitState();
     if (change) count = 0;
     
     switch( appState.getCurrentState() ) {
-		case MAIN:
-			if (leftClick){
-				appState.setNextState( INIT );
-			}
-			break;
         case INIT:
             if( change ) {
-				DrawEngine::get().setBackgroundPath("bg.png");
                 count = 0; //time between states
                 timeout = 50;
             }
@@ -320,7 +300,7 @@ void SamichIslandApp::update() {
 
 			//jump from the ground
 			if( hero.jumping == true && hero.onPlatform == false) {
-				if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+				if ( (hero.center.y - hero.velocity.y) <= WIND_H ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
@@ -331,25 +311,7 @@ void SamichIslandApp::update() {
 
 			//jump from platforms
 			if( hero.jumping == true && hero.onPlatform == true) {
-				/*if ( (hero.center.y - hero.velocity.y) <= platformH.center.y - platformH.half_height() ) {
-					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
-					hero.velocity.y -= 1;
-				} else hero.jumping = false;
-
-				if ( (hero.center.y - hero.velocity.y) <= platformG.center.y - platformG.half_height() ) {
-					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
-					hero.velocity.y -= 1;
-				} else hero.jumping = false;
-
-				if ( (hero.center.y - hero.velocity.y) <= platformF.center.y - platformF.half_height() ) {
-					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
-					hero.velocity.y -= 1;
-				} else hero.jumping = false;
-*/
-				if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
+				/*if ( (hero.center.y - hero.velocity.y) <= platformE.center.y - platformE.half_height() ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
@@ -365,14 +327,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-				} else hero.jumping = false;
-
-				/*if ( (hero.center.y - hero.velocity.y) <= platformB.center.y - platformB.half_height() ) {
-					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
-					hero.velocity.y -= 1;
 				} else hero.jumping = false;*/
-
 				if ( (hero.center.y - hero.velocity.y) <= platformA.center.y - platformA.half_height() ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
@@ -382,7 +337,7 @@ void SamichIslandApp::update() {
 
 			//hacky code for missing gravities
 			if( hero.onPlatform == false && hero.needsGravity == true ) {
-				if ( (hero.center.y - hero.velocity.y) <= (WIND_H - hero.radius) ) {
+				if ( hero.center.y <= (WIND_H - hero.radius) ) {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
@@ -390,7 +345,7 @@ void SamichIslandApp::update() {
 					hero.needsGravity = false;
 				}
 			}
-            
+
 			float normalSpeed = 10; float dashSpeed = 50; float direction;
 
 			//left or right with dashing!!
@@ -442,12 +397,7 @@ void SamichIslandApp::update() {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
 					}
-					/*if ( hero.center.x <= platformB.center.x - platformB.half_width() ||
-						hero.center.x >= platformB.center.x + platformB.half_width() ) {
-							hero.onPlatform = false;
-							hero.needsGravity = true;
-					}*/
-					if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
+					/*if ( hero.center.x <= platformC.center.x - platformC.half_width() ||
 						hero.center.x >= platformC.center.x + platformC.half_width() ) {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
@@ -461,21 +411,6 @@ void SamichIslandApp::update() {
 						hero.center.x >= platformE.center.x + platformE.half_width() ) {
 							hero.onPlatform = false;
 							hero.needsGravity = true;
-					}
-				/*	if ( hero.center.x <= platformF.center.x - platformF.half_width() ||
-						hero.center.x >= platformF.center.x + platformF.half_width() ) {
-							hero.onPlatform = false;
-							hero.needsGravity = true;
-					}
-					if ( hero.center.x <= platformG.center.x - platformG.half_width() ||
-						hero.center.x >= platformG.center.x + platformG.half_width() ) {
-							hero.onPlatform = false;
-							hero.needsGravity = true;
-					}
-					if ( hero.center.x <= platformH.center.x - platformH.half_width() ||
-						hero.center.x >= platformH.center.x + platformH.half_width() ) {
-							hero.onPlatform = false;
-							hero.needsGravity = true;
 					}*/
 				}
 			}
@@ -484,7 +419,7 @@ void SamichIslandApp::update() {
 			for (i = 0; i < drops.size(); ++i) {
 				if (circleOnCircleDetection(hero, drops[i])) {
 						//drop effects here
-						drops.erase ( drops.begin() + i );
+						//drops.erase ( drops.begin() + i );
 				}
 					
 				//dropping effect to "floor" 
@@ -519,52 +454,24 @@ void SamichIslandApp::update() {
 			}
 				
 			//platform collisions
-			//if(satCircleAABB(hero,platformH)){
+			//if(satCircleAABB(hero,platformE)){
 			//	//the hero, whether coming from the bottom or the top, will land on the platform
-			//	if(hero.center.y + hero.velocity.y <= platformH.center.y - platformH.half_height() ){
-			//		hero.center.y = platformH.center.y - platformH.half_height() - hero.radius;
+			//	if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
+			//		hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
 			//		hero.onPlatform = true;
 			//	}
 			//}
-			//if(satCircleAABB(hero,platformG)){
+			//if(satCircleAABB(hero,platformD)){
 			//	//the hero, whether coming from the bottom or the top, will land on the platform
-			//	if(hero.center.y + hero.velocity.y <= platformG.center.y - platformG.half_height() ){
-			//		hero.center.y = platformG.center.y - platformG.half_height() - hero.radius;
+			//	if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
+			//		hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
 			//		hero.onPlatform = true;
 			//	}
 			//}
-			//if(satCircleAABB(hero,platformF)){
+			//if(satCircleAABB(hero,platformC)){
 			//	//the hero, whether coming from the bottom or the top, will land on the platform
-			//	if(hero.center.y + hero.velocity.y <= platformF.center.y - platformF.half_height() ){
-			//		hero.center.y = platformF.center.y - platformF.half_height() - hero.radius;
-			//		hero.onPlatform = true;
-			//	}
-			//}	
-			if(satCircleAABB(hero,platformE)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformE.center.y - platformE.half_height() ){
-					hero.center.y = platformE.center.y - platformE.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}
-			if(satCircleAABB(hero,platformD)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformD.center.y - platformD.half_height() ){
-					hero.center.y = platformD.center.y - platformD.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}
-			if(satCircleAABB(hero,platformC)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
-				if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
-					hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
-					hero.onPlatform = true;
-				}
-			}
-			//if(satCircleAABB(hero,platformB)){
-			//	//the hero, whether coming from the bottom or the top, will land on the platform
-			//	if(hero.center.y + hero.velocity.y <= platformB.center.y - platformB.half_height() ){
-			//		hero.center.y = platformB.center.y - platformB.half_height() - hero.radius;
+			//	if(hero.center.y + hero.velocity.y <= platformC.center.y - platformC.half_height() ){
+			//		hero.center.y = platformC.center.y - platformC.half_height() - hero.radius;
 			//		hero.onPlatform = true;
 			//	}
 			//}
@@ -574,11 +481,9 @@ void SamichIslandApp::update() {
 					hero.center.y = platformA.center.y - platformA.half_height() - hero.radius;
 					hero.onPlatform = true;
 				}
-			}
-            
+			}	
+
 			//tube collisions
-            
-            
         }
         break;
         case GAMEOVER:
@@ -588,92 +493,87 @@ void SamichIslandApp::update() {
             break; 
     }
     count++; //increment the time between states
-}	
+}
 
 void SamichIslandApp::draw() {
-		// clear out the window with black
-		gl::clear( Color( 0, 0, 0 ) );
-		gl::pushMatrices();
-		gl::setMatricesWindow (WIND_W, WIND_H);
-		gl::setViewport(this->getWindowBounds());
-		gl::enableAlphaBlending();
-		
-		switch( appState.getCurrentState() ) 
-		{
-			case MAIN: {
-				DrawEngine::get().drawSprites();
-			break; }
-			case INIT: {
-				string c = boost::lexical_cast<std::string>(count);
-				string t = boost::lexical_cast<std::string>(timeout);    
-				gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
-				break; }
-			case PLAY: {
-				int i = 0;
-				
-				DrawEngine::get().drawSprites();
-				//draw punch
-				if (hero.punching){
-					glColor3f(0, 0, 1);
-					gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
-				}
-				
-				glColor3f(hero.color.r, hero.color.g, hero.color.b);
-				gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
-				
-				//draw mooks
-				for (i = 0; i < cannon_fodder.size(); ++i )
-				{
-					glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
-					gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
-				}
-			
-				//draw drops
-				for (i = 0; i < drops.size(); ++i )
-				{
-					glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
-					gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
-				}
-
-				//platforms
-				glColor3f(0,1,1);
-				gl::drawSolidRect(createRectangle(platformA));
-				//gl::drawSolidRect(createRectangle(platformB));
-				gl::drawSolidRect(createRectangle(platformC));
-				gl::drawSolidRect(createRectangle(platformD));
-				gl::drawSolidRect(createRectangle(platformE));
-				//gl::drawSolidRect(createRectangle(platformF));
-				//gl::drawSolidRect(createRectangle(platformG));
-				//gl::drawSolidRect(createRectangle(platformH));
-				
-				//draw bullets
-				for(; i < dakka.size(); ++i) {
-					glColor3f(1, 0, 0);
-					gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
-				}
-
-				//tubes
-				glColor3f(1,1,0);
-				gl::drawSolidRect(createRectangle(tubeA));
-				gl::drawSolidRect(createRectangle(tubeB));
+	// clear out the window with black
+	gl::clear( Color( 0, 0, 0 ) );
+	gl::pushMatrices();
+	gl::setMatricesWindow (WIND_W, WIND_H);
+	gl::setViewport(this->getWindowBounds());
+	gl::enableAlphaBlending();
+    
+    switch( appState.getCurrentState() ) 
+    {
+		case INIT: {
+			string c = boost::lexical_cast<std::string>(count);
+			string t = boost::lexical_cast<std::string>(timeout);    
+			gl::drawString( c + " of " + t + " frames", Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) ); 
+		break; }
+        case PLAY: {
+			int i = 0;
             
-				//tower
-				glColor3f(1,0,1);
-				gl::drawSolidRect(createRectangle(tower1));
-				gl::drawSolidRect(createRectangle(tower2));
+            DrawEngine::get().drawSprites();
+			//draw punch
+			if (hero.punching){
+				glColor3f(0, 0, 1);
+				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
+			}
+			
+			glColor3f(hero.color.r, hero.color.g, hero.color.b);
+			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 				
-				string hero_mana = boost::lexical_cast<std::string>(hero.mana);
-				string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
-				string hero_health = boost::lexical_cast<std::string>(hero.health);
-				DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
-				DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+			//draw mooks
+			for (i = 0; i < cannon_fodder.size(); ++i )
+			{
+				glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
+				gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
 			}
-				break;
-			case GAMEOVER: {
-				gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
+			
+			//draw drops
+			for (i = 0; i < drops.size(); ++i )
+			{
+				glColor3f(drops[i].color.r,drops[i].color.g,drops[i].color.b);
+				gl::drawSolidCircle(drops[i].center.toV(),drops[i].radius, 0);
 			}
-			break;
-		}
-		gl::popMatrices();
+
+			//platforms
+			glColor3f(0,1,1);
+			gl::drawSolidRect(createRectangle(platformA));
+			//gl::drawSolidRect(createRectangle(platformC));
+			//gl::drawSolidRect(createRectangle(platformD));
+			//gl::drawSolidRect(createRectangle(platformE));
+
+			//draw bullets
+			for(; i < dakka.size(); ++i) {
+				glColor3f(1, 0, 0);
+				gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
+			}
+
+			//tubes
+			glColor3f(1,1,0);
+			gl::drawSolidRect(createRectangle(tubeA));
+			gl::drawSolidRect(createRectangle(tubeB));
+            
+            //tower
+            glColor3f(1,0,1);
+            gl::drawSolidRect(createRectangle(tower1));
+            gl::drawSolidRect(createRectangle(tower2));
+            
+            string hero_mana = boost::lexical_cast<std::string>(hero.mana);
+            string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
+            string hero_health = boost::lexical_cast<std::string>(hero.health);
+            DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+            DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+        }
+        break;
+        case GAMEOVER: {
+            gl::drawStringCentered( "GAME OVER!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 24));
+            
+        }
+        break;
+        
+	}
+	gl::popMatrices();
 }
 CINDER_APP_BASIC( SamichIslandApp, RendererGl )

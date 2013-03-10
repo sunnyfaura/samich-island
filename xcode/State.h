@@ -5,7 +5,7 @@ using namespace ci::app;
 #ifndef STATE_HPP__
 #define STATE_HPP__
 
-enum { MAIN, INIT, PLAY, GAMEOVER };
+enum { INIT, PLAY, GAMEOVER };
     
 class State {
 public:
@@ -27,7 +27,7 @@ public:
         if ( next != current ) {
             previous = current;
             current = next;
-            console() << "State.commitState: " << current << std::endl;
+            //console() << "State.commitState: " << current << std::endl;
             return true;
         } else {
             return false;
