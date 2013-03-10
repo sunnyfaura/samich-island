@@ -22,8 +22,7 @@ void SamichIslandApp::resize(ResizeEvent event) {
 	gl::setMatrices( mCam );
 }
 
-void SamichIslandApp::setup()
-{
+void SamichIslandApp::setup(){
     DrawEngine::get().setBackgroundPath("ikabg.bmp");
     DrawEngine::get().setFrameRate(getFrameRate());
     //initialize states
@@ -241,6 +240,8 @@ void SamichIslandApp::update() {
             if (hero.isAlive() == false) {
                 appState.setNextState(GAMEOVER);
                 break; }
+
+//**==================================EVERYTHING RELATED TO HERO============================================**//
             
             //punch
 			if (hero.punching) {
@@ -256,7 +257,7 @@ void SamichIslandApp::update() {
 					punch.center.x += -1*dir*hero.radius;
 					punch_time = 0;
 				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
-			}
+			} else punch.center = hero.center;
             
 			//dakka dakka dakka!
 			Rectf bounds = this->getWindowBounds();
@@ -281,14 +282,14 @@ void SamichIslandApp::update() {
 				if (!bounds.contains(dakka[i].center.toV())) {
 					if (!dakka.empty())
 						dakka.erase(dakka.begin() + i);
-				}
-					
+				}		
 			}
 				
 			//hero jumping
 			if( (hero.jumping == false && hero.jumpKey == true) ) {
 				hero.velocity.y = JUMP_H;
 				hero.jumping = true;
+				punch.velocity.y = JUMP_H;
 			}
 
 			//jump from the ground
@@ -299,6 +300,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
+					punch.center.y -= 1;
 				} else {
 					hero.jumping = false;
 				}
@@ -310,6 +312,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
+					punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_left_platform == true) {
@@ -317,6 +320,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
+					punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_right_platform == true) {
@@ -324,6 +328,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
+					punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_top_platform == true) {
@@ -331,6 +336,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
+					punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 
@@ -341,6 +347,7 @@ void SamichIslandApp::update() {
 					hero.center.y -= hero.velocity.y;
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
+					punch.center.y -= 1;
 				} else {
 					hero.needsGravity = false;
 				}
@@ -371,18 +378,14 @@ void SamichIslandApp::update() {
 
 				hero.moving = true;
 				direction = 1;
-			} else {
-				hero.moving = false;
-			}
+			} else hero.moving = false;
+
 			//if dash key has been pressed, do a dash
-			if (hero.dashing == true ){
-				dash_accel = 1;
-			} else dash_accel = 0; 
+			if (hero.dashing == true ) dash_accel = 1;
+			else dash_accel = 0; 
             
             //regenerate mana
-            if (count % 180 == 0 ) {
-                hero.regenerateMana(1);
-            }
+            if (count % 180 == 0 ) hero.regenerateMana(1);
             
 			if(hero.moving == true) {
 				hero.velocity.x = (dash_accel * dashSpeed + ( 1 - dash_accel ) * normalSpeed)*direction;
@@ -418,7 +421,34 @@ void SamichIslandApp::update() {
 					}
 				}
 			}
-				
+			
+//**==================================EVERYTHING RELATED TO MOOK===========================================**//
+
+			//mook movement
+			for(i = 0; i < cannon_fodder.size(); ++i){
+				if(cannon_fodder[i].center.x + cannon_fodder[i].radius < WIND_W)
+					cannon_fodder[i].center.x += 1;
+				else cannon_fodder[i].center.x -= 1; 
+			}
+
+			//mook dropping drops
+			for (i = 0; i < cannon_fodder.size(); ++i) {
+				if (circleOnCircleDetection(punch, cannon_fodder[i]))
+					cannon_fodder[i].recieveDamage(hero.damage);
+				if (cannon_fodder[i].health < 0){
+					Drop d;
+					d.center = cannon_fodder[i].center;
+					//check for different levels in the game.
+					d.radius = 5;
+					d.floor = Vector2(cannon_fodder[i].center.x,WIND_H-d.radius);
+					d.velocity = Vector2(0,1);
+					d.color = Colorf(1,1,0);
+					drops.push_back(d);
+					cannon_fodder.erase(cannon_fodder.begin() + i );
+					//cannon_fodder.erase( cannon_fodder.begin() + i );
+				}
+			}
+
 			//get drops
 			for (i = 0; i < drops.size(); ++i) {
 				if (circleOnCircleDetection(hero, drops[i])) {
@@ -435,50 +465,47 @@ void SamichIslandApp::update() {
 				} 
 			}
 				
-			//mooks
-			for (i = 0; i < cannon_fodder.size(); ++i) {
-				if (circleOnCircleDetection(punch, cannon_fodder[i])) cannon_fodder[i].recieveDamage(hero.damage);
-				if (cannon_fodder[i].health < 0){
-					Drop d;
-					d.center = cannon_fodder[i].center;
-					//check for different levels in the game.
-					d.radius = 5;
-					d.floor = Vector2(cannon_fodder[i].center.x,WIND_H-d.radius);
-					d.velocity = Vector2(0,1);
-					d.color = Colorf(1,1,0);
-					drops.push_back(d);
-					cannon_fodder.erase(cannon_fodder.begin() + i );
-					//cannon_fodder.erase( cannon_fodder.begin() + i );
-				}
-			}
-				
+//**==============================EVERYTHING NOT RELATED TO HERO OR MOOK========================================**//
+
 			//platform collisions
 			if(satCircleAABB(hero,bottom_platform)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
 				if(hero.center.y + hero.velocity.y <= bottom_platform.center.y - bottom_platform.half_height() ){
 					hero.center.y = bottom_platform.center.y - bottom_platform.half_height() - hero.radius;
-					hero.on_btm_platform= true;
+					hero.on_btm_platform = true;
+				} else if(hero.center.y + hero.velocity.y > bottom_platform.center.y + bottom_platform.half_height() ){
+					hero.center.y = bottom_platform.center.y + bottom_platform.half_height() - hero.radius;
+					hero.velocity.y *= -1;
+					hero.on_btm_platform = false;
 				}
 			}
 			if(satCircleAABB(hero,left_platform)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
 				if(hero.center.y + hero.velocity.y <= left_platform.center.y - left_platform.half_height() ){
 					hero.center.y = left_platform.center.y - left_platform.half_height() - hero.radius;
 					hero.on_left_platform = true;
+				} else if(hero.center.y + hero.velocity.y > left_platform.center.y + left_platform.half_height() ){
+					hero.center.y = left_platform.center.y + left_platform.half_height() - hero.radius;
+					hero.velocity.y *= -1;
+					hero.on_left_platform = false;
 				}
 			}
 			if(satCircleAABB(hero,right_platform)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
 				if(hero.center.y + hero.velocity.y <= right_platform.center.y - right_platform.half_height() ){
 					hero.center.y = right_platform.center.y - right_platform.half_height() - hero.radius;
 					hero.on_right_platform = true;
+				} else if(hero.center.y + hero.velocity.y > right_platform.center.y + right_platform.half_height() ){
+					hero.center.y = right_platform.center.y + right_platform.half_height() - hero.radius;
+					hero.velocity.y *= -1;
+					hero.on_right_platform= false;
 				}
 			}
 			if(satCircleAABB(hero,top_platform)){
-				//the hero, whether coming from the bottom or the top, will land on the platform
 				if(hero.center.y + hero.velocity.y <= top_platform.center.y - top_platform.half_height() ){
 					hero.center.y = top_platform.center.y - top_platform.half_height() - hero.radius;
 					hero.on_top_platform= true;
+				} else if(hero.center.y + hero.velocity.y > top_platform.center.y + top_platform.half_height() ){
+					hero.center.y = top_platform.center.y + top_platform.half_height() - hero.radius;
+					hero.velocity.y *= -1;
+					hero.on_top_platform= false;
 				}
 			}
 
