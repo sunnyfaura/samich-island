@@ -52,11 +52,14 @@ public:
 	vector<Drop> drops;
 //platform things
 	AABB bottom_platform, left_platform, right_platform, top_platform;	
-	AABB tower1; //tower on top left
-    AABB tower2; //tower on top right
 	AABB tubeA; //tubes for exit
 	AABB tubeB;
 	AABB portal; //portal from hell
+    AABB towerguard1; //protect tower2
+    AABB towerguard2; //protect tower1
+//tower
+    Tower tower1; //tower on top left
+    Tower tower2; //tower on top right
 //for menu
     ciUICanvas *menuGUI;
 //audio

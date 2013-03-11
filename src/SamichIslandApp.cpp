@@ -103,16 +103,25 @@ void SamichIslandApp::setup(){
     tower1.center = Vector2( 20, 50 );
     tower1.height = 70;
     tower1.width = 30;
+    tower1.initHealth(100);
     tower2.center = Vector2( WIND_W - 20 , 50 );
     tower2.height = 70;
-    tower2.width = 30;    
+    tower2.width = 30;
+    tower2.initHealth(100);
+    //tower guard
+    towerguard1.center = Vector2(tower1.center.x + 30, tower1.center.y + 40);
+    towerguard1.height = 20;
+    towerguard1.width = 90;
+    towerguard2.center = Vector2(tower2.center.x - 30, tower2.center.y + 40);
+    towerguard2.height = 20;
+    towerguard2.width = 90;
 	//tubes
 	tubeA.height = 50;
 	tubeA.width = 50;
-	tubeA.center = Vector2( tubeA.width/2 , WIND_H-(tubeA.height/2) );
+	tubeA.center = Vector2( tubeA.half_width() , WIND_H-(tubeA.half_height()) );
 	tubeB.height = 50;
 	tubeB.width = 50;
-	tubeB.center = Vector2( WIND_W-(tubeB.width/2) , WIND_H-(tubeB.height/2) );
+	tubeB.center = Vector2( WIND_W-tubeB.half_width() , WIND_H-tubeB.half_height() );
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
@@ -327,8 +336,8 @@ void SamichIslandApp::update() {
 						dakka.erase(dakka.begin() + i);
 				}
                 
-                /*for (int j = 0; j < cannon_fodder.size(); ++j) {
-                    Mook &m = cannon_fodder[i];
+                for (int j = 0; j < cannon_fodder.size(); ++j) {
+                    Mook &m = cannon_fodder[j];
                     if (circleOnCircleDetection( m, b ) )
                     {
                         m.recieveDamage(20);
@@ -338,11 +347,70 @@ void SamichIslandApp::update() {
                     {
                         cannon_fodder.erase(cannon_fodder.begin() + j);
                     }
-                }*/
+                }
                 
+                if (satCircleAABB(dakka[i], towerguard1)) {
+                    b.center.y = towerguard1.center.y + towerguard1.half_height() + b.radius;
+                    b.velocity.y *= -1;
+                    //dakka.erase(dakka.begin() + i);
+                }
+                else if ( satCircleAABB(dakka[i], towerguard2) ) {
+                    b.center.y = towerguard2.center.y + towerguard2.half_height() + b.radius;
+                    b.velocity.y *= -1;
+                    //dakka.erase(dakka.begin() + i);
+                }
                 
+                if (satCircleAABB(dakka[i], tower1)) {
+                    tower1.recieveDamage( 5 );
+                }
+                else if (satCircleAABB(dakka[i], tower2)) {
+                    tower2.recieveDamage( 5 );
+                }
 			}
 				
+            //hero tube collisions
+            if (satCircleAABB(hero, tubeA)) {
+                //if hero is above tube
+                if (hero.center.y <= tubeA.center.y - tubeA.half_height()) {
+                    hero.center.y = tubeA.center.y - tubeA.half_height() - hero.radius;
+                }
+                //if hero is below tube
+                else if (hero.center.y >= tubeA.center.y + tubeA.half_height()) {
+                    hero.center.y = tubeA.center.y + tubeA.half_height() + hero.radius;
+                }
+                //if hero is left of tube
+                if (hero.center.x <= tubeA.center.x - tubeA.half_height() ) {
+                    hero.center.x = tubeA.center.x - tubeA.half_height() - hero.radius;
+                    hero.velocity.x = 0;
+                }
+                //if hero is right of tube
+                else if (hero.center.x >= tubeA.center.x + tubeA.half_height() ) {
+                    hero.center.x = tubeA.center.x + tubeA.half_height() + hero.radius;
+                    hero.velocity.x = 0;
+                }
+                
+            }
+            else if (satCircleAABB(hero, tubeB)) {
+                //if hero is above tube
+                if (hero.center.y <= tubeB.center.y - tubeB.half_height()) {
+                    hero.center.y = tubeB.center.y - tubeB.half_height() - hero.radius;
+                }
+                //if hero is below tube
+                else if (hero.center.y >= tubeB.center.y + tubeB.half_height()) {
+                    hero.center.y = tubeB.center.y + tubeB.half_height() + hero.radius;
+                }
+                //if hero is left of tube
+                if (hero.center.x <= tubeB.center.x - tubeB.half_height() ) {
+                    hero.center.x = tubeB.center.x - tubeB.half_height() - hero.radius;
+                    hero.velocity.x = 0;
+                }
+                //if hero is right of tube
+                else if (hero.center.x >= tubeB.center.x + tubeB.half_height() ) {
+                    hero.center.x = tubeB.center.x + tubeB.half_height() + hero.radius;
+                    hero.velocity.x = 0;
+                }
+            }
+            
 			//hero jumping
 			if( (hero.jumping == false && hero.jumpKey == true) ) {
 				hero.velocity.y = JUMP_H;
@@ -696,6 +764,9 @@ void SamichIslandApp::draw() {
             glColor3f(255,0,1);
             gl::drawSolidRect(createRectangle(tower1));
             gl::drawSolidRect(createRectangle(tower2));
+            glColor3f(20, 20, 20);
+            gl::drawSolidRect(createRectangle(towerguard1));
+            gl::drawSolidRect(createRectangle(towerguard2));
             
             string hero_mana = boost::lexical_cast<std::string>(hero.mana);
             string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
