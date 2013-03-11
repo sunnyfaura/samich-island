@@ -595,7 +595,7 @@ void SamichIslandApp::update() {
 					hero.center.y = bottom_platform.center.y - bottom_platform.half_height() - hero.radius;
 					hero.on_btm_platform = true;
 				} else if(hero.center.y + hero.velocity.y > bottom_platform.center.y + bottom_platform.half_height() ){
-					hero.center.y = bottom_platform.center.y + bottom_platform.half_height() - hero.radius;
+					hero.center.y = bottom_platform.center.y + bottom_platform.half_height() + hero.radius;
 					hero.velocity.y *= -1;
 					hero.on_btm_platform = false;
 				}
@@ -605,7 +605,7 @@ void SamichIslandApp::update() {
 					hero.center.y = left_platform.center.y - left_platform.half_height() - hero.radius;
 					hero.on_left_platform = true;
 				} else if(hero.center.y + hero.velocity.y > left_platform.center.y + left_platform.half_height() ){
-					hero.center.y = left_platform.center.y + left_platform.half_height() - hero.radius;
+					hero.center.y = left_platform.center.y + left_platform.half_height() + hero.radius;
 					hero.velocity.y *= -1;
 					hero.on_left_platform = false;
 				}
@@ -615,7 +615,7 @@ void SamichIslandApp::update() {
 					hero.center.y = right_platform.center.y - right_platform.half_height() - hero.radius;
 					hero.on_right_platform = true;
 				} else if(hero.center.y + hero.velocity.y > right_platform.center.y + right_platform.half_height() ){
-					hero.center.y = right_platform.center.y + right_platform.half_height() - hero.radius;
+					hero.center.y = right_platform.center.y + right_platform.half_height() + hero.radius;
 					hero.velocity.y *= -1;
 					hero.on_right_platform= false;
 				}
@@ -625,7 +625,7 @@ void SamichIslandApp::update() {
 					hero.center.y = top_platform.center.y - top_platform.half_height() - hero.radius;
 					hero.on_top_platform= true;
 				} else if(hero.center.y + hero.velocity.y > top_platform.center.y + top_platform.half_height() ){
-					hero.center.y = top_platform.center.y + top_platform.half_height() - hero.radius;
+					hero.center.y = top_platform.center.y + top_platform.half_height() + hero.radius;
 					hero.velocity.y *= -1;
 					hero.on_top_platform= false;
 				}
