@@ -475,7 +475,6 @@ void SamichIslandApp::update() {
 					d.center = cannon_fodder[i].center;
 					//check for different levels in the game.
 					d.radius = 5;
-					d.floor = Vector2(cannon_fodder[i].center.x,WIND_H-d.radius);
 					d.velocity = Vector2(0,1);
 					d.color = Colorf(1,1,0);
 					drops.push_back(d);
@@ -491,13 +490,8 @@ void SamichIslandApp::update() {
 						//drops.erase ( drops.begin() + i );
 				}
 					
-				//dropping effect to "floor" 
-				if ( drops[i].center.y <= drops[i].floor.y ) {
-					drops[i].center.y += drops[i].velocity.y;
-				}
-				else {
-					drops[i].center = drops[i].floor; 
-				} 
+				//dropping effect to "floor"
+				
 			}
 				
 //**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//
