@@ -48,6 +48,7 @@ struct Hero: Circle {
     bool isAlive() { return (health > 0); }
     bool canRegenerate() { return mana <= maximum_mana; }
     bool manaNotEmpty() { return mana >= 0; }
+    bool sufficientMana( int decrement ) { return mana >= decrement; }
     
     void regenerateMana ( int increment ) {
         if ( canRegenerate() == true )
@@ -56,11 +57,17 @@ struct Hero: Circle {
             mana = maximum_mana;
     }
 
-    void activateMana ( int decrement ) {
-        if ( manaNotEmpty() == true)
-            mana -= decrement;
+    bool activateMana ( int decrement ) {
+        if ( manaNotEmpty() == true) {
+            if ( mana >= decrement) {
+                mana -= decrement;
+                return true;
+            }
+        }
         else
             mana = 0;
+        return false;
+        
     }
 };
 
@@ -74,10 +81,30 @@ struct Bullet: Circle {
 
 struct Mook: Circle {
 	int health;
-	int damage;
-	void recieveDamage(int damage) {
-		health -= damage;
+	int max_health;
+    int attack;
+    
+    bool isAlive() { return (health > 0); }
+    
+	void recieveDamage(int damage_recieved) {
+		health -= damage_recieved;
 	}
+    
+    void regenerateHealth( int regen_increment )
+    {
+        health += regen_increment;
+    }
+    
+    void increaseAttack( int attack_increment )
+    {
+        attack += attack_increment;
+    }
+    
+    void increaseMaxHealth( int totalhealth_increment )
+    {
+        max_health += totalhealth_increment;
+    }
+    
 	bool on_btm_platform, on_left_platform, on_right_platform, on_top_platform;
 	float direction;
 	Vector2 prev, next;
@@ -85,7 +112,6 @@ struct Mook: Circle {
 };
 
 struct Drop:Circle {
-	Vector2 floor; //location where it is supposed to be dropped. directly below spot
 	bool on_btm_platform, on_left_platform, on_right_platform, on_top_platform;
 };
 
