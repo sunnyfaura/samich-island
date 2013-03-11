@@ -80,6 +80,8 @@ struct Mook: Circle {
 	}
 	bool on_btm_platform, on_left_platform, on_right_platform, on_top_platform;
 	float direction;
+	Vector2 prev, next;
+	float lerp_time;
 };
 
 struct Drop:Circle {

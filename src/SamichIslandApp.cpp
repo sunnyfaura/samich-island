@@ -6,7 +6,10 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-float game_time, shoot_time, dash_time, punch_time, dash_accel, dash_limit, punch_delay;
+float game_time, shoot_time;
+float units_per_second = 5, mook_elapsed_seconds, creation_rate, spawn_unit_count;
+float dash_time, punch_time, dash_accel, dash_limit, punch_delay;
+
 int dash_mana_cost;
 Vector2 mouse;
 
@@ -85,8 +88,11 @@ void SamichIslandApp::setup(){
 		float temp = ( -1+2*((float)rand())/RAND_MAX );
 		if(temp < 0) cannon_fodder[i].direction = -1;
 		else cannon_fodder[i].direction = 1;
-		console() << cannon_fodder[i].direction << std::endl;
+		//console() << cannon_fodder[i].direction << std::endl;
+		cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
+		cannon_fodder[i].lerp_time = 0;
 	}
+	spawn_unit_count = MAX_MOOKS;
 	//platform things
 	bottom_platform.center = Vector2( WIND_W/2 , 500 );
 	bottom_platform.height = 40;
@@ -465,9 +471,39 @@ void SamichIslandApp::update() {
 			//queue every time they enter a tube or get killed
 			//every time they get killed, they return to minimum life
 			//colliding mook with a hero will decrease the life of hero
+			
+			// int j = spawn_unit_count-1;
+			
+			// while(spawn_unit_count > 0) {
+			// 	mook_elapsed_seconds = ci::app::getElapsedSeconds() * 1000;
+			// 	creation_rate += units_per_second * mook_elapsed_seconds;
+	  //     		while ( creation_rate >= 1 ) {
+	  //     			creation_rate--;
+	  //     			//make a unit
+	  //     			cannon_fodder[j].lerp_time += 1.0f;
+			// 		if( cannon_fodder[j].lerp_time > 100 ) {
+			// 			cannon_fodder[j].lerp_time = 0;
+			// 			cannon_fodder[j].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+			// 			cannon_fodder[j].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+			// 		}
+	  //     			spawn_unit_count--;
+	  //     			if(spawn_unit_count == 0) {
+	  //     				creation_rate = 0;
+	  //     			}
+	  //     		}
+   //    		}
+
+			for( int i = 0; i < MAX_MOOKS; ++i){
+				cannon_fodder[j].lerp_time += 1.0f;
+				if( cannon_fodder[j].lerp_time > 100 ) {
+					cannon_fodder[j].lerp_time = 0;
+					cannon_fodder[j].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+					cannon_fodder[j].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+				}
+			}
 
 			//mook dropping drops
-			for (i = 0; i < cannon_fodder.size(); ++i) {
+			for (int i = 0; i < cannon_fodder.size(); ++i) {
 				if (circleOnCircleDetection(punch, cannon_fodder[i]))
 					cannon_fodder[i].recieveDamage(hero.damage);
 				if (cannon_fodder[i].health < 0){
@@ -485,7 +521,7 @@ void SamichIslandApp::update() {
 			}
 
 			//get drops
-			for (i = 0; i < drops.size(); ++i) {
+			for (int i = 0; i < drops.size(); ++i) {
 				if (circleOnCircleDetection(hero, drops[i])) {
 						//drop effects here
 						//drops.erase ( drops.begin() + i );
@@ -610,10 +646,10 @@ void SamichIslandApp::draw() {
             gl::drawSolidRect(createRectangle(portal));
 				
 			//draw mooks
-			for (i = 0; i < cannon_fodder.size(); ++i )
-			{
+			for (i = 0; i < cannon_fodder.size(); ++i ) {
 				glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
-				gl::drawSolidCircle(cannon_fodder[i].center.toV(),cannon_fodder[i].radius, 0);
+				Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
+				gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius ,  0 );
 			}
 			
 			//draw drops
