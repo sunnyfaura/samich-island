@@ -25,7 +25,6 @@ void SamichIslandApp::resize(ResizeEvent event) {
 void SamichIslandApp::setup(){
     //menu setup
     menuGUI = new ciUICanvas(0,0,getWindowWidth(),getWindowHeight());
-    //menuGUI->addWidgetDown(new ciUIButton( 60, 20 ,getWindowCenter().x-20, 100, false, "PLAY", CI_UI_FONT_LARGE) );
     menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "PLAY", CI_UI_FONT_LARGE));
     menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "LEADERBOARDS", CI_UI_FONT_LARGE));
     menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "EXIT", CI_UI_FONT_LARGE));
@@ -205,14 +204,19 @@ void SamichIslandApp::mouseMove( MouseEvent event ) {
 }
 
 void SamichIslandApp::mouseDown( MouseEvent event ) {
-	switch(appState.getCurrentState()){
-		case INIT: 
-			appState.setNextState( MENU );
-		break;
-		case PLAY:
-			leftClick = true;
-		break;
-	}
+    if (event.isLeft()) {
+        switch(appState.getCurrentState()){
+            case INIT: 
+                appState.setNextState( MENU );
+            break;
+            case PLAY:
+                leftClick = true;
+            break;
+            default:
+                leftClick = false;
+            break;
+        }
+    }
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event ) {
@@ -221,13 +225,19 @@ void SamichIslandApp::mouseUp( MouseEvent event ) {
 
 void SamichIslandApp::guiEvent(ciUIEvent *event) {
     string name=event->widget->getName();
-    if (name == "PLAY") {
-        appState.setNextState(PLAY);
+    switch(appState.getCurrentState())
+    {
+        case MENU: {
+            if (name == "PLAY") {
+                appState.setNextState(PLAY);
+            }
+            else if (name == "EXIT") {
+                quit();
+            }
+        break;}
+        default:
+        break;
     }
-    else if (name == "EXIT") {
-        quit();
-    }
-    console() << name << endl;
 }
 
 void SamichIslandApp::update() {
@@ -298,18 +308,39 @@ void SamichIslandApp::update() {
 
 				temp.direction = temp.center - mouse;
 				temp.direction.normalize();
-				dakka.push_back(temp);
+                
+                //bullet decreases mana
+                if (hero.sufficientMana(5)) {
+                    hero.activateMana(5); //bullet is fired decreases mana prolly game constant
+                    dakka.push_back(temp);
+                }
 			}
 
 			int i = 0;
 			for(; i < dakka.size(); ++i) {
+                Bullet &b = dakka[i];
 				dakka[i].center.x -= dakka[i].direction.x * dakka[i].velocity.x;
 				dakka[i].center.y -= dakka[i].direction.y * dakka[i].velocity.y;	
 				//remove bullet if outside window
 				if (!bounds.contains(dakka[i].center.toV())) {
 					if (!dakka.empty())
 						dakka.erase(dakka.begin() + i);
-				}		
+				}
+                
+                /*for (int j = 0; j < cannon_fodder.size(); ++j) {
+                    Mook &m = cannon_fodder[i];
+                    if (circleOnCircleDetection( m, b ) )
+                    {
+                        m.recieveDamage(20);
+                    }
+                    
+                    if(m.isAlive() == false)
+                    {
+                        cannon_fodder.erase(cannon_fodder.begin() + j);
+                    }
+                }*/
+                
+                
 			}
 				
 			//hero jumping
@@ -485,13 +516,39 @@ void SamichIslandApp::update() {
 
 			//get drops
 			for (i = 0; i < drops.size(); ++i) {
+                Drop &d = drops[i];
 				if (circleOnCircleDetection(hero, drops[i])) {
 						//drop effects here
-						//drops.erase ( drops.begin() + i );
+						drops.erase ( drops.begin() + i );
 				}
 					
-				//dropping effect to "floor"
-				
+				//dropping platform collision detection
+				if ( d.center.y - d.velocity.y <= WIND_H - d.radius )
+                {
+                    if (satCircleAABB(d, top_platform))
+                    {
+                        d.velocity.y = 0;
+                        d.center.y = top_platform.center.y - top_platform.half_height() - d.radius;
+                    }
+                    else if (satCircleAABB(d, bottom_platform))
+                    {
+                        d.velocity.y = 0;
+                        d.center.y = bottom_platform.center.y - bottom_platform.half_height() - d.radius;
+                    }
+                    else if (satCircleAABB(d, left_platform))
+                    {
+                        d.velocity.y = 0;
+                        d.center.y = left_platform.center.y - left_platform.half_height() - d.radius;
+                    }
+                    else if (satCircleAABB(d, top_platform))
+                    {
+                        d.velocity.y = 0;
+                        d.center.y = right_platform.center.y - right_platform.half_height() - d.radius;
+                    }
+                }
+                
+                d.center += d.velocity;
+                
 			}
 				
 //**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//

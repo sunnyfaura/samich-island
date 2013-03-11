@@ -48,6 +48,7 @@ struct Hero: Circle {
     bool isAlive() { return (health > 0); }
     bool canRegenerate() { return mana <= maximum_mana; }
     bool manaNotEmpty() { return mana >= 0; }
+    bool sufficientMana( int decrement ) { return mana >= decrement; }
     
     void regenerateMana ( int increment ) {
         if ( canRegenerate() == true )
@@ -56,11 +57,17 @@ struct Hero: Circle {
             mana = maximum_mana;
     }
 
-    void activateMana ( int decrement ) {
-        if ( manaNotEmpty() == true)
-            mana -= decrement;
+    bool activateMana ( int decrement ) {
+        if ( manaNotEmpty() == true) {
+            if ( mana >= decrement) {
+                mana -= decrement;
+                return true;
+            }
+        }
         else
             mana = 0;
+        return false;
+        
     }
 };
 
@@ -76,6 +83,8 @@ struct Mook: Circle {
 	int health;
 	int max_health;
     int attack;
+    
+    bool isAlive() { return (health > 0); }
     
 	void recieveDamage(int damage_recieved) {
 		health -= damage_recieved;
