@@ -4,6 +4,8 @@
 #include "cinder/gl/gl.h"
 #include "Vector2.h"
 
+using namespace std;
+
 const float PIE = 3.1416;
 
 struct Circle {
@@ -13,6 +15,7 @@ struct Circle {
 };
 
 struct AABB {
+    string name;
 	Vector2 center;
 	float width;
 	float height;

@@ -6,210 +6,164 @@
 #endif
 
 #include "Headers.h"
-#include "Sprite.h"
 #include "cinder/gl/Texture.h"
 #include "cinder/ImageIo.h"
 
-typedef unsigned int uint;
-
-using namespace std;
-
-enum TextAlign
-{ TEXT_CENTER, TEXT_LEFT }
- ;
 
 class DrawEngine
 {
-    float frame_rate, total_time; //frameRate
-    string background_mpath, ssheet_mpath;
+    string background_fpath, spritesheet_fpath;
+    
+    int spritesheet_width, spritesheet_height;
+    
+    float total_frames, frame_rate;
+    
     gl::Texture background, spritesheet;
-    ci::Rectf window_bounds;
+    
+    vector<Animation*> animations;
+    
+    ci::Rectf bounds;
     
 public:
-    static DrawEngine& get();
-    void setFrameRate(float fr ) { frame_rate = fr; }
+    DrawEngine() {}
     
-    void setBackgroundPath ( string bg_path ) {
-        background_mpath = bg_path;
-        
-        try {
-            background = gl::Texture( loadImage( loadAsset(background_mpath) ));
-        }
-        catch (Exception e) {
-            background = gl::Texture( loadImage( loadFile(background_mpath) ));
-        }
-    }
-    
-    void setSpriteSheetPath ( string ss_path ) {
-        ssheet_mpath = ss_path;        
-
-        try {
-            spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
-        }
-        catch (Exception e) {
-            spritesheet = gl::Texture( loadImage( loadFile(ssheet_mpath)    ));
-        }
-        
-        if ( spritesheet )
-        {
-
-        }
-        else
-            return ;
-        
-    }
-    
-    void setWindowBounds( ci::Rectf bnds ) { window_bounds = bnds; }
-    
-    DrawEngine(){}
-    
-    //don't use if try to upload background only
-    DrawEngine( string bg_path, string ss_path, float frameRate, ci::Rectf bounds ){
-        background_mpath = bg_path;
-        ssheet_mpath = ss_path;
-        window_bounds = bounds;
+    DrawEngine( string bg_fpath, string ss_fpath, float frame_rate ) :
+    background_fpath(bg_fpath), spritesheet_fpath(ss_fpath), frame_rate(frame_rate)
+    {
+        total_frames = 0;
         init();
     }
     
-    Sprite* findSprite( uint entity_id_query )
-    {
-        for ( size_t i = 0; i < sprites.size(); ++i )
-        {
-            if ( sprites[i]->entity_id == entity_id_query )
-                return sprites[i];
-        }
-        return 0;
+    void update( float dt ) {
+        total_frames++;
     }
     
-    //checks if sprite "entity_id_query" exist
-    bool spriteExists(uint entity_id_query)
+    
+    void setBackgroundPath( string bg_fpath )
     {
-        for ( size_t i = 0; i < sprites.size(); ++i )
+        background_fpath = bg_fpath;
+        try {
+            background = gl::Texture( loadImage( loadAsset(bg_fpath) ));
+        }
+        catch (Exception e) {
+            background = gl::Texture( loadImage( loadFile(bg_fpath) ));
+        }
+    
+        if (!background)
         {
-            if ( sprites[i]->entity_id == entity_id_query )
+            return ;
+        }
+    }
+
+    void setSpritesheetPath( string ss_fpath )
+    {
+        spritesheet_fpath = ss_fpath;
+        try {
+            spritesheet = gl::Texture( loadImage( loadAsset(ss_fpath) ));
+        }
+        catch (Exception e) {
+            spritesheet = gl::Texture( loadImage( loadFile(ss_fpath) ));
+        }
+        
+        if (!spritesheet)
+            return ;
+    }
+
+    bool animationExists( string name ) {
+        for (int i = 0; i < animations.size(); ++i )
+        {
+            if (name == animations[i]->getAnimName())
+            {
                 return true;
+            }
         }
         return false;
     }
-    
-    //entity_id : group of frames/ sprite | frame_entity_id : individual frame on sprite
-    //locationInSS : location of frame in the sprite sheet
-    //set frame_entity_id to equal to entity_id if only one frame
-    void addFrames(uint entity_id, uint frame_entity_id, Vector2 locationInSS, int width, int height )
-    {
-        Sprite* s;
-        if (spriteExists(entity_id) == true) //if sprite already exists
+
+    Animation* getAnimation( string name ) {
+        for (int i = 0; i < animations.size(); ++i )
         {
-            //adds frame "frame_entity_id" to sprite "entity_id"
-            s = findSprite(entity_id);
-            //s->addFrame( frame_entity_id , locationInSS );
+            if (name == animations[i]->getAnimName())
+            {
+                return animations[i];
+            }
         }
-        else //if sprite "entity_id" does not exist on the Sprite array
-        {
-            s->setHeight(height);
-            s->setWidth(width);
-            s->entity_id = entity_id;
-            s->addFrame(frame_entity_id, locationInSS);
-            sprites.push_back( s );
-        }
-    }
-    
-    //entity_id : sprite whose current frame will be changed
-    //frame_entity_id : the frame that will replace the current frame
-    void changeFrames( uint entity_id, uint frame_entity_id, float dt)
-    {
-        Sprite* s;
-        total_time += dt;
-        
-        if (spriteExists(entity_id)) //checks if sprite exists
-        {
-            s = findSprite(entity_id);
-            if ( s->frameExists(frame_entity_id) ) //checks on the sprite if frame exists
-                s->changeCurrentFrame(frame_entity_id); //replaces current frame with that frame
-            else
-                return ; //if frame does not exist
-        }
-        else //if it does not exist
-        {
-            return ;
-        }
-    }
-    
-    //position : the position in the window
-    //entity_id: the sprite "entity_id" that will be changed
-    void moveToPosition( Vector2 position, uint entity_id)
-    {
-        Sprite* s;
-        if(spriteExists(entity_id))
-        {
-            s = findSprite(entity_id);
-            s->position = position;
-        }
-        else
-        {
-            return ;
-        }
-    }
-    
-    void drawSprites()
-    {
-        // draw : draw textures here
-        //gl::draw(Texture tex, Area boundsInSpriteSheet, RectInWindow);
-        gl::clear( Color( 0 , 0, 0 ) );
-        glColor3f(1, 1, 1); //white
-        
-        if ( background )
-            gl::draw(background, window_bounds );
-        for ( size_t i = 0; i < sprites.size(); ++i )
-        {
-            gl::draw(spritesheet, sprites[i]->getSpriteOnSpritesheetBounds(), sprites[i]->getSpriteOnWindowBounds());
-        }
-    
+        //indeterminate
     }
 
-    //str: the string to be drawn. must be lexical casted.
-    //pos: position in center
-    //color: color of text font: font
-    void drawString( const string &str, const Vector2 &pos, const Color &color, const Font &font, TextAlign textState )
+    void updateBounds( ci::Rectf bnds )
     {
-        if ( textState == TEXT_CENTER)
-            gl::drawStringCentered(str, pos.toV(), color, font);
-        else if ( textState == TEXT_LEFT)
-            gl::drawString(str, pos.toV(), color, font);
+        bounds = bnds;
     }
     
-    // c - circle to be drawn, color can be empty or not
-    void drawCircle( const Circle &c, const Color color )
+    void addAnimations(Animation* newAnim)
     {
-        if ( !color )
-            glColor3f(c.color.r ,c.color.g, c.color.b);
+        animations.push_back(newAnim);
+    }
+
+
+    void updatePositions(string name, AABB nPos)
+    {
+        if ( animationExists(name) )
+        {
+            getAnimation(name)->updatePosition(nPos);
+        }
         else
-            glColor3f(color.r ,color.g, color.b);
-        gl::drawSolidCircle(c.center.toV(),c.radius, 0);
+            return ;
     }
-    
-    void drawRectangle( const AABB &a, const Color color)
+
+    void drawBackground() {
+        if (background)
+            gl::draw(background, bounds);
+    }
+
+    void drawAnimations()
     {
-        glColor3f(color.r,color.g,color.b);
-        gl::drawSolidRect(createRectangle(a));
+        if (!spritesheet)
+            return ;
+        
+        glColor3f(1,1,1);
+        for ( size_t i = 0; i < animations.size(); ++i )
+        {
+            gl::draw( spritesheet, animations[i]->getSSBounds(), createRectangle( animations[i]->getPosition()) );
+        }
+    }
+
+    void drawAnimation( string name )
+    {
+        glColor3f(1,1,1);
+        if ( animationExists(name) ) //if there is really an animation with that name
+        {
+            if ( getAnimation(name) )
+                gl::draw( spritesheet, getAnimation(name)->getSSBounds(), createRectangle( getAnimation(name)->getPosition() ) );
+        }
+        else
+            return ;
     }
     
 protected:
-    vector<Sprite*> sprites;
-    
-    void init() {
-
+    void init()
+    {
         try {
-            background = gl::Texture( loadImage( loadAsset(background_mpath) ));
-            spritesheet = gl::Texture( loadImage( loadAsset(ssheet_mpath)    ));
+            background = gl::Texture( loadImage( loadAsset(background_fpath) ));
         }
         catch (Exception e) {
-            background = gl::Texture( loadImage( loadFile(background_mpath) ));
-            spritesheet = gl::Texture( loadImage( loadFile(ssheet_mpath)    ));
+            background = gl::Texture( loadImage( loadFile(background_fpath) ));
         }
 
+        if (!background)
+            return ;
         
+        try {
+            spritesheet = gl::Texture( loadImage( loadAsset(spritesheet_fpath) ));
+        }
+        catch (Exception e) {
+            spritesheet = gl::Texture( loadImage( loadFile(spritesheet_fpath) ));
+        }
+        
+        if (!spritesheet)
+            return ;
     }
 };
-#endif
 
+#endif
