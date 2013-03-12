@@ -23,6 +23,12 @@ void SamichIslandApp::resize(ResizeEvent event) {
 }
 
 void SamichIslandApp::setup(){
+    //drawengine setup
+    dg = new DrawEngine();
+    dg->updateBounds(getWindowBounds());
+    dg->setBackgroundPath("ikabg.bmp");
+    dg->setSpritesheetPath("spritesheet.png");
+    
     //menu setup
     menuGUI = new ciUICanvas(0,0,getWindowWidth(),getWindowHeight());
     menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "PLAY", CI_UI_FONT_LARGE));
@@ -31,8 +37,6 @@ void SamichIslandApp::setup(){
     menuGUI->autoSizeToFitWidgets();
     menuGUI->registerUIEvents(this, &SamichIslandApp::guiEvent);
     //drawengine setup
-    DrawEngine::get().setBackgroundPath("ikabg.bmp");
-    DrawEngine::get().setFrameRate(getFrameRate());
 	appState.setNextState( INIT );
 	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
@@ -71,6 +75,7 @@ void SamichIslandApp::setup(){
 	//portal from hell
     portal.center = Vector2(WIND_W/2,100);
     portal.width = portal.height = 150;
+    portal.name = "PORTAL";
 	//mooks
     MAX_MOOKS = 25;
 	for(int i = 0; i < MAX_MOOKS; ++i){
@@ -90,38 +95,119 @@ void SamichIslandApp::setup(){
 	bottom_platform.center = Vector2( WIND_W/2 , 500 );
 	bottom_platform.height = 40;
 	bottom_platform.width = 300;
+    bottom_platform.name = "BOTTOM_PLATFORM";
 	top_platform.center = Vector2( WIND_W/2 , 240 );
 	top_platform.height = 40;
 	top_platform.width = 300;
+    top_platform.name = "TOP_PLATFORM";
 	left_platform.center = Vector2( WIND_W*2/20 , 360 );
 	left_platform.height = 40;
 	left_platform.width = 300;
+    left_platform.name = "LEFT_PLATFORM";
 	right_platform.center = Vector2( WIND_W*18/20 , 360 );
 	right_platform.height = 40;
 	right_platform.width = 300;
+    right_platform.name = "RIGHT_PLATFORM";
 	//tower targets
     tower1.center = Vector2( 20, 50 );
     tower1.height = 70;
     tower1.width = 30;
     tower1.initHealth(100);
+    tower1.name = "TOWER_1";
     tower2.center = Vector2( WIND_W - 20 , 50 );
     tower2.height = 70;
     tower2.width = 30;
     tower2.initHealth(100);
+    tower2.name = "TOWER_2";
     //tower guard
     towerguard1.center = Vector2(tower1.center.x + 30, tower1.center.y + 40);
     towerguard1.height = 20;
     towerguard1.width = 90;
+    towerguard1.name = "TOWERGUARD1";
     towerguard2.center = Vector2(tower2.center.x - 30, tower2.center.y + 40);
     towerguard2.height = 20;
     towerguard2.width = 90;
+    towerguard2.name = "TOWERGUARD2";
 	//tubes
-	tubeA.height = 50;
-	tubeA.width = 50;
+	tubeA.height = 100;
+	tubeA.width = 100;
 	tubeA.center = Vector2( tubeA.half_width() , WIND_H-(tubeA.half_height()) );
-	tubeB.height = 50;
-	tubeB.width = 50;
+    tubeA.name = "TUBE_A";
+	tubeB.height = 100;
+	tubeB.width = 100;
 	tubeB.center = Vector2( WIND_W-tubeB.half_width() , WIND_H-tubeB.half_height() );
+    tubeB.name = "TUBE_B";
+    
+    //ANIMATION/SPRITE STUFF
+    //How to use inefficient DrawEngine
+    //#1 create animation object
+    //new Animation (name, width, height, the rate in which frames change )
+    //#2 addSprite( new Sprite(name of sprite, location in the spritesheet) )
+    //#3 add the animation object to drawEngine
+    //#4 updatePosition
+    //in this case, the tube does not move. so no need to call this on update method
+    //#5 if your object moves updatePosition in update() method
+    //IMMOVABLE OBJECTS!!!!!!
+    //tube A
+    tubeA_anim = new Animation(tubeA.name, 100, 100, 0);// 0 for now
+    tubeA_anim->addSprite(new Sprite(tubeA.name, Vector2(476,2))); //position on the sprite sheet not the AABB itself
+    dg->addAnimations(tubeA_anim);
+    dg->updatePositions(tubeA_anim->getAnimName(), tubeA);
+    
+    //tube B
+    tubeB_anim = new Animation(tubeB.name, 100, 100, 0);// 0 for now
+    tubeB_anim->addSprite(new Sprite(tubeB.name, Vector2(578,2))); //position on the sprite sheet not the AABB itself
+    dg->addAnimations(tubeB_anim);
+    dg->updatePositions(tubeB_anim->getAnimName(), tubeB);
+    
+    //portal
+    portal_anim = new Animation(portal.name, 36, 36, 0);
+    portal_anim->addSprite(new Sprite(portal.name, Vector2(754,104)));
+    dg->addAnimations(portal_anim);
+    dg->updatePositions(portal_anim->getAnimName(), portal);
+    
+    //platforms
+    bottom_platform_anim = new Animation(bottom_platform.name, 121, 16, 0);
+    bottom_platform_anim->addSprite(new Sprite(bottom_platform.name, Vector2(680,2)) );
+    dg->addAnimations(bottom_platform_anim);
+    dg->updatePositions(bottom_platform_anim->getAnimName(), bottom_platform);
+    
+    top_platform_anim = new Animation(top_platform.name, 121, 16, 0);
+    top_platform_anim->addSprite(new Sprite(top_platform.name, Vector2(680,2)) );
+    dg->addAnimations(top_platform_anim);
+    dg->updatePositions(top_platform_anim->getAnimName(), top_platform);
+    
+    right_platform_anim = new Animation(right_platform.name, 121, 16, 0);
+    right_platform_anim->addSprite(new Sprite(right_platform.name, Vector2(680,2)) );
+    dg->addAnimations(right_platform_anim);
+    dg->updatePositions(right_platform_anim->getAnimName(), right_platform);
+    
+    left_platform_anim = new Animation(left_platform.name, 121, 16, 0);
+    left_platform_anim->addSprite(new Sprite(left_platform.name, Vector2(680,2)) );
+    dg->addAnimations(left_platform_anim);
+    dg->updatePositions(left_platform_anim->getAnimName(), left_platform);
+    
+    //towers
+    tower1_anim = new Animation(tower1.name, 21, 36, 0);
+    tower1_anim->addSprite(new Sprite(tower1.name, Vector2(792,104) ));
+    dg->addAnimations(tower1_anim);
+    dg->updatePositions(tower1_anim->getAnimName(), tower1); 
+    
+    tower2_anim = new Animation(tower2.name, 21, 36, 0);
+    tower2_anim->addSprite(new Sprite(tower2.name, Vector2(792,104) ));
+    dg->addAnimations(tower2_anim);
+    dg->updatePositions(tower2_anim->getAnimName(), tower2);
+    
+    //towerguards
+    towerguard1_anim = new Animation(towerguard1.name, 121, 16, 0);
+    towerguard1_anim->addSprite(new Sprite(towerguard1.name, Vector2(680,2)) );
+    dg->addAnimations(towerguard1_anim);
+    dg->updatePositions(towerguard1_anim->getAnimName(), towerguard1);
+    
+    towerguard2_anim = new Animation(towerguard2.name, 121, 16, 0);
+    towerguard2_anim->addSprite(new Sprite(towerguard2.name, Vector2(680,2)) );
+    dg->addAnimations(towerguard2_anim);
+    dg->updatePositions(towerguard2_anim->getAnimName(), towerguard2);
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
@@ -258,8 +344,7 @@ void SamichIslandApp::update() {
     WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
 
     //draw engine updates
-    DrawEngine::get().setWindowBounds(getWindowBounds());
-    
+    dg->updateBounds(getWindowBounds());
 	//state management updates
 	bool change = appState.commitState();
     if (change) count = 0;
@@ -373,10 +458,12 @@ void SamichIslandApp::update() {
                 //if hero is above tube
                 if (hero.center.y <= tubeA.center.y - tubeA.half_height()) {
                     hero.center.y = tubeA.center.y - tubeA.half_height() - hero.radius;
+                    hero.velocity.y = 0;
                 }
                 //if hero is below tube
                 else if (hero.center.y >= tubeA.center.y + tubeA.half_height()) {
                     hero.center.y = tubeA.center.y + tubeA.half_height() + hero.radius;
+                    hero.velocity.y = 0;
                 }
                 //if hero is left of tube
                 if (hero.center.x <= tubeA.center.x - tubeA.half_height() ) {
@@ -394,10 +481,12 @@ void SamichIslandApp::update() {
                 //if hero is above tube
                 if (hero.center.y <= tubeB.center.y - tubeB.half_height()) {
                     hero.center.y = tubeB.center.y - tubeB.half_height() - hero.radius;
+                    hero.velocity.y = 0;
                 }
                 //if hero is below tube
                 else if (hero.center.y >= tubeB.center.y + tubeB.half_height()) {
                     hero.center.y = tubeB.center.y + tubeB.half_height() + hero.radius;
+                    hero.velocity.y = 0;
                 }
                 //if hero is left of tube
                 if (hero.center.x <= tubeB.center.x - tubeB.half_height() ) {
@@ -663,8 +752,6 @@ void SamichIslandApp::update() {
 				}
 			}
 
-			//tube collisions
-
 			//tower collisions
 			//tower have life
 			//100 for each tower
@@ -714,7 +801,9 @@ void SamichIslandApp::draw() {
         case PLAY: {
 			int i = 0;
             
-            DrawEngine::get().drawSprites();
+            //draw background here
+            dg->drawBackground();
+            
 			//draw punch
 			if (hero.punching){
 				glColor3f(0, 0, 1);
@@ -725,9 +814,10 @@ void SamichIslandApp::draw() {
 			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 
 			//portal from hell
-			glColor3f(1,0,1);
-            gl::drawSolidRect(createRectangle(portal));
-				
+			//glColor3f(1,0,1);
+            //gl::drawSolidRect(createRectangle(portal));
+			dg->drawAnimation(portal.name);
+            
 			//draw mooks
 			for (i = 0; i < cannon_fodder.size(); ++i )
 			{
@@ -743,12 +833,17 @@ void SamichIslandApp::draw() {
 			}
 
 			//platforms
-			glColor3f(0,1,1);
-			gl::drawSolidRect(createRectangle(bottom_platform));
-			gl::drawSolidRect(createRectangle(left_platform));
-			gl::drawSolidRect(createRectangle(right_platform));
-			gl::drawSolidRect(createRectangle(top_platform));
-
+			//glColor3f(0,1,1);
+			//gl::drawSolidRect(createRectangle(bottom_platform));
+			//gl::drawSolidRect(createRectangle(left_platform));
+			//gl::drawSolidRect(createRectangle(right_platform));
+			//gl::drawSolidRect(createRectangle(top_platform));
+            dg->drawAnimation(bottom_platform.name);
+            dg->drawAnimation(top_platform.name);
+            dg->drawAnimation(right_platform.name);
+            dg->drawAnimation(left_platform.name);
+            
+            
 			//draw bullets
 			for(; i < dakka.size(); ++i) {
 				glColor3f(1, 0, 0);
@@ -757,22 +852,30 @@ void SamichIslandApp::draw() {
 
 			//tubes
 			glColor3f(1,1,0);
-			gl::drawSolidRect(createRectangle(tubeA));
-			gl::drawSolidRect(createRectangle(tubeB));
+            dg->drawAnimation(tubeA.name);
+            dg->drawAnimation(tubeB.name);
+			//gl::drawSolidRect(createRectangle(tubeA));
+			//gl::drawSolidRect(createRectangle(tubeB));
             
             //tower
-            glColor3f(255,0,1);
-            gl::drawSolidRect(createRectangle(tower1));
-            gl::drawSolidRect(createRectangle(tower2));
-            glColor3f(20, 20, 20);
-            gl::drawSolidRect(createRectangle(towerguard1));
-            gl::drawSolidRect(createRectangle(towerguard2));
+            //glColor3f(255,0,1);
+            //gl::drawSolidRect(createRectangle(tower1));
+            //gl::drawSolidRect(createRectangle(tower2));
+            //glColor3f(20, 20, 20);
+            //gl::drawSolidRect(createRectangle(towerguard1));
+            //gl::drawSolidRect(createRectangle(towerguard2));
+            
+            dg->drawAnimation(tower1.name);
+            dg->drawAnimation(tower2.name);
+            
+            dg->drawAnimation(towerguard1.name);
+            dg->drawAnimation(towerguard2.name);
             
             string hero_mana = boost::lexical_cast<std::string>(hero.mana);
             string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
             string hero_health = boost::lexical_cast<std::string>(hero.health);
-            DrawEngine::get().drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
-            DrawEngine::get().drawString( hero_health + " of 100", Vector2( 10, 40 ), Color ( 0, 0, 0 ), Font("Helvetica", 16), TEXT_LEFT );
+            gl::drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ).toV(), Color ( 0, 0, 0 ), Font("Helvetica", 16));
+            gl::drawString( hero_health + " of 100", Vector2( 10, 40 ).toV(), Color ( 0, 0, 0 ), Font("Helvetica", 16));
         }
         break;
         case BOSS: {} break;

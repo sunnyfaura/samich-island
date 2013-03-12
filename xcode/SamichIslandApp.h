@@ -20,13 +20,13 @@ using namespace std;
 const size_t NUM_ENEMIES = 10;
 const float PI = 3.141592653589793238462643383279502884197;
 
-DrawEngine& DrawEngine::get() {
-    static DrawEngine dg;
-    return dg;
-}
+typedef Animation* AnimPtr;
+typedef Sprite* SprPtr;
 
 class SamichIslandApp : public AppBasic {
 public:
+//draw engine
+    DrawEngine *dg;
 //state management
 	State appState;
 	int count;
@@ -60,6 +60,12 @@ public:
 //tower
     Tower tower1; //tower on top left
     Tower tower2; //tower on top right
+//draw stuff
+    AnimPtr tubeA_anim, tubeB_anim,
+    portal_anim,
+    bottom_platform_anim, left_platform_anim, right_platform_anim, top_platform_anim,
+    tower1_anim, tower2_anim,
+    towerguard1_anim, towerguard2_anim;
 //for menu
     ciUICanvas *menuGUI;
 //audio
