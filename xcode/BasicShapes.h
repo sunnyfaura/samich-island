@@ -30,6 +30,34 @@ struct AABB {
 	}
 };
 
+struct Tower : AABB {
+    int health;
+    int max_health;
+    
+    void recieveDamage( int decrement )
+    {
+        health -= decrement;
+    }
+    
+    bool isNotDestroyed () { return health <= 0; }
+    
+    void initHealth( int maxhealth  )
+    {
+        
+    }
+    
+    void addMaxHealth(int increment)
+    {
+        max_health += increment;
+    }
+    
+    void resetHealth()
+    {
+        if ( isNotDestroyed() == false )
+            health = max_health;
+    }
+};
+
 struct Hero: Circle {
     int health;
 	int damage; //entity numbers and stats
