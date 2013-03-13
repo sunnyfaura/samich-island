@@ -88,7 +88,7 @@ public:
                 return animations[i];
             }
         }
-        //indeterminate
+        return 0;
     }
 
     void updateBounds( ci::Rectf bnds )
@@ -128,14 +128,14 @@ public:
             gl::draw( spritesheet, animations[i]->getSSBounds(), createRectangle( animations[i]->getPosition()) );
         }
     }
+    
 
-    void drawAnimation( string name )
+    void drawAnimation( Animation *anim )
     {
-        glColor3f(1,1,1);
-        if ( animationExists(name) ) //if there is really an animation with that name
+        if ( anim )
         {
-            if ( getAnimation(name) )
-                gl::draw( spritesheet, getAnimation(name)->getSSBounds(), createRectangle( getAnimation(name)->getPosition() ) );
+            glColor3f(1,1,1);
+            gl::draw( spritesheet, anim->getSSBounds(), createRectangle( anim->getPosition() ) );
         }
         else
             return ;

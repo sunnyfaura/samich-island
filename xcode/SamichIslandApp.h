@@ -48,7 +48,7 @@ public:
 //lists
 	vector<Bullet> dakka;
 	vector<Mook> cannon_fodder;
-	int MAX_MOOKS;
+	const int MAX_MOOKS = 25;
 	vector<Drop> drops;
 //platform things
 	AABB bottom_platform, left_platform, right_platform, top_platform;	
@@ -66,6 +66,15 @@ public:
     bottom_platform_anim, left_platform_anim, right_platform_anim, top_platform_anim,
     tower1_anim, tower2_anim,
     towerguard1_anim, towerguard2_anim;
+    
+    //hero has an array/vector of sprites
+    //use forloop to set position in ss of sprites and enums as indices
+    AnimPtr hero_anim;
+    
+    //array of AnimPtr mooks
+    //per AnimPtr has array of sprites //different anims different positions
+    //for every sprite might all be the same use for loop and enums as indices - might be 
+    
 //for menu
     ciUICanvas *menuGUI;
 //audio

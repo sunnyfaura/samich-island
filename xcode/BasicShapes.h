@@ -61,7 +61,9 @@ struct Tower : AABB {
     }
 };
 
-struct Hero: Circle {
+struct Hero: AABB {
+    ci::Colorf color;
+    Vector2 velocity;
     int health;
 	int damage; //entity numbers and stats
     int maximum_mana;
@@ -111,6 +113,7 @@ struct Bullet: Circle {
 };
 
 struct Mook: Circle {
+    Vector2 velocity;
 	int health;
 	int max_health;
     int attack;

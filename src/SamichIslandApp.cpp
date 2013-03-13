@@ -1,6 +1,5 @@
 #include "Headers.h"
 #include "SamichIslandApp.h"
-#include "DrawEngine.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -43,12 +42,16 @@ void SamichIslandApp::setup(){
 	//window bluh//
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
+    
 	//hero initialization
-	hero.radius = 16;
+	//hero.radius = 16;
+    hero.name = "HERO";
+    hero.width = 45;
+    hero.height = 45;
     hero.health = 100;
     hero.mana = 100;
     hero.maximum_mana = 100;
-	hero.center = Vector2(WIND_W/2, WIND_H - hero.radius);
+	hero.center = Vector2(WIND_W/2, WIND_H - hero.half_height());
 	hero.color = Colorf(1.0,1.0,1.0);
 	hero.velocity.x = 12.0;
 	hero.velocity.y = 12.0;
@@ -58,26 +61,29 @@ void SamichIslandApp::setup(){
 	hero.on_btm_platform = hero.on_left_platform = hero.on_right_platform = hero.on_top_platform = false;
 	JUMP_H = 16;
 	hero.damage = 10;
+    
 	//punch initialization
 	punch.radius = 10;
 	punch.center = hero.center;
-	punch.center.x += hero.radius;
+	punch.center.x += hero.half_width();
 	punch.isRight = true;	
 	punch_delay = 100;
-	//bullet initialization
+	
+    //bullet initialization
 	B_RAD = 7.00; B_VEL = 12.00;	
 	leftClick = false;
 	bullet_counter = 50;
 	shoot_delay = 500;
-	//dash thingy
+	
+    //dash thingy
 	dash_limit = 800;
     dash_mana_cost = 10;
-	//portal from hell
+	
+    //portal from hell
     portal.center = Vector2(WIND_W/2,100);
     portal.width = portal.height = 150;
     portal.name = "PORTAL";
 	//mooks
-    MAX_MOOKS = 25;
 	for(int i = 0; i < MAX_MOOKS; ++i){
 		Mook mook;
 		mook.health = 100;
@@ -131,11 +137,11 @@ void SamichIslandApp::setup(){
 	//tubes
 	tubeA.height = 100;
 	tubeA.width = 100;
-	tubeA.center = Vector2( tubeA.half_width() , WIND_H-(tubeA.half_height()) );
+	tubeA.center = Vector2( tubeA.half_width() - 20 , WIND_H-(tubeA.half_height()) );
     tubeA.name = "TUBE_A";
 	tubeB.height = 100;
 	tubeB.width = 100;
-	tubeB.center = Vector2( WIND_W-tubeB.half_width() , WIND_H-tubeB.half_height() );
+	tubeB.center = Vector2( WIND_W-tubeB.half_width() + 20 , WIND_H-tubeB.half_height() );
     tubeB.name = "TUBE_B";
     
     //ANIMATION/SPRITE STUFF
@@ -208,6 +214,23 @@ void SamichIslandApp::setup(){
     towerguard2_anim->addSprite(new Sprite(towerguard2.name, Vector2(680,2)) );
     dg->addAnimations(towerguard2_anim);
     dg->updatePositions(towerguard2_anim->getAnimName(), towerguard2);
+    
+    //hero
+    hero_anim = new Animation(hero.name, 32, 32, 10); //will change sprite every 15 frames
+    hero_anim->addSprite(new Sprite(hero.name, Vector2(100, 104))); //add frames here
+    dg->addAnimations(hero_anim);
+    dg->updatePositions(hero_anim->getAnimName(), hero);
+    
+    //mook
+    /*for(int i = 0; i < cannon_fodder.size(); ++i){
+		//Mook mook;
+		//mook.health = 100;
+		//mook.radius = 25;
+		//mook.center = portal.center;
+		//cannon_fodder.push_back(mook);
+        mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
+        mook_anim[i]->addSprite( new Sprite() );
+	}*/
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
@@ -370,10 +393,29 @@ void SamichIslandApp::update() {
            	//hero to-do-list/pseudocode
             //limit the hero to game boundaries 
             //fix the bullet shooting: check if the menu is in PLAY (not anywhere else),
-            //hero inflict damage by either shoot or punch or dash
+            //hero inflict damage by either shoot or punch or dash - "did all except dash" - semilla
             //define the power of punch and shoot and dash
-            //colliding with a mook will decrease hero life (do not repeat collisions)
-
+            //colliding with a mook will decrease hero life (do not repeat collisions) 
+            
+            //limit the hero to game boundaries
+            if (hero.center.x - hero.half_width() <= 0 )
+            {
+                hero.center.x = hero.half_width();
+            }
+            else if (hero.center.x + hero.half_width() >= WIND_W)
+            {
+                hero.center.x = WIND_W - hero.half_width();
+            }
+            
+            if (hero.center.y - hero.half_height() <= 0 )
+            {
+                hero.center.y = hero.half_height();
+            }
+            else if (hero.center.y + hero.half_height() >= WIND_H)
+            {
+                hero.center.y = WIND_H - hero.half_height();
+            }
+            
             //punch
 			if (hero.punching) {
 				int dir = -1;
@@ -385,7 +427,7 @@ void SamichIslandApp::update() {
 				if (secs >= 0.313) {
 					hero.punching = false;
 					punch.center = hero.center;
-					punch.center.x += -1*dir*hero.radius;
+					punch.center.x += -1*dir*hero.half_width();
 					punch_time = 0;
 				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
 			} else punch.center = hero.center;
@@ -427,11 +469,13 @@ void SamichIslandApp::update() {
                     {
                         m.recieveDamage(20);
                     }
-                    
+
                     if(m.isAlive() == false)
                     {
                         cannon_fodder.erase(cannon_fodder.begin() + j);
                     }
+                    
+                    
                 }
                 
                 if (satCircleAABB(dakka[i], towerguard1)) {
@@ -454,48 +498,48 @@ void SamichIslandApp::update() {
 			}
 				
             //hero tube collisions
-            if (satCircleAABB(hero, tubeA)) {
+            if (satAABB(hero, tubeA)) {
                 //if hero is above tube
                 if (hero.center.y <= tubeA.center.y - tubeA.half_height()) {
-                    hero.center.y = tubeA.center.y - tubeA.half_height() - hero.radius;
+                    hero.center.y = tubeA.center.y - tubeA.half_height() - hero.half_height();
                     hero.velocity.y = 0;
                 }
                 //if hero is below tube
                 else if (hero.center.y >= tubeA.center.y + tubeA.half_height()) {
-                    hero.center.y = tubeA.center.y + tubeA.half_height() + hero.radius;
+                    hero.center.y = tubeA.center.y + tubeA.half_height() + hero.half_height();
                     hero.velocity.y = 0;
                 }
                 //if hero is left of tube
                 if (hero.center.x <= tubeA.center.x - tubeA.half_height() ) {
-                    hero.center.x = tubeA.center.x - tubeA.half_height() - hero.radius;
+                    hero.center.x = tubeA.center.x - tubeA.half_height() - hero.half_width();
                     hero.velocity.x = 0;
                 }
                 //if hero is right of tube
                 else if (hero.center.x >= tubeA.center.x + tubeA.half_height() ) {
-                    hero.center.x = tubeA.center.x + tubeA.half_height() + hero.radius;
+                    hero.center.x = tubeA.center.x + tubeA.half_height() + hero.half_width();
                     hero.velocity.x = 0;
                 }
                 
             }
-            else if (satCircleAABB(hero, tubeB)) {
+            else if (satAABB(hero, tubeB)) {
                 //if hero is above tube
                 if (hero.center.y <= tubeB.center.y - tubeB.half_height()) {
-                    hero.center.y = tubeB.center.y - tubeB.half_height() - hero.radius;
+                    hero.center.y = tubeB.center.y - tubeB.half_height() - hero.half_height();
                     hero.velocity.y = 0;
                 }
                 //if hero is below tube
                 else if (hero.center.y >= tubeB.center.y + tubeB.half_height()) {
-                    hero.center.y = tubeB.center.y + tubeB.half_height() + hero.radius;
+                    hero.center.y = tubeB.center.y + tubeB.half_height() + hero.half_height();
                     hero.velocity.y = 0;
                 }
                 //if hero is left of tube
-                if (hero.center.x <= tubeB.center.x - tubeB.half_height() ) {
-                    hero.center.x = tubeB.center.x - tubeB.half_height() - hero.radius;
+                if (hero.center.x <= tubeB.center.x - tubeB.half_width() ) {
+                    hero.center.x = tubeB.center.x - tubeB.half_width() - hero.half_width();
                     hero.velocity.x = 0;
                 }
                 //if hero is right of tube
-                else if (hero.center.x >= tubeB.center.x + tubeB.half_height() ) {
-                    hero.center.x = tubeB.center.x + tubeB.half_height() + hero.radius;
+                else if (hero.center.x >= tubeB.center.x + tubeB.half_width() ) {
+                    hero.center.x = tubeB.center.x + tubeB.half_width() + hero.half_width();
                     hero.velocity.x = 0;
                 }
             }
@@ -518,6 +562,7 @@ void SamichIslandApp::update() {
 					punch.center.y -= 1;
 				} else {
 					hero.jumping = false;
+                    hero.center.y = WIND_H - hero.half_height(); //APPLEGUST
 				}
 			}
 
@@ -528,7 +573,9 @@ void SamichIslandApp::update() {
 					punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
 					punch.center.y -= 1;
-				} else hero.jumping = false;
+				} else
+                    hero.jumping = false;
+                
 			}
 			if( hero.jumping == true && hero.on_left_platform == true) {
 				if ( (hero.center.y - hero.velocity.y) <= left_platform.center.y - left_platform.half_height() ) {
@@ -565,6 +612,7 @@ void SamichIslandApp::update() {
 					punch.center.y -= 1;
 				} else {
 					hero.needsGravity = false;
+                    hero.center.y = WIND_H - hero.half_height();
 				}
 			}
 
@@ -658,6 +706,7 @@ void SamichIslandApp::update() {
 			for (i = 0; i < cannon_fodder.size(); ++i) {
 				if (circleOnCircleDetection(punch, cannon_fodder[i]))
 					cannon_fodder[i].recieveDamage(hero.damage);
+                
 				if (cannon_fodder[i].health < 0){
 					Drop d;
 					d.center = cannon_fodder[i].center;
@@ -674,7 +723,7 @@ void SamichIslandApp::update() {
 			//get drops
 			for (i = 0; i < drops.size(); ++i) {
                 Drop &d = drops[i];
-				if (circleOnCircleDetection(hero, drops[i])) {
+				if (satCircleAABB(drops[i], hero)) {
 						//drop effects here
 						drops.erase ( drops.begin() + i );
 				}
@@ -711,53 +760,56 @@ void SamichIslandApp::update() {
 //**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//
 
 			//platform collisions
-			if(satCircleAABB(hero,bottom_platform)){
+			if(satAABB(hero,bottom_platform)){
 				if(hero.center.y + hero.velocity.y <= bottom_platform.center.y - bottom_platform.half_height() ){
-					hero.center.y = bottom_platform.center.y - bottom_platform.half_height() - hero.radius;
+					hero.center.y = bottom_platform.center.y - bottom_platform.half_height() - hero.half_height();
 					hero.on_btm_platform = true;
 				} else if(hero.center.y + hero.velocity.y > bottom_platform.center.y + bottom_platform.half_height() ){
-					hero.center.y = bottom_platform.center.y + bottom_platform.half_height() + hero.radius;
+					hero.center.y = bottom_platform.center.y + bottom_platform.half_height() + hero.half_height();
 					hero.velocity.y *= -1;
 					hero.on_btm_platform = false;
 				}
 			}
-			if(satCircleAABB(hero,left_platform)){
+			if(satAABB(hero,left_platform)){
 				if(hero.center.y + hero.velocity.y <= left_platform.center.y - left_platform.half_height() ){
-					hero.center.y = left_platform.center.y - left_platform.half_height() - hero.radius;
+					hero.center.y = left_platform.center.y - left_platform.half_height() - hero.half_height();
 					hero.on_left_platform = true;
 				} else if(hero.center.y + hero.velocity.y > left_platform.center.y + left_platform.half_height() ){
-					hero.center.y = left_platform.center.y + left_platform.half_height() + hero.radius;
+					hero.center.y = left_platform.center.y + left_platform.half_height() + hero.half_height();
 					hero.velocity.y *= -1;
 					hero.on_left_platform = false;
 				}
 			}
-			if(satCircleAABB(hero,right_platform)){
+			if(satAABB(hero,right_platform)){
 				if(hero.center.y + hero.velocity.y <= right_platform.center.y - right_platform.half_height() ){
-					hero.center.y = right_platform.center.y - right_platform.half_height() - hero.radius;
+					hero.center.y = right_platform.center.y - right_platform.half_height() - hero.half_height();
 					hero.on_right_platform = true;
 				} else if(hero.center.y + hero.velocity.y > right_platform.center.y + right_platform.half_height() ){
-					hero.center.y = right_platform.center.y + right_platform.half_height() + hero.radius;
+					hero.center.y = right_platform.center.y + right_platform.half_height() + hero.half_height();
 					hero.velocity.y *= -1;
 					hero.on_right_platform= false;
 				}
 			}
-			if(satCircleAABB(hero,top_platform)){
+			if(satAABB(hero,top_platform)){
 				if(hero.center.y + hero.velocity.y <= top_platform.center.y - top_platform.half_height() ){
-					hero.center.y = top_platform.center.y - top_platform.half_height() - hero.radius;
+					hero.center.y = top_platform.center.y - top_platform.half_height() - hero.half_height();
 					hero.on_top_platform= true;
 				} else if(hero.center.y + hero.velocity.y > top_platform.center.y + top_platform.half_height() ){
-					hero.center.y = top_platform.center.y + top_platform.half_height() + hero.radius;
+					hero.center.y = top_platform.center.y + top_platform.half_height() + hero.half_height();
 					hero.velocity.y *= -1;
 					hero.on_top_platform= false;
 				}
 			}
 
-			//tower collisions
-			//tower have life
-			//100 for each tower
+			//tower collisions - on dakka loop.
+			//tower have life - on dakka loop
+			//100 for each tower -
 			//once all towers have been destroyed
 			//go to boss battle
-
+            
+            
+            //update mook and hero coords in drawengine
+            dg->updatePositions(hero_anim->getAnimName(), hero);
         }
         break;
         case BOSS: {
@@ -810,13 +862,15 @@ void SamichIslandApp::draw() {
 				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
 			}
 			
-			glColor3f(hero.color.r, hero.color.g, hero.color.b);
-			gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
+            dg->drawAnimation(hero_anim);
+			//glColor3f(hero.color.r, hero.color.g, hero.color.b);
+            //gl::drawSolidRect(createRectangle(hero));
+			//gl::drawSolidCircle(hero.center.toV(), hero.radius, 0 ); //hero
 
 			//portal from hell
 			//glColor3f(1,0,1);
             //gl::drawSolidRect(createRectangle(portal));
-			dg->drawAnimation(portal.name);
+			dg->drawAnimation(portal_anim);
             
 			//draw mooks
 			for (i = 0; i < cannon_fodder.size(); ++i )
@@ -838,10 +892,10 @@ void SamichIslandApp::draw() {
 			//gl::drawSolidRect(createRectangle(left_platform));
 			//gl::drawSolidRect(createRectangle(right_platform));
 			//gl::drawSolidRect(createRectangle(top_platform));
-            dg->drawAnimation(bottom_platform.name);
-            dg->drawAnimation(top_platform.name);
-            dg->drawAnimation(right_platform.name);
-            dg->drawAnimation(left_platform.name);
+            dg->drawAnimation(bottom_platform_anim);
+            dg->drawAnimation(top_platform_anim);
+            dg->drawAnimation(right_platform_anim);
+            dg->drawAnimation(left_platform_anim);
             
             
 			//draw bullets
@@ -852,8 +906,8 @@ void SamichIslandApp::draw() {
 
 			//tubes
 			glColor3f(1,1,0);
-            dg->drawAnimation(tubeA.name);
-            dg->drawAnimation(tubeB.name);
+            dg->drawAnimation(tubeA_anim);
+            dg->drawAnimation(tubeB_anim);
 			//gl::drawSolidRect(createRectangle(tubeA));
 			//gl::drawSolidRect(createRectangle(tubeB));
             
@@ -865,11 +919,11 @@ void SamichIslandApp::draw() {
             //gl::drawSolidRect(createRectangle(towerguard1));
             //gl::drawSolidRect(createRectangle(towerguard2));
             
-            dg->drawAnimation(tower1.name);
-            dg->drawAnimation(tower2.name);
+            dg->drawAnimation(tower1_anim);
+            dg->drawAnimation(tower2_anim);
             
-            dg->drawAnimation(towerguard1.name);
-            dg->drawAnimation(towerguard2.name);
+            dg->drawAnimation(towerguard1_anim);
+            dg->drawAnimation(towerguard2_anim);
             
             string hero_mana = boost::lexical_cast<std::string>(hero.mana);
             string hero_maxmana = boost::lexical_cast<std::string>(hero.maximum_mana);
