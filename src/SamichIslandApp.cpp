@@ -6,12 +6,13 @@ using namespace ci::app;
 using namespace std;
 
 float game_time;
+float curr_time, prev_time;
 const int TIME_UP = 3;
 
-float shoot_time;
-float units_per_second = 5, mook_elapsed_seconds, creation_rate, spawn_unit_count;
-float dash_time, punch_time, dash_accel, dash_limit, punch_delay;
-float curr_time, prev_time;
+float shoot_time, punch_time;
+float dash_time, dash_accel, dash_limit, punch_delay;
+
+int j = 0; //enemy count
 
 int dash_mana_cost;
 Vector2 mouse;
@@ -45,16 +46,18 @@ void SamichIslandApp::setup(){
     menuGUI->addWidgetDown(new ciUILabelButton(getWindowWidth()-CI_UI_GLOBAL_WIDGET_SPACING*2, false, "EXIT", CI_UI_FONT_LARGE));
     menuGUI->autoSizeToFitWidgets();
     menuGUI->registerUIEvents(this, &SamichIslandApp::guiEvent);
+
     //drawengine setup
 	appState.setNextState( INIT );
+
 	//time initializations
 	game_time = shoot_time = dash_time = punch_time = 0;
+
 	//window bluh//
 	WIND_H = this->getWindowHeight();
 	WIND_W = this->getWindowWidth();
     
 	//hero initialization
-	//hero.radius = 16;
     hero.name = "HERO";
     hero.width = 45;
     hero.height = 45;
@@ -93,23 +96,7 @@ void SamichIslandApp::setup(){
     portal.center = Vector2(WIND_W/2,100);
     portal.width = portal.height = 150;
     portal.name = "PORTAL";
-	//mooks
-	for(int i = 0; i < MAX_MOOKS; ++i){
-		Mook mook;
-		mook.health = 100;
-		mook.radius = 25;
-		mook.center = portal.center;
-		cannon_fodder.push_back(mook);
-	}
-	for(int i = 0; i < cannon_fodder.size(); ++i) { //randomize direction
-		float temp = ( -1+2*((float)rand())/RAND_MAX );
-		if(temp < 0) cannon_fodder[i].direction = -1;
-		else cannon_fodder[i].direction = 1;
-		//console() << cannon_fodder[i].direction << std::endl;
-		cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
-		cannon_fodder[i].lerp_time = 0;
-	}
-	spawn_unit_count = MAX_MOOKS;
+
 	//platform things
 	bottom_platform.center = Vector2( WIND_W/2 , 500 );
 	bottom_platform.height = 40;
@@ -127,6 +114,7 @@ void SamichIslandApp::setup(){
 	right_platform.height = 40;
 	right_platform.width = 300;
     right_platform.name = "RIGHT_PLATFORM";
+
 	//tower targets
     tower1.center = Vector2( 20, 50 );
     tower1.height = 70;
@@ -138,6 +126,7 @@ void SamichIslandApp::setup(){
     tower2.width = 30;
     tower2.initHealth(100);
     tower2.name = "TOWER_2";
+
     //tower guard
     towerguard1.center = Vector2(tower1.center.x + 30, tower1.center.y + 40);
     towerguard1.height = 20;
@@ -147,6 +136,7 @@ void SamichIslandApp::setup(){
     towerguard2.height = 20;
     towerguard2.width = 90;
     towerguard2.name = "TOWERGUARD2";
+
 	//tubes
 	tubeA.height = 100;
 	tubeA.width = 100;
@@ -233,17 +223,29 @@ void SamichIslandApp::setup(){
     hero_anim->addSprite(new Sprite(hero.name, Vector2(100, 104))); //add frames here
     dg->addAnimations(hero_anim);
     dg->updatePositions(hero_anim->getAnimName(), hero);
-    
+
     //mook
-    /*for(int i = 0; i < cannon_fodder.size(); ++i){
-		//Mook mook;
-		//mook.health = 100;
-		//mook.radius = 25;
-		//mook.center = portal.center;
-		//cannon_fodder.push_back(mook);
-        mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
-        mook_anim[i]->addSprite( new Sprite() );
-	}*/
+    for(int i = 0; i < 2; ++i){
+		Mook mook;
+        mook.id = i;
+        mook.exists = false;
+		mook.health = 100;
+		mook.radius = 25;
+		mook.center = portal.center;
+		cannon_fodder.push_back(mook);
+        // mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
+        // mook_anim[i]->addSprite( new Sprite() );
+        cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+        cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+        cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
+        cannon_fodder[i].lerp_time = 0;
+
+        float temp = ( -1+2*((float)rand())/RAND_MAX );
+        if(temp < 0) 
+            cannon_fodder[i].direction = -1;
+        else cannon_fodder[i].direction = 1;
+        console() << "mook_id=" << mook.id << std::endl;
+	}
 }
 
 void SamichIslandApp::keyDown( KeyEvent event ) {
@@ -376,10 +378,12 @@ void SamichIslandApp::update() {
 	//	 "onBtm=" << hero.on_btm_platform << " onLeft=" << hero.on_left_platform << " onRight=" << hero.on_right_platform << " onTop=" << hero.on_top_platform 
 	//	 << std::endl;
 	//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
-    string t = boost::lexical_cast<std::string>(curr_time);
-    string v = boost::lexical_cast<std::string>(game_time);
-    console() << "curr_time=" << t << std::endl;
-    console() << "game_time=" << v << std::endl;
+    // string t = boost::lexical_cast<std::string>(curr_time);
+    // string v = boost::lexical_cast<std::string>(game_time);
+    // console() << "curr_time=" << t << std::endl;
+    // console() << "game_time=" << v << std::endl;
+    j = (int)(game_time*10);
+    console() << "gemtim*10=" << j << std::endl;
 
     WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
 
@@ -577,15 +581,18 @@ void SamichIslandApp::update() {
 			
 //**=======================================EVERYTHING RELATED TO MOOK===========================================**//
 
-
-			for( int j = 0; j < MAX_MOOKS; ++j){
-				cannon_fodder[j].lerp_time += 1.0f;
-				if( cannon_fodder[j].lerp_time > 100 ) {
-					cannon_fodder[j].lerp_time = 0;
-					cannon_fodder[j].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
-					cannon_fodder[j].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
-				}
-			}
+            for(int i = 0; i < cannon_fodder.size(); ++i){
+                if(i == (int)(game_time*10))
+                    cannon_fodder[i].exists = true;
+                if(cannon_fodder[i].exists){
+                    cannon_fodder[i].lerp_time += 1.0f;
+                    if( cannon_fodder[i].lerp_time > 100 ) {
+                        cannon_fodder[i].lerp_time = 0;
+                        // cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+                        // cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+                    }    
+                }
+            }
 				
 //**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//
 
@@ -659,6 +666,8 @@ void SamichIslandApp::update() {
         break;
         case GAMEOVER: {
             //reset game time
+            prev_time = 0;
+            curr_time = 0;
             game_time = 0;
             //create the leaderboard
         }
@@ -704,9 +713,12 @@ void SamichIslandApp::draw() {
             
 			//draw mooks
 			for (i = 0; i < cannon_fodder.size(); ++i ) {
-				glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
-				Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
-				gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius ,  0 );
+                if(cannon_fodder[i].exists){
+                    glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
+                    Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
+                    gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius , 0 );
+                    //gl::drawSolidCircle(cannon_fodder[i].prev.toV() , cannon_fodder[i].radius , 0 );                    
+                }
 			}
 
 			//draw drops
@@ -760,7 +772,7 @@ void SamichIslandApp::draw() {
             // string hero_health = boost::lexical_cast<std::string>(hero.health);
 
             // string timer = boost::lexical_cast<std::string> (TIME_UP - game_time) ;
-            console() << "gemtim*10=" << (int)(game_time*10) << std::endl;
+            // console() << "gemtim*10=" << (int)(game_time*10) << std::endl;
             string timer = boost::lexical_cast<std::string> (TIME_UP*10 - (int)(game_time*10)) ;
 
             // gl::drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ).toV(), Color ( 0, 0, 0 ), Font("Helvetica", 16));

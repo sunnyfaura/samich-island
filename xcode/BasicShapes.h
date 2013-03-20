@@ -114,9 +114,11 @@ struct Bullet: Circle {
 
 struct Mook: Circle {
     Vector2 velocity;
+    int id;
 	int health;
 	int max_health;
     int attack;
+    bool exists;
     
     bool isAlive() { return (health > 0); }
     
