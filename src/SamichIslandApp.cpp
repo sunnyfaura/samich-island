@@ -346,15 +346,16 @@ void SamichIslandApp::mouseMove( MouseEvent event ) {
 }
 
 void SamichIslandApp::mouseDown( MouseEvent event ) {
-    // if(event.isLeft()){
-    //     sw
-    //     case GAMEOVER: 
-    //         appState.setNextState( MENU );
-    //     break;
-    //     case DEAD: 
-    //         appState.setNextState( MENU );
-    //     break;
-    // }
+    if(event.isLeft()){
+        switch(appState.getCurrentState()){
+	        case GAMEOVER: 
+	            appState.setNextState( MENU );
+	        break;
+	        case DEAD: 
+	            appState.setNextState( MENU );
+	        break;
+    	}
+    }
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event ) {
@@ -403,6 +404,7 @@ void SamichIslandApp::update() {
             prev_time = 0;
             curr_time = 0;
             game_time = 0;
+            hero.life = 5;
         break;
         case MENU: {
             //menu update
@@ -410,13 +412,12 @@ void SamichIslandApp::update() {
             prev_time = 0;
             curr_time = 0;
             game_time = 0;
+            hero.life = 5;
         }
         case PLAY: {
             prev_time = ci::app::getElapsedSeconds();
 
 //**=======================================EVERYTHING RELATED TO HERO============================================**//
-            if(hero.life == 0)
-                appState.setNextState(DEAD);
 
             //limit the hero to game boundaries
             if (hero.center.x - hero.velocity.x <= 0) {
@@ -598,7 +599,7 @@ void SamichIslandApp::update() {
                 if(i == (int)(game_time*10))
                     cannon_fodder[i].exists = true;
                 if(cannon_fodder[i].exists){
-                    cannon_fodder[i].lerp_time += 0.1f;
+                    cannon_fodder[i].lerp_time += 0.5f;
                     if( cannon_fodder[i].lerp_time > 100 ) {
                         cannon_fodder[i].lerp_time = 0;
                         //cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
@@ -667,6 +668,11 @@ void SamichIslandApp::update() {
 
             if(game_time >= TIME_UP)
                 appState.setNextState(GAMEOVER);
+            if(hero.life == 0){
+            	appState.setNextState(DEAD);
+            	console() << "DEAD" <<std::endl;
+            	game_time = 99999;
+            }
         }
         break;
         case BOSS: {
@@ -683,6 +689,7 @@ void SamichIslandApp::update() {
             prev_time = 0;
             curr_time = 0;
             game_time = 0;
+            hero.life = 5;
             //create the leaderboard
         }
         case DEAD: {
@@ -690,6 +697,7 @@ void SamichIslandApp::update() {
             prev_time = 0;
             curr_time = 0;
             game_time = 0;
+            hero.life = 5;
             //create the leaderboard
         }
         break; 
