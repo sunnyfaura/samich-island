@@ -13,6 +13,7 @@ float shoot_time, punch_time;
 float dash_time, dash_accel, dash_limit, punch_delay;
 
 int j = 0; //enemy count
+const int MAX_MOOK = 50;
 
 int dash_mana_cost;
 Vector2 mouse;
@@ -225,12 +226,12 @@ void SamichIslandApp::setup(){
     dg->updatePositions(hero_anim->getAnimName(), hero);
 
     //mook
-    for(int i = 0; i < 2; ++i){
+    for(int i = 0; i < MAX_MOOK; ++i){
 		Mook mook;
         mook.id = i;
         mook.exists = false;
 		mook.health = 100;
-		mook.radius = 25;
+		mook.radius = 30;
 		mook.center = portal.center;
 		cannon_fodder.push_back(mook);
         // mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
