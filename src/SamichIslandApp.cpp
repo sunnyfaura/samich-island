@@ -337,9 +337,6 @@ void SamichIslandApp::mouseMove( MouseEvent event ) {
 void SamichIslandApp::mouseDown( MouseEvent event ) {
     if (event.isLeft()) {
         switch(appState.getCurrentState()){
-            case INIT:
-                appState.setNextState( MENU );
-            break;
             case PLAY:
                 //leftClick = true;
             break;
@@ -390,7 +387,7 @@ void SamichIslandApp::update() {
     dg->updateBounds(getWindowBounds());
 	//state management updates
 	bool change = appState.commitState();
-    //if (change) count = 0;
+    if (change) count = 0;
     
     switch( appState.getCurrentState() ) {
         case INIT:
@@ -417,12 +414,13 @@ void SamichIslandApp::update() {
             }
             
             //punch
+            shoot_time = ci::app::getElapsedSeconds() * 1000;
 			if (hero.punching) {
 				int dir = -1;
 				if (punch.isRight) dir = 1;
-				if (punch_time == 0) punch_time = ci::app::getElapsedSeconds() * 1000;
+				if (punch_time == 0) punch_time = shoot_time;
 
-				float secs = (game_time-punch_time)/1000;
+				float secs = (shoot_time-punch_time)/1000;
 				if (secs >= 0.156) dir *= -1;
 				if (secs >= 0.313) {
 					hero.punching = false;
