@@ -13,7 +13,7 @@ float shoot_time, punch_time;
 float dash_time, dash_accel, dash_limit, punch_delay;
 
 int j = 0; //enemy count
-const int MAX_MOOK = 50;
+const int MAX_MOOK = 2;
 
 int dash_mana_cost;
 Vector2 mouse;
@@ -241,8 +241,8 @@ void SamichIslandApp::setup(){
            cannon_fodder[i].list.push_back(Vector2( (float)rand()/RAND_MAX * this->getWindowWidth() 
            , (float)rand()/RAND_MAX * this->getWindowHeight()) );
         }
-        // cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
-        // cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+        cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+        cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
         // cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
         cannon_fodder[i].lerp_time = 0;
 
@@ -575,16 +575,15 @@ void SamichIslandApp::update() {
                 if(cannon_fodder[i].exists){
                     cannon_fodder[i].lerp_time += 0.1f;
                     if( cannon_fodder[i].lerp_time > 100 ) {
-                        cannon_fodder[i].lerp_time = 0;
+                        // cannon_fodder[i].lerp_time = 0;
                         // cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
                         // cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+                        cannon_fodder[i].exists = false;
                     }
                 }
-                // console() << "hit="<<satCircleAABB(cannon_fodder[i], hero) << std::endl;
                 // if(satCircleAABB(cannon_fodder[i], hero)){
                 //     // cannon_fodder[i].exists = false;
                 //     yor_score += 100;
-                   
                 // }
             }
 				
@@ -713,9 +712,11 @@ void SamichIslandApp::draw() {
                 if(cannon_fodder[i].exists){
                     glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
                     // Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
-                    Vector2 temp =  generalLerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].list) ;
-                    gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius , 0 );
-                    //gl::drawSolidCircle(cannon_fodder[i].prev.toV() , cannon_fodder[i].radius , 0 );                    
+                    //Vector2 temp =  generalLerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].list) ;
+                    //gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius , 0 );
+                    gl::drawSolidCircle(cannon_fodder[i].prev.toV() , cannon_fodder[i].radius , 0 );
+                    // console() << "mook="<< i << "::hit=" << circleOnCircleDetection(cannon_fodder[i], punch) << std::endl;
+                    console() << "mook="<< i << "::hit=" << satCircleAABB(cannon_fodder[i], hero) << std::endl;
                 }
 			}
 
@@ -788,7 +789,7 @@ void SamichIslandApp::draw() {
         case GAMEOVER: {
             string your_score = boost::lexical_cast<std::string> (yor_score);
             string high_score = boost::lexical_cast<std::string> (hi_score);
-            gl::drawStringCentered( "times up!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36)); 
+            gl::drawStringCentered( "time's up!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36)); 
             gl::drawStringCentered( "your score: " + your_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 40) , Color (1,1,1), Font ("Helvetica", 24));    
             gl::drawStringCentered( "high score: " + high_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 60) , Color (1,1,1), Font ("Helvetica", 24));    
 
