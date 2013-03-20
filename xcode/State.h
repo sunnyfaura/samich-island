@@ -16,6 +16,10 @@ enum {
     
 class State {
 public:
+    int current;
+    int previous;
+    int next;
+
     State(){ current = -1; }
     ~State(){}
 
@@ -27,7 +31,6 @@ public:
             }
         }
     }
-    
     
     //return true if there has been a change in state
     bool commitState() {
@@ -51,11 +54,6 @@ public:
         return newState == INIT || 
             newState == PLAY || newState == GAMEOVER || newState == MENU;
     }
-
-private:
-    int current;
-    int previous;
-    int next;
 };
 
 #endif
