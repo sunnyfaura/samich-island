@@ -6,7 +6,7 @@ using namespace ci::app;
 using namespace std;
 
 float game_time;
-const int TIME_UP = 1;
+const int TIME_UP = 3;
 
 float shoot_time;
 float units_per_second = 5, mook_elapsed_seconds, creation_rate, spawn_unit_count;
@@ -63,7 +63,7 @@ void SamichIslandApp::setup(){
     hero.maximum_mana = 100;
 	hero.center = Vector2(WIND_W/2, WIND_H - hero.half_height());
 	hero.color = Colorf(1.0,1.0,1.0);
-	hero.velocity.x = 12.0;
+	hero.velocity.x = 8.0;
 	hero.velocity.y = 8.0;
 	hero.moving = hero.jumping = hero.dashing = hero.punching 
 	= hero.jumpKey = hero.leftKey = hero.rightKey = hero.dashKey
@@ -409,23 +409,12 @@ void SamichIslandApp::update() {
 //**=======================================EVERYTHING RELATED TO HERO============================================**//
             
             //limit the hero to game boundaries
-            /*if (hero.center.x - hero.half_width() <= 0 )
-            {
+            if (hero.center.x - hero.velocity.x <= 0) {
                 hero.center.x = hero.half_width();
             }
-            else if (hero.center.x + hero.half_width() >= WIND_W)
-            {
+            else if (hero.center.x + hero.velocity.x >= WIND_W ) {
                 hero.center.x = WIND_W - hero.half_width();
             }
-            
-            if (hero.center.y - hero.half_height() <= 0 )
-            {
-                hero.center.y = hero.half_height();
-            }
-            else if (hero.center.y + hero.half_height() >= WIND_H)
-            {
-                hero.center.y = WIND_H - hero.half_height();
-            }*/
             
             //punch
 			if (hero.punching) {
@@ -825,7 +814,7 @@ void SamichIslandApp::draw() {
             string timer = boost::lexical_cast<std::string> (TIME_UP*10 - (int)(game_time*10)) ;
 
             // gl::drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ).toV(), Color ( 0, 0, 0 ), Font("Helvetica", 16));
-            gl::drawString( "Seconds Left: " + timer , Vector2( 10, 2 ).toV(), Color ( 0, 0, 0 ), Font("Helvetica", 24));
+            gl::drawStringCentered( timer , Vec2f(portal.center.x+2, portal.center.y-35) , Color ( 0, 0, 0 ), Font("Arial Black", 48));
 
              dg->drawAnimation(hero_anim);
         }
