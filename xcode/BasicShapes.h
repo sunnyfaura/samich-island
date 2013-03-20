@@ -64,7 +64,7 @@ struct Tower : AABB {
 struct Hero: AABB {
     ci::Colorf color;
     Vector2 velocity;
-    int health;
+    int life;
 	int damage; //entity numbers and stats
     int maximum_mana;
     int mana; //mana
@@ -74,11 +74,11 @@ struct Hero: AABB {
 	bool on_btm_platform, on_left_platform, on_right_platform, on_top_platform; //any changes in player state
 	bool jumpKey, leftKey, rightKey, dashKey; //movement details
     
-    void recieveDamage( int dmg ) {
-        health -= dmg;
-    }
+    // void recieveDamage( int dmg ) {
+    //     health -= dmg;
+    // }
     
-    bool isAlive() { return (health > 0); }
+    // bool isAlive() { return (health > 0); }
     bool canRegenerate() { return mana <= maximum_mana; }
     bool manaNotEmpty() { return mana >= 0; }
     bool sufficientMana( int decrement ) { return mana >= decrement; }

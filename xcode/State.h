@@ -10,7 +10,8 @@ enum {
     MENU,
     PLAY,
     BOSS,
-    GAMEOVER
+    GAMEOVER,
+    DEAD
 };
 
     

@@ -7,13 +7,13 @@ using namespace std;
 
 float game_time;
 float curr_time, prev_time;
-const int TIME_UP = 3;
+const int TIME_UP = 2;
 
 float shoot_time, punch_time;
 float dash_time, dash_accel, dash_limit, punch_delay;
 
 int j = 0; //enemy count
-const int MAX_MOOK = 2;
+const int MAX_MOOK = 50;
 
 int dash_mana_cost;
 Vector2 mouse;
@@ -63,7 +63,7 @@ void SamichIslandApp::setup(){
     hero.name = "HERO";
     hero.width = 45;
     hero.height = 45;
-    hero.health = 100;
+    hero.life = 5;
     hero.mana = 100;
     hero.maximum_mana = 100;
 	hero.center = Vector2(WIND_W/2, WIND_H - hero.half_height());
@@ -346,6 +346,15 @@ void SamichIslandApp::mouseMove( MouseEvent event ) {
 }
 
 void SamichIslandApp::mouseDown( MouseEvent event ) {
+    // if(event.isLeft()){
+    //     sw
+    //     case GAMEOVER: 
+    //         appState.setNextState( MENU );
+    //     break;
+    //     case DEAD: 
+    //         appState.setNextState( MENU );
+    //     break;
+    // }
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event ) {
@@ -374,11 +383,11 @@ void SamichIslandApp::update() {
 	//	 "onBtm=" << hero.on_btm_platform << " onLeft=" << hero.on_left_platform << " onRight=" << hero.on_right_platform << " onTop=" << hero.on_top_platform 
 	//	 << std::endl;
 	//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
-    string t = boost::lexical_cast<std::string>(curr_time);
-    string v = boost::lexical_cast<std::string>(game_time);
-    console() << "curr_time=" << t << std::endl;
-    console() << "game_time=" << v << std::endl;
-    console() << "gemtim*10=" << j << std::endl;
+    // string t = boost::lexical_cast<std::string>(curr_time);
+    // string v = boost::lexical_cast<std::string>(game_time);
+    // console() << "curr_time=" << t << std::endl;
+    // console() << "game_time=" << v << std::endl;
+    // console() << "gemtim*10=" << j << std::endl;
 
     j = (int)(game_time*10);
 
@@ -406,7 +415,9 @@ void SamichIslandApp::update() {
             prev_time = ci::app::getElapsedSeconds();
 
 //**=======================================EVERYTHING RELATED TO HERO============================================**//
-            
+            if(hero.life == 0)
+                appState.setNextState(DEAD);
+
             //limit the hero to game boundaries
             if (hero.center.x - hero.velocity.x <= 0) {
                 hero.center.x = hero.half_width();
@@ -567,7 +578,21 @@ void SamichIslandApp::update() {
 			
 //**=======================================EVERYTHING RELATED TO MOOK===========================================**//
 
-            console() << "amIpunch=" << hero.punching << std::endl;
+            // console() << "amIpunch=" << hero.punching << std::endl;
+
+            for(int i = 0; i < cannon_fodder.size(); ++i) {
+                if(hero.punching){
+                    if (circleOnCircleDetection(punch, cannon_fodder[i])) {
+                        cannon_fodder[i].exists = false;
+                        yor_score += 100;
+                        console() << "KILL!" << std::endl;
+                    }
+                }
+                else{
+                    if(satCircleAABB(cannon_fodder[i], hero))
+                        hero.life--;
+                }
+            }
 
             for(int i = 0; i < cannon_fodder.size(); ++i){
                 if(i == (int)(game_time*10))
@@ -575,16 +600,12 @@ void SamichIslandApp::update() {
                 if(cannon_fodder[i].exists){
                     cannon_fodder[i].lerp_time += 0.1f;
                     if( cannon_fodder[i].lerp_time > 100 ) {
-                        // cannon_fodder[i].lerp_time = 0;
-                        // cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+                        cannon_fodder[i].lerp_time = 0;
+                        //cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
                         // cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
-                        cannon_fodder[i].exists = false;
+                        //cannon_fodder[i].exists = false;
                     }
                 }
-                // if(satCircleAABB(cannon_fodder[i], hero)){
-                //     // cannon_fodder[i].exists = false;
-                //     yor_score += 100;
-                // }
             }
 				
 //**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//
@@ -664,6 +685,13 @@ void SamichIslandApp::update() {
             game_time = 0;
             //create the leaderboard
         }
+        case DEAD: {
+            //reset game time
+            prev_time = 0;
+            curr_time = 0;
+            game_time = 0;
+            //create the leaderboard
+        }
         break; 
     }
     count++; //increment the time between states
@@ -712,11 +740,17 @@ void SamichIslandApp::draw() {
                 if(cannon_fodder[i].exists){
                     glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
                     // Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
-                    //Vector2 temp =  generalLerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].list) ;
-                    //gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius , 0 );
-                    gl::drawSolidCircle(cannon_fodder[i].prev.toV() , cannon_fodder[i].radius , 0 );
+                    Vector2 temp =  generalLerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].list) ;
+                    gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius , 0 );
+                    cannon_fodder[i].center = temp;
+                    //gl::drawSolidCircle(cannon_fodder[i].prev.toV() , cannon_fodder[i].radius , 0 );
                     // console() << "mook="<< i << "::hit=" << circleOnCircleDetection(cannon_fodder[i], punch) << std::endl;
-                    console() << "mook="<< i << "::hit=" << satCircleAABB(cannon_fodder[i], hero) << std::endl;
+                    // console() << "mook="<< i << "::hit=" << satCircleAABB(cannon_fodder[i], hero) << std::endl;
+                }
+                if(satCircleAABB(cannon_fodder[i], hero)) {
+                    glColor3f(1, 0, 0);
+                    gl::drawSolidCircle(hero.center.toV(), hero.half_width(), 0);
+                    hero.center = Vector2(WIND_W/2, WIND_H - hero.half_height());
                 }
 			}
 
@@ -790,6 +824,18 @@ void SamichIslandApp::draw() {
             string your_score = boost::lexical_cast<std::string> (yor_score);
             string high_score = boost::lexical_cast<std::string> (hi_score);
             gl::drawStringCentered( "time's up!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36)); 
+            gl::drawStringCentered( "your score: " + your_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 40) , Color (1,1,1), Font ("Helvetica", 24));    
+            gl::drawStringCentered( "high score: " + high_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 60) , Color (1,1,1), Font ("Helvetica", 24));    
+
+            for(int i = 0; i < cannon_fodder.size(); ++i){
+                cannon_fodder[i].exists = false;
+            }
+        }
+        break;
+        case DEAD: {
+            string your_score = boost::lexical_cast<std::string> (yor_score);
+            string high_score = boost::lexical_cast<std::string> (hi_score);
+            gl::drawStringCentered( "you're dead", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36)); 
             gl::drawStringCentered( "your score: " + your_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 40) , Color (1,1,1), Font ("Helvetica", 24));    
             gl::drawStringCentered( "high score: " + high_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 60) , Color (1,1,1), Font ("Helvetica", 24));    
 
