@@ -443,7 +443,7 @@ void SamichIslandApp::update() {
                     punch.center.y = hero.center.y;
 					punch_time = 0;
 				} else {
-                    punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+                    punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2) + 0.5;
                     punch.center.y = hero.center.y;
                 }
 			} else punch.center = hero.center;
@@ -686,18 +686,24 @@ void SamichIslandApp::update() {
         break;
         case GAMEOVER: {
             //reset game time
+            cannon_fodder.clear();
             prev_time = 0;
             curr_time = 0;
             game_time = 0;
             hero.life = 5;
+            setup();
+            //setup();
             //create the leaderboard
         }
         case DEAD: {
+            //setup();
             //reset game time
+            cannon_fodder.clear();
             prev_time = 0;
             curr_time = 0;
             game_time = 0;
             hero.life = 5;
+            setup();
             //create the leaderboard
         }
         break; 

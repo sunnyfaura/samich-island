@@ -34,6 +34,7 @@ class Animation {
     Sprite* currentSprite; //currentFrame rendering in the window
     vector<Sprite*> sprites; //frames for sprite
     AABB positionRect; //position in the main window not on the spritesheet
+    float totalTime;
     
     public:
     // constructor : use optional
@@ -52,14 +53,23 @@ class Animation {
         currentSprite = sprites.back();
     }
     
-    void setCurrentSprite( string name )
+    void update( float dt )
+    {
+        totalTime += dt;
+    }
+    
+    void setCurrentSprite( string name , float dt)
     {
         //checks if there will be not change in frames
+        update ( dt );
         
         if (sprites.empty())
             return ;
         
-        currentSprite = findSprite(name);
+        if (totalTime / changeFrameRate == 0)
+        {
+            currentSprite = findSprite(name);
+        }
     }
     
     bool spriteExists( string name )
