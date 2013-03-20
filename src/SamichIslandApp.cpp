@@ -23,6 +23,7 @@ void SamichIslandApp::prepareSettings( Settings *settings ) {
 	settings->setFrameRate( 60.0f );
 	settings->setWindowPos(10,10);
 	settings->setResizable( false );
+    settings->setTitle("this mook thing");
 }
 
 void SamichIslandApp::resize(ResizeEvent event) {
@@ -258,6 +259,9 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		case INIT: 
 			appState.setNextState( MENU );
 		break;
+        case GAMEOVER: 
+            appState.setNextState( MENU );
+        break;
 		case PLAY:
 			int code = event.getCode();
 			if (event.isShiftDown() == true)
@@ -342,19 +346,6 @@ void SamichIslandApp::mouseMove( MouseEvent event ) {
 }
 
 void SamichIslandApp::mouseDown( MouseEvent event ) {
-    if (event.isLeft()) {
-        switch(appState.getCurrentState()){
-            case PLAY:
-                //leftClick = true;
-            break;
-            case GAMEOVER:
-                appState.setNextState( INIT );
-            break;
-            default:
-                //leftClick = false;
-            break;
-        }
-    }
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event ) {
@@ -383,14 +374,13 @@ void SamichIslandApp::update() {
 	//	 "onBtm=" << hero.on_btm_platform << " onLeft=" << hero.on_left_platform << " onRight=" << hero.on_right_platform << " onTop=" << hero.on_top_platform 
 	//	 << std::endl;
 	//console() << "ifDashing: " << hero.dashing << endl << "DashPressed: " << hero.dashKey << endl;
-    // string t = boost::lexical_cast<std::string>(curr_time);
-    // string v = boost::lexical_cast<std::string>(game_time);
-    // console() << "curr_time=" << t << std::endl;
-    // console() << "game_time=" << v << std::endl;
-    j = (int)(game_time*10);
+    string t = boost::lexical_cast<std::string>(curr_time);
+    string v = boost::lexical_cast<std::string>(game_time);
+    console() << "curr_time=" << t << std::endl;
+    console() << "game_time=" << v << std::endl;
     console() << "gemtim*10=" << j << std::endl;
 
-    WIND_H = this->getWindowHeight(); WIND_W = this->getWindowWidth();
+    j = (int)(game_time*10);
 
     //draw engine updates
     dg->updateBounds(getWindowBounds());
@@ -401,6 +391,9 @@ void SamichIslandApp::update() {
     switch( appState.getCurrentState() ) {
         case INIT:
 			//bluh
+            prev_time = 0;
+            curr_time = 0;
+            game_time = 0;
         break;
         case MENU: {
             //menu update
@@ -456,9 +449,7 @@ void SamichIslandApp::update() {
 				&& hero.on_right_platform == false && hero.on_top_platform == false) {
 				if ( (hero.center.y - hero.velocity.y) <= WIND_H ) {
 					hero.center.y -= hero.velocity.y;
-					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					// punch.center.y -= 1;
 				} else {
 					hero.jumping = false;
                     hero.center.y = WIND_H - hero.half_height(); //APPLEGUST
@@ -469,9 +460,7 @@ void SamichIslandApp::update() {
 			if( hero.jumping == true && hero.on_btm_platform == true) {
 				if( (hero.center.y - hero.velocity.y) <= bottom_platform.center.y - bottom_platform.half_height()) {
 					hero.center.y -= hero.velocity.y;
-					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					// punch.center.y -= 1;
 				} else
                     hero.jumping = false;
                 
@@ -479,25 +468,19 @@ void SamichIslandApp::update() {
 			if( hero.jumping == true && hero.on_left_platform == true) {
 				if ( (hero.center.y - hero.velocity.y) <= left_platform.center.y - left_platform.half_height() ) {
 					hero.center.y -= hero.velocity.y;
-					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					// punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_right_platform == true) {
 				if( (hero.center.y - hero.velocity.y) <= right_platform.center.y - right_platform.half_height()) {
 					hero.center.y -= hero.velocity.y;
-					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					// punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_top_platform == true) {
 				if ( (hero.center.y - hero.velocity.y) <= top_platform.center.y - top_platform.half_height() ) {
 					hero.center.y -= hero.velocity.y;
-					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					// punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 
@@ -506,9 +489,7 @@ void SamichIslandApp::update() {
 				&& hero.needsGravity == true ) {
 				if ( (hero.center.y - hero.velocity.y) <= WIND_H  ) {
 					hero.center.y -= hero.velocity.y;
-					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					// punch.center.y -= 1;
 				} else {
 					hero.needsGravity = false;
                     hero.center.y = WIND_H - hero.half_height();
@@ -586,17 +567,25 @@ void SamichIslandApp::update() {
 			
 //**=======================================EVERYTHING RELATED TO MOOK===========================================**//
 
+            console() << "amIpunch=" << hero.punching << std::endl;
+
             for(int i = 0; i < cannon_fodder.size(); ++i){
                 if(i == (int)(game_time*10))
                     cannon_fodder[i].exists = true;
                 if(cannon_fodder[i].exists){
-                    cannon_fodder[i].lerp_time += 1.0f;
+                    cannon_fodder[i].lerp_time += 0.1f;
                     if( cannon_fodder[i].lerp_time > 100 ) {
                         cannon_fodder[i].lerp_time = 0;
                         // cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
                         // cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
-                    }    
+                    }
                 }
+                // console() << "hit="<<satCircleAABB(cannon_fodder[i], hero) << std::endl;
+                // if(satCircleAABB(cannon_fodder[i], hero)){
+                //     // cannon_fodder[i].exists = false;
+                //     yor_score += 100;
+                   
+                // }
             }
 				
 //**==================================EVERYTHING NOT RELATED TO HERO OR MOOK===================================**//
@@ -650,7 +639,7 @@ void SamichIslandApp::update() {
             curr_time = (ci::app::getElapsedSeconds()) - prev_time;
 
                 if(curr_time > 0.016f)
-                    curr_time = 60.0f;
+                    curr_time = 0.016f;
                 if(curr_time < 0.001f)
                     curr_time = 0.001f;
             
@@ -696,11 +685,14 @@ void SamichIslandApp::draw() {
 			string c = boost::lexical_cast<std::string>(count);
 			//string t = boost::lexical_cast<std::string>(timeout);    
 			//gl::drawString( c + "/" + t, Vec2i( 10, 10 ), Color( 1, 1, 1 ), Font( "Helvetica", 16 ) );
-			gl::drawStringCentered( "this mook tower\n", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36));
+			gl::drawStringCentered( "this mook thing\n", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36));
 			gl::drawStringCentered( c + " PRESS ANY KEY TO CONTINUE" + c, getWindowCenter(), Color (1,1,1), Font ("Helvetica", 12));
 		break; }
         case MENU: {
             menuGUI->draw();
+            string c = boost::lexical_cast<std::string>(count);
+            gl::drawStringCentered( "this mook thing\n", Vec2f(getWindowWidth()/2, (getWindowHeight()/2)) , Color (1,1,1), Font ("Helvetica", 48));
+            gl::drawStringCentered( c + "=========================================================="+ c, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 20), Color (1,1,1), Font ("Helvetica", 12));
         break; }
         case PLAY: {
 			int i = 0;
