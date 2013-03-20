@@ -259,7 +259,7 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 				case KeyEvent::KEY_SPACE:
 					if (!hero.punching){
 						hero.punching = true;
-						punch_time = game_time;
+						punch_time = shoot_time;
 					}
 				break;
 				case KeyEvent::KEY_a:
@@ -420,14 +420,18 @@ void SamichIslandApp::update() {
 				if (punch.isRight) dir = 1;
 				if (punch_time == 0) punch_time = shoot_time;
 
-				float secs = (shoot_time-punch_time)/1000;
+				float secs = (shoot_time - punch_time)/1000;
 				if (secs >= 0.156) dir *= -1;
 				if (secs >= 0.313) {
 					hero.punching = false;
 					punch.center = hero.center;
 					punch.center.x += -1*dir*hero.half_width();
+                    punch.center.y = hero.center.y;
 					punch_time = 0;
-				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+				} else {
+                    punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
+                    punch.center.y = hero.center.y;
+                }
 			} else punch.center = hero.center;
 				
 			//hero jumping
@@ -443,9 +447,9 @@ void SamichIslandApp::update() {
 				&& hero.on_right_platform == false && hero.on_top_platform == false) {
 				if ( (hero.center.y - hero.velocity.y) <= WIND_H ) {
 					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
+					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					punch.center.y -= 1;
+					// punch.center.y -= 1;
 				} else {
 					hero.jumping = false;
                     hero.center.y = WIND_H - hero.half_height(); //APPLEGUST
@@ -456,9 +460,9 @@ void SamichIslandApp::update() {
 			if( hero.jumping == true && hero.on_btm_platform == true) {
 				if( (hero.center.y - hero.velocity.y) <= bottom_platform.center.y - bottom_platform.half_height()) {
 					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
+					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					punch.center.y -= 1;
+					// punch.center.y -= 1;
 				} else
                     hero.jumping = false;
                 
@@ -466,25 +470,25 @@ void SamichIslandApp::update() {
 			if( hero.jumping == true && hero.on_left_platform == true) {
 				if ( (hero.center.y - hero.velocity.y) <= left_platform.center.y - left_platform.half_height() ) {
 					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
+					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					punch.center.y -= 1;
+					// punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_right_platform == true) {
 				if( (hero.center.y - hero.velocity.y) <= right_platform.center.y - right_platform.half_height()) {
 					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
+					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					punch.center.y -= 1;
+					// punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 			if( hero.jumping == true && hero.on_top_platform == true) {
 				if ( (hero.center.y - hero.velocity.y) <= top_platform.center.y - top_platform.half_height() ) {
 					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
+					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					punch.center.y -= 1;
+					// punch.center.y -= 1;
 				} else hero.jumping = false;
 			}
 
@@ -493,9 +497,9 @@ void SamichIslandApp::update() {
 				&& hero.needsGravity == true ) {
 				if ( (hero.center.y - hero.velocity.y) <= WIND_H  ) {
 					hero.center.y -= hero.velocity.y;
-					punch.center.y -= hero.velocity.y;
+					// punch.center.y -= hero.velocity.y;
 					hero.velocity.y -= 1;
-					punch.center.y -= 1;
+					// punch.center.y -= 1;
 				} else {
 					hero.needsGravity = false;
                     hero.center.y = WIND_H - hero.half_height();
@@ -688,12 +692,6 @@ void SamichIslandApp::draw() {
 			int i = 0;
             //draw background here
             dg->drawBackground();
-            
-			//draw punch
-			if (hero.punching){
-				glColor3f(0, 0, 1);
-				gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
-			}
 
 			//glColor3f(hero.color.r, hero.color.g, hero.color.b);
             //gl::drawSolidRect(createRectangle(hero));
@@ -731,10 +729,10 @@ void SamichIslandApp::draw() {
             
             
 			//draw bullets
-			for(; i < dakka.size(); ++i) {
-				glColor3f(1, 0, 0);
-				gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
-			}
+			// for(; i < dakka.size(); ++i) {
+			// 	glColor3f(1, 0, 0);
+			// 	gl::drawSolidCircle(dakka[i].center.toV(), dakka[i].radius, 0 );
+			// }
 
 			//tubes
 			glColor3f(1,1,0);
@@ -768,7 +766,12 @@ void SamichIslandApp::draw() {
             // gl::drawString( hero_mana + " of " + hero_maxmana + " mana.", Vector2( 10, 20 ).toV(), Color ( 0, 0, 0 ), Font("Helvetica", 16));
             gl::drawStringCentered( timer , Vec2f(portal.center.x+2, portal.center.y-35) , Color ( 0, 0, 0 ), Font("Arial Black", 48));
 
-             dg->drawAnimation(hero_anim);
+            //draw punch
+            if (hero.punching){
+                glColor3f(0, 0, 1);
+                gl::drawSolidCircle(punch.center.toV(), punch.radius, 0 );
+            }
+            dg->drawAnimation(hero_anim);
         }
         break;
         case BOSS: {} break;
