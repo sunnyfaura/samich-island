@@ -432,52 +432,6 @@ void SamichIslandApp::update() {
 				} else punch.center.x += dir*((((9*secs)-1.4)*((9*secs)-1.4))+2);
 			} else punch.center = hero.center;
 				
-            //hero tube collisions
-            /*if (satAABB(hero, tubeA)) {
-                //if hero is above tube
-                if (hero.center.y <= tubeA.center.y - tubeA.half_height()) {
-                    hero.center.y = tubeA.center.y - tubeA.half_height() - hero.half_height();
-                    hero.velocity.y = 0;
-                }
-                //if hero is below tube
-                else if (hero.center.y >= tubeA.center.y + tubeA.half_height()) {
-                    hero.center.y = tubeA.center.y + tubeA.half_height() + hero.half_height();
-                    hero.velocity.y = 0;
-                }
-                //if hero is left of tube
-                if (hero.center.x <= tubeA.center.x - tubeA.half_height() ) {
-                    hero.center.x = tubeA.center.x - tubeA.half_height() - hero.half_width();
-                    hero.velocity.x = 0;
-                }
-                //if hero is right of tube
-                else if (hero.center.x >= tubeA.center.x + tubeA.half_height() ) {
-                    hero.center.x = tubeA.center.x + tubeA.half_height() + hero.half_width();
-                    hero.velocity.x = 0;
-                }
-            }
-            else if (satAABB(hero, tubeB)) {
-                //if hero is above tube
-                if (hero.center.y <= tubeB.center.y - tubeB.half_height()) {
-                    hero.center.y = tubeB.center.y - tubeB.half_height() - hero.half_height();
-                    hero.velocity.y = 0;
-                }
-                //if hero is below tube
-                else if (hero.center.y >= tubeB.center.y + tubeB.half_height()) {
-                    hero.center.y = tubeB.center.y + tubeB.half_height() + hero.half_height();
-                    hero.velocity.y = 0;
-                }
-                //if hero is left of tube
-                if (hero.center.x <= tubeB.center.x - tubeB.half_width() ) {
-                    hero.center.x = tubeB.center.x - tubeB.half_width() - hero.half_width();
-                    hero.velocity.x = 0;
-                }
-                //if hero is right of tube
-                else if (hero.center.x >= tubeB.center.x + tubeB.half_width() ) {
-                    hero.center.x = tubeB.center.x + tubeB.half_width() + hero.half_width();
-                    hero.velocity.x = 0;
-                }
-            }*/
-            
 			//hero jumping
 			if( (hero.jumping == false && hero.jumpKey == true) ) {
 				hero.velocity.y = JUMP_H;
