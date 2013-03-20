@@ -119,6 +119,7 @@ struct Mook: Circle {
 	int max_health;
     int attack;
     bool exists;
+    vector<Vector2> list;
     
     bool isAlive() { return (health > 0); }
     
@@ -196,6 +197,51 @@ Vector2 lerp( float t, const Vector2& prev, const Vector2& next ) { //rhs thing
 
 float func(float x) { //ease out function
 	return ( sin( PIE * x / 4 ) + 1 ) / 2;
+}
+
+struct Int {
+    int dist;
+};
+
+struct Float {
+    float dist;
+};
+
+Vector2 generalLerp( float t, vector<Vector2> arr ){
+    int i = 1;
+    float total = 0;
+    vector<Int> dists;
+    for(; i < arr.size(); ++i){
+        float sq_dist = ( ( arr[i-1].x - arr[i].x )*( arr[i-1].x - arr[i].x ) ) + ( ( arr[i-1].y - arr[i].y ) * ( arr[i-1].y - arr[i].y ) );
+        Int temp;
+        temp.dist = sqrt(sq_dist);
+        total += temp.dist;
+        //dists.push_back(temp);
+        //console() << dist <<std::endl;
+    }
+    
+    //float curr = 0;
+    //float start = 0, end;
+    vector<Float> ranges;
+    Float bleh;
+    bleh.dist = 0;
+    ranges.push_back(bleh);
+    for(i = 1; i < arr.size(); ++i){
+        float sq_dist = ( ( arr[i-1].x - arr[i].x )*( arr[i-1].x - arr[i].x ) ) + ( ( arr[i-1].y - arr[i].y ) * ( arr[i-1].y - arr[i].y ) );
+        Int temp;
+        temp.dist = sqrt(sq_dist);
+        Float bluh;
+        bluh.dist = temp.dist/total + ranges.back().dist;
+        ranges.push_back( bluh );
+    }
+
+    for(i = 1; i < arr.size(); ++i){
+        if(t <= ranges[i].dist){
+            return lerp( (t- ranges[i-1].dist) / (ranges[i].dist - ranges[i-1].dist), arr[i-1], arr[i] );
+        }
+    }
+
+    return arr.back();
 }
 
 #endif

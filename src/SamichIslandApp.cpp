@@ -236,9 +236,13 @@ void SamichIslandApp::setup(){
 		cannon_fodder.push_back(mook);
         // mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
         // mook_anim[i]->addSprite( new Sprite() );
-        cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
-        cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
-        cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
+        for(int j = 0; j < 3; ++j){
+           cannon_fodder[i].list.push_back(Vector2( (float)rand()/RAND_MAX * this->getWindowWidth() 
+           , (float)rand()/RAND_MAX * this->getWindowHeight()) );
+        }
+        // cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+        // cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+        // cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
         cannon_fodder[i].lerp_time = 0;
 
         float temp = ( -1+2*((float)rand())/RAND_MAX );
@@ -716,7 +720,8 @@ void SamichIslandApp::draw() {
 			for (i = 0; i < cannon_fodder.size(); ++i ) {
                 if(cannon_fodder[i].exists){
                     glColor3f(cannon_fodder[i].color.r,cannon_fodder[i].color.g,cannon_fodder[i].color.b);
-                    Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
+                    // Vector2 temp =  lerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].prev , cannon_fodder[i].next ) ;
+                    Vector2 temp =  generalLerp( cannon_fodder[i].lerp_time/100 , cannon_fodder[i].list) ;
                     gl::drawSolidCircle( temp.toV(), cannon_fodder[i].radius , 0 );
                     //gl::drawSolidCircle(cannon_fodder[i].prev.toV() , cannon_fodder[i].radius , 0 );                    
                 }
@@ -794,6 +799,10 @@ void SamichIslandApp::draw() {
             gl::drawStringCentered( "times up!", getWindowCenter(), Color (1,1,1), Font ("Helvetica", 36)); 
             gl::drawStringCentered( "your score: " + your_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 40) , Color (1,1,1), Font ("Helvetica", 24));    
             gl::drawStringCentered( "high score: " + high_score, Vec2f(getWindowWidth()/2, (getWindowHeight()/2) + 60) , Color (1,1,1), Font ("Helvetica", 24));    
+
+            for(int i = 0; i < cannon_fodder.size(); ++i){
+                cannon_fodder[i].exists = false;
+            }
         }
         break;
 	}
