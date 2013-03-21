@@ -259,8 +259,14 @@ void SamichIslandApp::keyDown( KeyEvent event ) {
 		case INIT: 
 			appState.setNextState( MENU );
 		break;
-        case GAMEOVER: 
-            appState.setNextState( MENU );
+        case GAMEOVER:{
+        	int code = event.getCode();
+		
+			switch (code) {
+			case KeyEvent::KEY_RETURN:
+            		appState.setNextState( MENU );
+        	}
+		}
         break;
 		case PLAY:
 			int code = event.getCode();
@@ -346,16 +352,16 @@ void SamichIslandApp::mouseMove( MouseEvent event ) {
 }
 
 void SamichIslandApp::mouseDown( MouseEvent event ) {
-    if(event.isLeft()){
-        switch(appState.getCurrentState()){
-	        case GAMEOVER: 
-	            appState.setNextState( MENU );
-	        break;
-	        case DEAD: 
-	            appState.setNextState( MENU );
-	        break;
-    	}
-    }
+    // if(event.isLeft()){
+    //     switch(appState.getCurrentState()){
+	   //      case GAMEOVER: 
+	   //          appState.setNextState( MENU );
+	   //      break;
+	   //      case DEAD: 
+	   //          appState.setNextState( MENU );
+	   //      break;
+    // 	}
+    // }
 }
 
 void SamichIslandApp::mouseUp( MouseEvent event ) {
@@ -366,14 +372,19 @@ void SamichIslandApp::guiEvent(ciUIEvent *event) {
     string name=event->widget->getName();
     switch(appState.getCurrentState())
     {
-        case MENU: {
+        case MENU:
             if (name == "PLAY") {
                 appState.setNextState(PLAY);
             }
             else if (name == "EXIT") {
                 quit();
             }
-        break;}
+        break;
+        // case GAMEOVER : 
+        // 	if(name == "MENU"){
+        // 		appState.setNextState(MENU);	
+        // 	}
+        // break;
         default:
         break;
     }
@@ -589,10 +600,10 @@ void SamichIslandApp::update() {
                         console() << "KILL!" << std::endl;
                     }
                 }
-                else{
-                    if(satCircleAABB(cannon_fodder[i], hero))
-                        hero.life--;
-                }
+                // else{
+                //     if(satCircleAABB(cannon_fodder[i], hero))
+                //         hero.life--;
+                // }
             }
 
             for(int i = 0; i < cannon_fodder.size(); ++i){
@@ -668,11 +679,11 @@ void SamichIslandApp::update() {
 
             if(game_time >= TIME_UP)
                 appState.setNextState(GAMEOVER);
-            if(hero.life == 0){
-            	appState.setNextState(DEAD);
-            	console() << "DEAD" <<std::endl;
-            	game_time = 99999;
-            }
+            // if(hero.life == 0){
+            // 	appState.setNextState(DEAD);
+            // 	console() << "DEAD" <<std::endl;
+            // 	game_time = 99999;
+            // }
         }
         break;
         case BOSS: {
@@ -691,8 +702,31 @@ void SamichIslandApp::update() {
             curr_time = 0;
             game_time = 0;
             hero.life = 5;
-            setup();
-            //setup();
+	        for(int i = 0; i < MAX_MOOK; ++i){
+				Mook mook;
+		        mook.id = i;
+		        mook.exists = false;
+				mook.health = 100;
+				mook.radius = 30;
+				mook.center = portal.center;
+				cannon_fodder.push_back(mook);
+		        // mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
+		        // mook_anim[i]->addSprite( new Sprite() );
+		        for(int j = 0; j < 3; ++j){
+		           cannon_fodder[i].list.push_back(Vector2( (float)rand()/RAND_MAX * this->getWindowWidth() 
+		           , (float)rand()/RAND_MAX * this->getWindowHeight()) );
+		        }
+		        cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+		        cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+		        // cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
+		        cannon_fodder[i].lerp_time = 0;
+
+		        float temp = ( -1+2*((float)rand())/RAND_MAX );
+		        if(temp < 0) 
+		            cannon_fodder[i].direction = -1;
+		        else cannon_fodder[i].direction = 1;
+		        console() << "mook_id=" << mook.id << std::endl;
+			}           
             //create the leaderboard
         }
         case DEAD: {
@@ -703,7 +737,31 @@ void SamichIslandApp::update() {
             curr_time = 0;
             game_time = 0;
             hero.life = 5;
-            setup();
+            for(int i = 0; i < MAX_MOOK; ++i){
+				Mook mook;
+		        mook.id = i;
+		        mook.exists = false;
+				mook.health = 100;
+				mook.radius = 30;
+				mook.center = portal.center;
+				cannon_fodder.push_back(mook);
+		        // mook_anim[i] = new Animation(cannon_fodder[i].name + i, 45, 45, 10 );
+		        // mook_anim[i]->addSprite( new Sprite() );
+		        for(int j = 0; j < 3; ++j){
+		           cannon_fodder[i].list.push_back(Vector2( (float)rand()/RAND_MAX * this->getWindowWidth() 
+		           , (float)rand()/RAND_MAX * this->getWindowHeight()) );
+		        }
+		        cannon_fodder[i].prev.x = (float)rand()/RAND_MAX * this->getWindowWidth();
+		        cannon_fodder[i].prev.y = (float)rand()/RAND_MAX * this->getWindowHeight();
+		        // cannon_fodder[i].next = Vector2( this->getWindowWidth()/2 , this->getWindowHeight() );
+		        cannon_fodder[i].lerp_time = 0;
+
+		        float temp = ( -1+2*((float)rand())/RAND_MAX );
+		        if(temp < 0) 
+		            cannon_fodder[i].direction = -1;
+		        else cannon_fodder[i].direction = 1;
+		        console() << "mook_id=" << mook.id << std::endl;
+			}           
             //create the leaderboard
         }
         break; 
@@ -761,7 +819,7 @@ void SamichIslandApp::draw() {
                     // console() << "mook="<< i << "::hit=" << circleOnCircleDetection(cannon_fodder[i], punch) << std::endl;
                     // console() << "mook="<< i << "::hit=" << satCircleAABB(cannon_fodder[i], hero) << std::endl;
                 }
-                if(satCircleAABB(cannon_fodder[i], hero)) {
+                if(!hero.punching && satCircleAABB(cannon_fodder[i], hero) && cannon_fodder[i].exists) {
                     glColor3f(1, 0, 0);
                     gl::drawSolidCircle(hero.center.toV(), hero.half_width(), 0);
                     hero.center = Vector2(WIND_W/2, WIND_H - hero.half_height());
@@ -785,7 +843,6 @@ void SamichIslandApp::draw() {
             dg->drawAnimation(top_platform_anim);
             dg->drawAnimation(right_platform_anim);
             dg->drawAnimation(left_platform_anim);
-            
             
 			//draw bullets
 			// for(; i < dakka.size(); ++i) {
